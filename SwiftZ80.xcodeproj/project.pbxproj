@@ -1,0 +1,299 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		ED6B38021D43A4AE00D24DA7 /* OpcodeTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B38011D43A4AE00D24DA7 /* OpcodeTables.swift */; };
+		ED6B38041D43D81A00D24DA7 /* SwiftZ80Registers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B38031D43D81A00D24DA7 /* SwiftZ80Registers.swift */; };
+		EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */; };
+		EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */; };
+		EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F0811D412C7A0026C2D2 /* MainMenu.xib */; };
+		EDC1F08C1D412CB10026C2D2 /* SwiftZ80.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F08B1D412CB10026C2D2 /* SwiftZ80.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		ED6B38011D43A4AE00D24DA7 /* OpcodeTables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpcodeTables.swift; sourceTree = "<group>"; };
+		ED6B38031D43D81A00D24DA7 /* SwiftZ80Registers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80Registers.swift; sourceTree = "<group>"; };
+		EDC1F07A1D412C7A0026C2D2 /* SwiftZ80.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftZ80.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EDC1F0821D412C7A0026C2D2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		EDC1F0841D412C7A0026C2D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EDC1F08B1D412CB10026C2D2 /* SwiftZ80.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EDC1F0771D412C7A0026C2D2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EDC1F0711D412C7A0026C2D2 = {
+			isa = PBXGroup;
+			children = (
+				EDC1F07C1D412C7A0026C2D2 /* SwiftZ80 */,
+				EDC1F07B1D412C7A0026C2D2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EDC1F07B1D412C7A0026C2D2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EDC1F07A1D412C7A0026C2D2 /* SwiftZ80.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EDC1F07C1D412C7A0026C2D2 /* SwiftZ80 */ = {
+			isa = PBXGroup;
+			children = (
+				EDC1F08A1D412C8F0026C2D2 /* Core */,
+				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
+				EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */,
+				EDC1F0811D412C7A0026C2D2 /* MainMenu.xib */,
+				EDC1F0841D412C7A0026C2D2 /* Info.plist */,
+			);
+			path = SwiftZ80;
+			sourceTree = "<group>";
+		};
+		EDC1F08A1D412C8F0026C2D2 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				EDC1F08B1D412CB10026C2D2 /* SwiftZ80.swift */,
+				ED6B38011D43A4AE00D24DA7 /* OpcodeTables.swift */,
+				ED6B38031D43D81A00D24DA7 /* SwiftZ80Registers.swift */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EDC1F0791D412C7A0026C2D2 /* SwiftZ80 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EDC1F0871D412C7A0026C2D2 /* Build configuration list for PBXNativeTarget "SwiftZ80" */;
+			buildPhases = (
+				EDC1F0761D412C7A0026C2D2 /* Sources */,
+				EDC1F0771D412C7A0026C2D2 /* Frameworks */,
+				EDC1F0781D412C7A0026C2D2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SwiftZ80;
+			productName = SwiftZ80;
+			productReference = EDC1F07A1D412C7A0026C2D2 /* SwiftZ80.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EDC1F0721D412C7A0026C2D2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "71Squared Ltd";
+				TargetAttributes = {
+					EDC1F0791D412C7A0026C2D2 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = EDC1F0751D412C7A0026C2D2 /* Build configuration list for PBXProject "SwiftZ80" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EDC1F0711D412C7A0026C2D2;
+			productRefGroup = EDC1F07B1D412C7A0026C2D2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EDC1F0791D412C7A0026C2D2 /* SwiftZ80 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EDC1F0781D412C7A0026C2D2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */,
+				EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EDC1F0761D412C7A0026C2D2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ED6B38021D43A4AE00D24DA7 /* OpcodeTables.swift in Sources */,
+				ED6B38041D43D81A00D24DA7 /* SwiftZ80Registers.swift in Sources */,
+				EDC1F08C1D412CB10026C2D2 /* SwiftZ80.swift in Sources */,
+				EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		EDC1F0811D412C7A0026C2D2 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EDC1F0821D412C7A0026C2D2 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		EDC1F0851D412C7A0026C2D2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		EDC1F0861D412C7A0026C2D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		EDC1F0881D412C7A0026C2D2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SwiftZ80/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.71squared.SwiftZ80;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EDC1F0891D412C7A0026C2D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = SwiftZ80/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.71squared.SwiftZ80;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EDC1F0751D412C7A0026C2D2 /* Build configuration list for PBXProject "SwiftZ80" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDC1F0851D412C7A0026C2D2 /* Debug */,
+				EDC1F0861D412C7A0026C2D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EDC1F0871D412C7A0026C2D2 /* Build configuration list for PBXNativeTarget "SwiftZ80" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDC1F0881D412C7A0026C2D2 /* Debug */,
+				EDC1F0891D412C7A0026C2D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EDC1F0721D412C7A0026C2D2 /* Project object */;
+}
