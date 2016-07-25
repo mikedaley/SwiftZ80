@@ -28,12 +28,16 @@ extension Array {
 class AppDelegate: NSObject, NSApplicationDelegate {
 
 	@IBOutlet weak var window: NSWindow!
-	
+    @IBOutlet weak var memoryViewController: MemoryViewController!
+    
 	// Main memory array
 	var memory = [Byte](count: 65536, repeatedValue: 0x00)
 
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
 		// Insert code here to initialize your application
+        
+        window.contentView = memoryViewController.view
+        memoryViewController.view.wantsLayer = true
 		
 		memory[0] = 0x0a
 		memory[1] = 0xfa
@@ -64,6 +68,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		// Insert code here to tear down your application
 	}
 	
+    
+    
+    
 	
 /**
 * Z80 Core context method implementations

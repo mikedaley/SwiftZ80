@@ -94,12 +94,18 @@ class SwiftZ80
 		
 	}
 	
-	final func execute() {
+    /**
+     * Execute a single opcode based on the current PC
+     */
+    final func execute() {
 		
 		let opcode: Byte = context.memoryRead(address: context.PC)
 		executeOpCode(opcode)
 	}
 	
+    /**
+    * Executes the implementation of the opcode passed in
+    */
 	final func executeOpCode(opcode: Byte) {
 		
 		switch opcode {
@@ -117,7 +123,7 @@ class SwiftZ80
 			context.memoryWrite(address: context.R1.BC, value: context.R1.A)
 			break
 			
-		case 0x03:
+		case 0x03:              // INC BC
 			context.contentionReadNoMReq(address: context.IR, tStates: 1)
 			context.contentionReadNoMReq(address: context.IR, tStates: 1)
 			context.R1.BC += 1;
