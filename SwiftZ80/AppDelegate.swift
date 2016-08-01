@@ -28,8 +28,11 @@ extension Array {
 class AppDelegate: NSObject, NSApplicationDelegate {
 
 	@IBOutlet weak var window: NSWindow!
-    @IBOutlet weak var memoryViewController: MemoryViewController!
+
+	@IBOutlet weak var memoryViewController: MemoryViewController!
 	@IBOutlet weak var cpuViewController: CPUViewController!
+	@IBOutlet weak var graphicalMemoryController: GraphicalMemoryController!
+
 	@IBOutlet weak var cpuView: NSView!
 	@IBOutlet weak var memoryView: NSView!
 	
@@ -53,6 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		// Insert code here to initialize your application
 		
 		window.contentView?.wantsLayer = true
+//		window.aspectRatio = window.frame.size
 		
 		memoryViewController.view.translatesAutoresizingMaskIntoConstraints = false
 		memoryViewController.view.canDrawSubviewsIntoLayer = true
@@ -104,7 +108,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		z80Core!.memoryWriteAddress( 0x0000, value: 0xdd)
 		print(z80Core!.memoryReadAddress(0x0000))
 		
-		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(0.01 * Double(NSEC_PER_SEC)), 0)
+		z80Core!.R1.F = 0xff
+		
+		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1.0/50.0 * Double(NSEC_PER_SEC)), 0)
 		
 		dispatch_source_set_event_handler(emulationTimer) {
 			var a = self.z80Core!.memoryReadAddress(0x00) &+ 1
@@ -119,12 +125,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			self.z80Core!.R1.DE = self.z80Core!.R1.DE &+ 1
 			
 			self.z80Core!.tStates = self.z80Core!.tStates + 1
-
+			
+//			self.z80Core!.R1.F = self.z80Core!.R1.F ^ 255
+			
 		}
 		
 		dispatch_resume(emulationTimer)
 
-		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(0.1 * Double(NSEC_PER_SEC)), 0)
+		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(0.25 * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(displayTimer) {
 			dispatch_async(dispatch_get_main_queue(), { 
 				self.updateUI()
@@ -179,6 +187,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		self.cpuViewController.IM.stringValue = String(format: "%02X", (self.z80Core?.IM)!)
 		self.cpuViewController.R.stringValue = String(format: "%02X", (self.z80Core?.R)!)
 		self.cpuViewController.I.stringValue = String(format: "%02X", (self.z80Core?.I)!)
+		
+		self.cpuViewController.F_S.state = Int((self.z80Core?.R1.F)! & 0x80)
+		self.cpuViewController.F_Z.state = Int((self.z80Core?.R1.F)! & 0x40)
+		self.cpuViewController.F_H.state = Int((self.z80Core?.R1.F)! & 0x10)
+		self.cpuViewController.F_P.state = Int((self.z80Core?.R1.F)! & 0x04)
+		self.cpuViewController.F_N.state = Int((self.z80Core?.R1.F)! & 0x02)
+		self.cpuViewController.F_C.state = Int((self.z80Core?.R1.F)! & 0x01)
 	}
 	
 /**

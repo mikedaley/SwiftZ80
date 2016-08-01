@@ -41,6 +41,14 @@ class CPUViewController: NSViewController {
 	@IBOutlet weak var R: NSTextField!
 	@IBOutlet weak var I: NSTextField!
 	
+	@IBOutlet weak var F_S: NSButton!
+	@IBOutlet weak var F_Z: NSButton!
+	@IBOutlet weak var F_5: NSButton!
+	@IBOutlet weak var F_H: NSButton!
+	@IBOutlet weak var F_3: NSButton!
+	@IBOutlet weak var F_P: NSButton!
+	@IBOutlet weak var F_N: NSButton!
+	@IBOutlet weak var F_C: NSButton!
 	
     override func viewDidLoad() {
         super.viewDidLoad()
