@@ -127,7 +127,4 @@ struct Z80Registers {
 			IY = (IY & 0xff00) + Word(newValue)
 		}
 	}
-		
-	// SP
-	var SP: Word = 0x00
 }

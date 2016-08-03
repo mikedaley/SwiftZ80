@@ -14,10 +14,17 @@
 		ED6B38041D43D81A00D24DA7 /* SwiftZ80Registers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B38031D43D81A00D24DA7 /* SwiftZ80Registers.swift */; };
 		ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B38221D4A59BD00D24DA7 /* CPUViewController.swift */; };
 		ED6B38251D4A59BD00D24DA7 /* CPUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */; };
+		ED778B6A1D509D3400727B31 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B691D509D3400727B31 /* Operators.swift */; };
+		ED778B6C1D50B74F00727B31 /* Opcodes_Base.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6B1D50B74F00727B31 /* Opcodes_Base.swift */; };
+		ED778B6E1D50B9A500727B31 /* Opcodes_CB.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6D1D50B9A500727B31 /* Opcodes_CB.swift */; };
+		ED778B701D50B9B100727B31 /* Opcodes_ED.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6F1D50B9B100727B31 /* Opcodes_ED.swift */; };
+		ED778B721D50B9BF00727B31 /* Opcodes_DDFD.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B711D50B9BF00727B31 /* Opcodes_DDFD.swift */; };
+		ED778B741D50B9CE00727B31 /* Opcodes_DDFDCB.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B731D50B9CE00727B31 /* Opcodes_DDFDCB.swift */; };
+		ED778B771D50F9F500727B31 /* Array-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B761D50F9F500727B31 /* Array-Extensions.swift */; };
 		EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */; };
 		EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */; };
 		EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F0811D412C7A0026C2D2 /* MainMenu.xib */; };
-		EDC1F08C1D412CB10026C2D2 /* SwiftZ80.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F08B1D412CB10026C2D2 /* SwiftZ80.swift */; };
+		EDC1F08C1D412CB10026C2D2 /* SwiftZ80Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F08B1D412CB10026C2D2 /* SwiftZ80Core.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,12 +35,19 @@
 		ED6B38031D43D81A00D24DA7 /* SwiftZ80Registers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80Registers.swift; sourceTree = "<group>"; };
 		ED6B38221D4A59BD00D24DA7 /* CPUViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CPUViewController.swift; sourceTree = "<group>"; };
 		ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CPUViewController.xib; sourceTree = "<group>"; };
+		ED778B691D509D3400727B31 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
+		ED778B6B1D50B74F00727B31 /* Opcodes_Base.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Opcodes_Base.swift; sourceTree = "<group>"; };
+		ED778B6D1D50B9A500727B31 /* Opcodes_CB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Opcodes_CB.swift; sourceTree = "<group>"; };
+		ED778B6F1D50B9B100727B31 /* Opcodes_ED.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Opcodes_ED.swift; sourceTree = "<group>"; };
+		ED778B711D50B9BF00727B31 /* Opcodes_DDFD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Opcodes_DDFD.swift; sourceTree = "<group>"; };
+		ED778B731D50B9CE00727B31 /* Opcodes_DDFDCB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Opcodes_DDFDCB.swift; sourceTree = "<group>"; };
+		ED778B761D50F9F500727B31 /* Array-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array-Extensions.swift"; sourceTree = "<group>"; };
 		EDC1F07A1D412C7A0026C2D2 /* SwiftZ80.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftZ80.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EDC1F0821D412C7A0026C2D2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		EDC1F0841D412C7A0026C2D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EDC1F08B1D412CB10026C2D2 /* SwiftZ80.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80.swift; sourceTree = "<group>"; };
+		EDC1F08B1D412CB10026C2D2 /* SwiftZ80Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80Core.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +91,15 @@
 			name = Other;
 			sourceTree = "<group>";
 		};
+		ED778B751D50F9E100727B31 /* Extensions/Operators */ = {
+			isa = PBXGroup;
+			children = (
+				ED778B761D50F9F500727B31 /* Array-Extensions.swift */,
+				ED778B691D509D3400727B31 /* Operators.swift */,
+			);
+			name = Extensions/Operators;
+			sourceTree = "<group>";
+		};
 		EDC1F0711D412C7A0026C2D2 = {
 			isa = PBXGroup;
 			children = (
@@ -98,6 +121,7 @@
 			children = (
 				9977DBFB1D4407C900EE72C3 /* Other */,
 				9977DBFA1D4407BD00EE72C3 /* Assets */,
+				ED778B751D50F9E100727B31 /* Extensions/Operators */,
 				9977DBF91D4407AE00EE72C3 /* UI */,
 				EDC1F08A1D412C8F0026C2D2 /* Core */,
 				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
@@ -109,7 +133,12 @@
 			isa = PBXGroup;
 			children = (
 				ED6B38031D43D81A00D24DA7 /* SwiftZ80Registers.swift */,
-				EDC1F08B1D412CB10026C2D2 /* SwiftZ80.swift */,
+				EDC1F08B1D412CB10026C2D2 /* SwiftZ80Core.swift */,
+				ED778B6B1D50B74F00727B31 /* Opcodes_Base.swift */,
+				ED778B6D1D50B9A500727B31 /* Opcodes_CB.swift */,
+				ED778B6F1D50B9B100727B31 /* Opcodes_ED.swift */,
+				ED778B711D50B9BF00727B31 /* Opcodes_DDFD.swift */,
+				ED778B731D50B9CE00727B31 /* Opcodes_DDFDCB.swift */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -188,10 +217,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED6B38041D43D81A00D24DA7 /* SwiftZ80Registers.swift in Sources */,
-				EDC1F08C1D412CB10026C2D2 /* SwiftZ80.swift in Sources */,
+				ED778B771D50F9F500727B31 /* Array-Extensions.swift in Sources */,
+				ED778B6E1D50B9A500727B31 /* Opcodes_CB.swift in Sources */,
+				ED778B701D50B9B100727B31 /* Opcodes_ED.swift in Sources */,
+				EDC1F08C1D412CB10026C2D2 /* SwiftZ80Core.swift in Sources */,
+				ED778B721D50B9BF00727B31 /* Opcodes_DDFD.swift in Sources */,
+				ED778B6A1D509D3400727B31 /* Operators.swift in Sources */,
 				ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */,
+				ED778B6C1D50B74F00727B31 /* Opcodes_Base.swift in Sources */,
 				EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */,
 				ED56C7461D4B59AE00541BDF /* GraphicalMemoryController.swift in Sources */,
+				ED778B741D50B9CE00727B31 /* Opcodes_DDFDCB.swift in Sources */,
 				9977DC021D4416B900EE72C3 /* MemoryViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
