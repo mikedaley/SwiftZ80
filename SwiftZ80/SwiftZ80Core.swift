@@ -338,10 +338,22 @@ struct SwiftZ80Core
 	let halfcarry_sub_table: [Byte] = [0, 0, F_H, 0, F_H, 0, F_H, F_H]
 	let overflow_add_table: [Byte] = [0, 0, 0, F_V, F_V, 0, 0, 0]
 	let overflow_sub_table: [Byte] = [0, F_V, 0, 0, 0, 0, F_V, 0]
-	
-	var sz53_table: [Byte] = [Byte](count: 0x100, repeatedValue: 0x00)
-	var parity_table: [Byte] = [Byte](count: 0x100, repeatedValue: 0x00)
-	var sz53p_table: [Byte] = [Byte](count: 0x100, repeatedValue: 0x00)
+	let parity_table: [Byte] = [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1 ]
 	
 	// MARK: Init
 	
@@ -377,35 +389,6 @@ struct SwiftZ80Core
 		self.contend_read_no_mreq = contentionReadNoMREQ
 		self.contend_write_no_mreq = contentionWriteNoMREQ
 		self.contend_read = contentionRead
-	}
-
-	/**
-	* Initialise tables used when setting the Z80 flags
-	*/
-	mutating func z80InitTables() {
-		
-		var parity: Byte = 0
-		var j: Byte = 0
-		
-		for i in 0 ... 0xff {
-			sz53_table[i] = Byte(i) & (F_3 | F_5 | F_S)
-			j = Byte(i)
-			parity = 0
-			for _ in 0...7 {
-				parity ^= j & 1
-				j >> 1
-			}
-			if (parity != 0) {
-				parity_table[i] = 0
-			} else {
-				parity_table[i] = F_P
-			}
-			sz53p_table[i] = sz53p_table[i] | parity_table[i]
-		}
-		
-		sz53_table[0] |= F_Z
-		sz53p_table[0] |= F_Z
-		
 	}
 	
 	// MARK: Execution
@@ -476,7 +459,7 @@ struct SwiftZ80Core
 	
 	// MARK: Helpers
 
-	mutating func getFlag(flag: Byte) -> Byte {
+	func getFlag(flag: Byte) -> Byte {
 		return F & flag
 	}
 
@@ -498,11 +481,43 @@ struct SwiftZ80Core
 
 	// MARK: Common instructions
 	
+	mutating func ADD(value: Byte) {
+		
+		let result: Word = Word(A + value)
+		let lookup = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result) & 0x88) >> 1)
+		
+		A = Byte(result)
+		
+		var carry: Byte = 0
+		if (result & 0x100 != 0x00) {
+			carry = F_C
+		}
+		
+		F = carry | halfcarry_add_table[lookup & 0x07] | overflow_add_table[lookup >> 4]
+		
+	}
+
+	mutating func SUB(value: Byte) {
+		
+		let result: Word = Word(A - value)
+		let lookup = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result) & 0x88) >> 1)
+		
+		A = Byte(result)
+		
+		var carry: Byte = 0
+		if (result & 0x100 != 0x00) {
+			carry = F_C
+		}
+		
+		F = carry | F_N | halfcarry_sub_table[lookup & 0x07] | overflow_sub_table[lookup >> 4]
+	
+	}
+	
 	mutating func ADC(value: Byte) {
 		
 		var result: Int = 0
 		
-		SetFlag(F_N)
+		ResetFlag(F_N)
 		ValFlag(F_H, value: (((A & 0x0f) + (value & 0x0f)) & 0x10))
 		
 		result = Int(A) + Int(value)
@@ -512,9 +527,65 @@ struct SwiftZ80Core
 		}
 		
 		ValFlag(F_S, value: (Byte(result & 0x80)))
-		ValFlag(F_C, value: (Byte(result & 0x100)))
-		ValFlag(F_Z, value: (Byte(result & 0xff)))
+		
+		if (result & 0x100 != 0) {
+			SetFlag(F_C)
+		} else {
+			ResetFlag(F_C)
+		}
+
+		if (result & 0xff > 0) {
+			ResetFlag(F_Z)
+		} else {
+			SetFlag(F_Z)
+		}
+		
+		A = Byte(result & 0xff)
+	}
+	
+	mutating func DAA() {
+		
+		var add: Byte = 0
+		var carry: Byte = getFlag(F_C)
+		
+		if (getFlag(F_C) != 0x00 || A & 0x0f > 9) {
+			add = 0x06
+		}
+		
+		if (carry != 0x00 || A > 0x99) {
+			add |= 0x60
+		}
+		
+		if (A > 0x99) {
+			carry = F_C
+		}
+		
+		// Sub if N flag is set
+		if (F & F_N != 0x00) {
+			SUB(add)
+		} else {
+			ADD(add)
+		}
+		
+		F = (F & ~(F_C | F_P)) | carry | parity_table[A]
 		
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

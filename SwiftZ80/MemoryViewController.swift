@@ -44,7 +44,7 @@ class MemoryViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
 			
 			let i = row * 32
 			var string = String(format: "%5i: ", i)
-			for index in i...i + 31 {
+			for index in i ... i + 31 {
 				let value = appDelegate!.memory[index]
 				string.appendContentsOf(String(format:"%02X ", value))
 			}
