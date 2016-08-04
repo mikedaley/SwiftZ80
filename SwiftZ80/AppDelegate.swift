@@ -90,17 +90,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		core?.DAA()
 		core?.debug()
 		
-		core?.A = 0x09
-		core?.ADD(0x0f)
+		core?.A = 0x7f
+		core?.ADD(0x01)
 		
-		core?.SUB(0x0f)
+//		core?.SUB(0x0f)
 		core?.debug()
 		
-		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1.0/50.0 * Double(NSEC_PER_SEC)), 0)
+		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(0.5 * Double(NSEC_PER_SEC)), 0)
 		
 		dispatch_source_set_event_handler(emulationTimer) {
-//			var a = self.core!.memoryReadAddress(0x00) &+ 1
-//			self.core!.memoryWriteAddress(0x00, value: a)
+
+//			self.core?.ADD(0x01)
+//			
+//			self.core?.debug()
+
+//			for i: Word in 0 ... 31 {
+//				let a: Byte = Byte(arc4random_uniform(256))
+//				self.core!.memoryWriteAddress(i, value: a)
+//			}
 //
 //			a = self.core!.memoryReadAddress(0x21) &+ 1
 //			self.core!.memoryWriteAddress(0x21, value: a)
@@ -121,7 +128,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		
 		dispatch_resume(emulationTimer)
 
-		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(0.25 * Double(NSEC_PER_SEC)), 0)
+		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(0.5 * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(displayTimer) {
 			dispatch_async(dispatch_get_main_queue(), { 
 				self.updateUI()

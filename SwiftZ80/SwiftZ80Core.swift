@@ -391,201 +391,53 @@ struct SwiftZ80Core
 		self.contend_read = contentionRead
 	}
 	
-	// MARK: Execution
+	// MARK: Core execution functions
 	
     /**
-     * Execute a single opcode based on the current PC
+     * Execute a single opcode based on the current PC. Start by looking up the base opcode.
+	 * If a mult-byte opcode is identified then it will call into the next opcode level e.g. CB and
+	 * then ED etc. until it finds the opcode implementation needed
      */
     mutating func execute() {
 		
 		let opcode: Byte = memoryReadAddress(PC)
 		PC += 1
-		executeOpCode(opcode)
+		lookupBaseOpcode(opcode)
+	
 	}
 	
-    /**
-    * Executes the implementation of the opcode passed in
-    */
-	mutating func executeOpCode(opcode: Byte) {
-		
-		switch opcode {
-			
-		case 0x00:				// NOP
-			break
-			
-		case 0x01:				// LD BC, nnnn
-			C = memoryReadAddress(PC)
-			PC += 1
-			B = memoryReadAddress(PC)
-			PC += 1
-			break
-			
-		case 0x02:				// LD (BC), A
-			memoryWriteAddress(BC, value: A)
-			break
-			
-		case 0x03:              // INC BC
-			contend_read_no_mreq(IR, tStates: 1)
-			contend_read_no_mreq(IR, tStates: 1)
-			BC += 1
-			break
-			
-		case 0x04:				// INC B
-			B += 1
-			F = (F & F_C) | (B == 0x80 ? F_P : 0)
-			//		core.R1.F |= core.R1.B & 0x0f ? 0 : F_H
-			break;
-			
-		case 0x05:				// DEC B
-			B -= 1
-			break;
-			
-		case 0x06:
-			B = memoryReadAddress(PC)
-			PC += 1
-			break;
-			
-		case 0xce:
-			let temp = memoryReadAddress(PC)
-			ADC(temp)
-			PC += 1
-			break
-			
-		default:
-			break
-		}
+	// MARK: Core flag functions
 
-	}
-	
-	// MARK: Helpers
-
+	/**
+	* Get the specified flag
+	*/
 	func getFlag(flag: Byte) -> Byte {
 		return F & flag
 	}
 
+	/**
+	* Reset the specific flag
+	*/
 	mutating func ResetFlag(flag: Byte) {
 		F &= ~flag
 	}
 
+	/**
+	* Set the specified flag
+	*/
 	mutating func SetFlag(flag: Byte) {
 		F |= flag
 	}
-
+	
+	/**
+	* Get or Reset the specified flag based on the value passed in
+	*/
 	mutating func ValFlag(flag: Byte, value: Byte) {
-		if (value != 0) {
+		if value != 0 {
 			SetFlag(flag)
 		} else {
 			ResetFlag(flag)
 		}
 	}
 
-	// MARK: Common instructions
-	
-	mutating func ADD(value: Byte) {
-		
-		let result: Word = Word(A + value)
-		let lookup = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result) & 0x88) >> 1)
-		
-		A = Byte(result)
-		
-		var carry: Byte = 0
-		if (result & 0x100 != 0x00) {
-			carry = F_C
-		}
-		
-		F = carry | halfcarry_add_table[lookup & 0x07] | overflow_add_table[lookup >> 4]
-		
-	}
-
-	mutating func SUB(value: Byte) {
-		
-		let result: Word = Word(A - value)
-		let lookup = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result) & 0x88) >> 1)
-		
-		A = Byte(result)
-		
-		var carry: Byte = 0
-		if (result & 0x100 != 0x00) {
-			carry = F_C
-		}
-		
-		F = carry | F_N | halfcarry_sub_table[lookup & 0x07] | overflow_sub_table[lookup >> 4]
-	
-	}
-	
-	mutating func ADC(value: Byte) {
-		
-		var result: Int = 0
-		
-		ResetFlag(F_N)
-		ValFlag(F_H, value: (((A & 0x0f) + (value & 0x0f)) & 0x10))
-		
-		result = Int(A) + Int(value)
-		
-		if (getFlag(F_C) != 0) {
-			result += 1
-		}
-		
-		ValFlag(F_S, value: (Byte(result & 0x80)))
-		
-		if (result & 0x100 != 0) {
-			SetFlag(F_C)
-		} else {
-			ResetFlag(F_C)
-		}
-
-		if (result & 0xff > 0) {
-			ResetFlag(F_Z)
-		} else {
-			SetFlag(F_Z)
-		}
-		
-		A = Byte(result & 0xff)
-	}
-	
-	mutating func DAA() {
-		
-		var add: Byte = 0
-		var carry: Byte = getFlag(F_C)
-		
-		if (getFlag(F_C) != 0x00 || A & 0x0f > 9) {
-			add = 0x06
-		}
-		
-		if (carry != 0x00 || A > 0x99) {
-			add |= 0x60
-		}
-		
-		if (A > 0x99) {
-			carry = F_C
-		}
-		
-		// Sub if N flag is set
-		if (F & F_N != 0x00) {
-			SUB(add)
-		} else {
-			ADD(add)
-		}
-		
-		F = (F & ~(F_C | F_P)) | carry | parity_table[A]
-		
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

@@ -21,6 +21,19 @@ class MemoryViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
 
 	var appDelegate: AppDelegate?
 	
+	var fontManager: NSFontManager
+	var boldFont: NSFont
+	var memoryFont: NSFont
+
+	required init?(coder: NSCoder) {
+
+		fontManager = NSFontManager.sharedFontManager()
+		boldFont = fontManager.fontWithFamily("Courier", traits: NSFontTraitMask.BoldFontMask, weight: 0, size: 14)!
+		memoryFont = fontManager.fontWithFamily("Courier", traits: NSFontTraitMask.FixedPitchFontMask, weight: 0, size: 14)!
+		super.init(coder: coder)
+		
+	}
+	
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
@@ -31,7 +44,8 @@ class MemoryViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
         memoryTableView.setDataSource(self)
 		
 		memoryTableView.sizeLastColumnToFit()
-				
+		
+		
     }
 
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
@@ -43,12 +57,21 @@ class MemoryViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
 		if let cell = tableView.makeViewWithIdentifier("cell", owner: nil) as? NSTableCellView {
 			
 			let i = row * 32
-			var string = String(format: "%5i: ", i)
+			let string = String(format: "%5i: ", i)
+			let attrString = NSMutableAttributedString.init(string: string, attributes: [NSFontAttributeName : boldFont])
 			for index in i ... i + 31 {
 				let value = appDelegate!.memory[index]
-				string.appendContentsOf(String(format:"%02X ", value))
+				
+				var textColor: NSColor = NSColor.blackColor()
+				if index >= 0x4000 && index < 0x5800 {
+					textColor = NSColor.blueColor()
+				} else if appDelegate!.memory[index] != 0x00 {
+					textColor = NSColor.redColor()
+				}
+				let memoryString = NSAttributedString.init(string: String(format:"%02X ", value), attributes: [NSForegroundColorAttributeName : textColor])
+				attrString.appendAttributedString(memoryString)
 			}
-			cell.textField?.stringValue = string
+			cell.textField?.attributedStringValue = attrString
             return cell
         }
         return nil
