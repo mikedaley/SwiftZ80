@@ -294,15 +294,21 @@ struct SwiftZ80Core
 	}
 	
 	var SP: Word = 0x00
-	private var SPh: Byte {
+	var SPh: Byte {
 		get {
 			return Byte(SP >> 8)
 		}
+        set {
+            SP = (Word(newValue) << 8) + (SP & 0xff)
+        }
 	}
-	private var SPl: Byte {
+	var SPl: Byte {
 		get {
 			return Byte(SP & 0xff)
 		}
+        set {
+            SP = (SP & 0xff00) + Word(newValue)
+        }
 	}
 	
 	// Interrupt and refresh registers
@@ -424,6 +430,19 @@ struct SwiftZ80Core
 		lookupBaseOpcode(opcode)
 	
 	}
+
+    /**
+     * Execure an entire frame. The number of tStates in the frame are supplied
+     */
+    mutating func executeFrameWithTstates(tStatesInFrame: Int) {
+        
+        self.tStates = 0
+        
+        while self.tStates <= tStatesInFrame  {
+            execute()
+        }
+
+    }
 	
 	// MARK: Core flag functions
 

@@ -41,6 +41,33 @@ extension SwiftZ80Core {
     }
 
     /**
+     * ADC16
+     */
+    mutating func ADC16(value: Word) {
+
+        let result: Int = Int(HL) + Int(value) + Int(F & FLAG_C)
+        let r1: Byte = Byte(HL & 0x0800 >> 11) & 0xff
+        let r2: Byte = Byte(value & 0x0800 >> 10) & 0xff
+        let r3: Byte = Byte(Word(result & 0xffff) & 0x0800 >> 9) & 0xff
+        let lookup: Byte = r1 | r2 | r3
+        
+        HL = Word(result & 0xffff)
+        
+        var carry = FLAG_C
+        if result & 0x100 == 0x00 {
+            carry = 0x00
+        }
+        
+        var zero = FLAG_Z
+        if HL != 0x00 {
+            zero = 0x00
+        }
+        
+        F = carry | halfcarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] | zero
+        
+    }
+
+    /**
 	* ADD - The integer byte value is added to the contents of the accumulator replacing the accumulators contents with
 	* the new value
 	*/
@@ -179,9 +206,9 @@ extension SwiftZ80Core {
     /**
      * Z80_IN
      */
-    mutating func Z80_IN(inout register: Byte, port: Byte) {
+    mutating func Z80_IN(inout register: Byte, port: Word) {
         
-//        register = readport(port)
+        register = ioReadAddress(port)
         F = (F & FLAG_C) | SZ35Table[register] | parityTable[register]
         
     }

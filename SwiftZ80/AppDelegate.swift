@@ -77,52 +77,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		                            contentionReadNoMREQ: contentionReadNoMREQAddress,
 		                            contentionWriteNoMREQ: contentionWriteNoMREQAddress,
 		                            contentionRead: contentionReadAddress)
-		
-//        core!.memoryWriteAddress(0x00, value: 0x80)
-//        core!.memoryWriteAddress(0x01, value: 0x80)
-//
-//        core!.memoryWriteAddress(0x8080, value: 0x80)
-//        core!.memoryWriteAddress(0x8081, value: 0x80)
-//        
-//        core!.LD16_RRNN(&core!.C, regH: &core!.B)
         
-        
-        core!.R1.A = 0x90
-//        core!.OR(core!.A)
-        core!.DEC(&core!.A)
-        
-		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(0.5 * Double(NSEC_PER_SEC)), 0)
-		
+		// Emulation timer
+        dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(0.5 * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(emulationTimer) {
 
-//			self.core?.ADD(0x01)
-//			
-//			self.core?.debug()
-
-//			for i: Word in 0 ... 31 {
-//				let a: Byte = Byte(arc4random_uniform(256))
-//				self.core!.memoryWriteAddress(i, value: a)
-//			}
-//
-//			a = self.core!.memoryReadAddress(0x21) &+ 1
-//			self.core!.memoryWriteAddress(0x21, value: a)
-//
-//			a = self.core!.memoryReadAddress(0xffff) &+ 1
-//			self.core!.memoryWriteAddress(0xffff, value: a)
-//			
-//			self.core!.R1.DE = self.core!.R1.DE &+ 1
-//			
-//			self.core!.tStates = self.core!.tStates + 1
-//			
-//			self.core!.A = 0xee
-//			
-//			self.core!.F = 132
-//			self.core!.F_ = 132
+            self.core!.executeFrameWithTstates(67866)
 			
 		}
 		
 		dispatch_resume(emulationTimer)
 
+        // UI Timer
 		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(0.5 * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(displayTimer) {
 			dispatch_async(dispatch_get_main_queue(), { 
