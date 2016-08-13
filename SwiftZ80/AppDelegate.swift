@@ -78,24 +78,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		                            contentionWriteNoMREQ: contentionWriteNoMREQAddress,
 		                            contentionRead: contentionReadAddress)
 		
-		core?.F |= 0x00
-		core?.A = 0xfe
-		memory[0] = 0xce
-		memory[1] = 0x0a
-		
-		core?.execute()
-		
-		core?.ResetFlag(F_C)
-		core?.A = 0x0f
-		core?.DAA()
-		core?.debug()
-		
-		core?.A = 0x7f
-		core?.ADD(0x01)
-		
-//		core?.SUB(0x0f)
-		core?.debug()
-		
+//        core!.memoryWriteAddress(0x00, value: 0x80)
+//        core!.memoryWriteAddress(0x01, value: 0x80)
+//
+//        core!.memoryWriteAddress(0x8080, value: 0x80)
+//        core!.memoryWriteAddress(0x8081, value: 0x80)
+//        
+//        core!.LD16_RRNN(&core!.C, regH: &core!.B)
+        
+        
+        core!.R1.A = 0x90
+//        core!.OR(core!.A)
+        core!.DEC(&core!.A)
+        
 		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(0.5 * Double(NSEC_PER_SEC)), 0)
 		
 		dispatch_source_set_event_handler(emulationTimer) {

@@ -12,15 +12,15 @@ public typealias Word = UInt16
 /**
 * Z80 flags
 */
-let F_C: Byte	= 0x01
-let F_N: Byte	= 0x02
-let F_P: Byte	= 0x04
-let F_V: Byte	= F_P
-let F_3: Byte	= 0x08
-let F_H: Byte	= 0x10
-let F_5: Byte	= 0x20
-let F_Z: Byte	= 0x40
-let F_S: Byte	= 0x80
+let FLAG_C: Byte	= 0x01
+let FLAG_N: Byte	= 0x02
+let FLAG_P: Byte	= 0x04
+let FLAG_V: Byte	= FLAG_P
+let FLAG_3: Byte	= 0x08
+let FLAG_H: Byte	= 0x10
+let FLAG_5: Byte	= 0x20
+let FLAG_Z: Byte	= 0x40
+let FLAG_S: Byte	= 0x80
 
 /**
 * SwiftZ80Core
@@ -276,15 +276,21 @@ struct SwiftZ80Core
 	
 	// PC & SP
 	var PC: Word
-	private var PCh: Byte {
+    var PCh: Byte {
 		get {
 			return Byte(PC >> 8)
 		}
+        set {
+            PC = (Word(newValue) << 8) + (PC & 0xff)
+        }
 	}
-	private var PCl: Byte {
+    var PCl: Byte {
 		get {
 			return Byte(PC & 0xff)
 		}
+        set {
+            PC = (PC & 0xff00) + Word(newValue)
+        }
 	}
 	
 	var SP: Word = 0x00
@@ -334,29 +340,15 @@ struct SwiftZ80Core
 	var contend_read: (Word, tStates: Int) -> ()
 	
 	// Flag tables
-	let halfcarry_add_table: [Byte] = [0, F_H, F_H, F_H, 0, 0, 0, F_H]
-	let halfcarry_sub_table: [Byte] = [0, 0, F_H, 0, F_H, 0, F_H, F_H]
-	let overflow_add_table: [Byte] = [0, 0, 0, F_V, F_V, 0, 0, 0]
-	let overflow_sub_table: [Byte] = [0, F_V, 0, 0, 0, 0, F_V, 0]
-	let parity_table: [Byte] = [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-								1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1 ]
-	
-	// MARK: Init
-	
+	let halfcarryAddTable: [Byte] = [0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H]
+	let halfcarrySubTable: [Byte] = [0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H]
+
+    let overflowAddTable: [Byte] = [0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0]
+	let overflowSubTable: [Byte] = [0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0]
+    
+    var SZ35Table = [Byte](count: 256, repeatedValue: 0)
+    var parityTable = [Byte](count: 256, repeatedValue: 0)
+    
 	/**
 	* Initializer
 	* Takes references to the functions that the core is to use when accessing memory, io and contention.
@@ -389,9 +381,36 @@ struct SwiftZ80Core
 		self.contend_read_no_mreq = contentionReadNoMREQ
 		self.contend_write_no_mreq = contentionWriteNoMREQ
 		self.contend_read = contentionRead
+        
+        setupTables()
 	}
 	
-	// MARK: Core execution functions
+    mutating func setupTables() {
+
+        for i: Int in 0...255 {
+            
+            SZ35Table[i] = (i == 0) ? FLAG_Z : 0;
+            SZ35Table[i] |= ((i & 0x80) == 0x80) ? FLAG_S : 0;
+            SZ35Table[i] |= Byte(i) & (FLAG_3 | FLAG_5);
+
+            var parity: Byte = 0
+            var v: Byte = Byte(i)
+            
+            for _ in 0...7 {
+                parity ^= v & 0x01
+                v >>= 0x01
+            }
+            
+            var p: Byte = FLAG_P
+            if (parity == 0x01) {
+                p = 0x00
+            }
+            
+            parityTable[i] = p
+        }
+    }
+    
+    // MARK: Core execution functions
 	
     /**
      * Execute a single opcode based on the current PC. Start by looking up the base opcode.

@@ -11,34 +11,54 @@
 * ADD, SUB, CP, SLA, SRA, ADC, SBC etc.
 */
 extension SwiftZ80Core {
-	
-	/**
+
+    /**
+     * AND - AND the supplied value
+     */
+    mutating func AND(value: Byte) {
+        A &= value
+        F = FLAG_H | SZ35Table[A] | parityTable[A]
+    }
+
+    /**
+     * ADC - The integer byte value is added to the contents of the accumulator including the value of the carry flag replacing the
+     * accumulators contents with the new value
+     */
+    mutating func ADC(value: Byte) {
+        
+        let result: Int = Int(A) + Int(value) + Int(F & FLAG_C)
+        let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result & 0xff) & 0x88) >> 1)
+        
+        A = Byte(result & 0xff)
+        
+        var carry = FLAG_C
+        if result & 0x100 == 0x00 {
+            carry = 0x00
+        }
+        
+        F = carry | halfcarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] | SZ35Table[A]
+        
+    }
+
+    /**
 	* ADD - The integer byte value is added to the contents of the accumulator replacing the accumulators contents with
 	* the new value
 	*/
 	mutating func ADD(value: Byte) {
 		
 		let result: Int = Int(A) + Int(value)
+        
+        // Make a lookup for the flag tables using bit 3 from A, value and the result
 		let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result & 0xff) & 0x88) >> 1)
 		
 		A = Byte(result & 0xff)
 		
-		var carry: Byte = F_C
+		var carry: Byte = FLAG_C
 		if result & 0x100 == 0x00 {
 			carry = 0x00
 		}
 		
-		var sign: Byte = F_S
-		if A & 0x80 == 0x00 {
-			sign = 0x00
-		}
-		
-		var zero: Byte = F_Z
-		if A != 0 {
-			zero = 0x00
-		}
-
-		F = zero | sign | carry | halfcarry_add_table[lookup & 0x07] | overflow_add_table[lookup >> 4]
+        F = carry | halfcarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] | SZ35Table[A]
 		
 	}
 
@@ -49,29 +69,353 @@ extension SwiftZ80Core {
 	mutating func ADD16(value1: Word, value2: Word) {
 		
 		let result: Int = Int(value1) + Int(value2)
-		let lookup: Byte = (Byte(value1 & 0xff) & 0x0800) >> 11 | (Byte(value2 & 0xff) & 0x0800) >> 10 | (Byte(result & 0xff) & 0x0800) >> 9
-		
+        let r1: Byte = Byte(value1 & 0x0800 >> 11) & 0xff
+        let r2: Byte = Byte(value2 & 0x0800 >> 10) & 0xff
+        let r3: Byte = Byte(Word(result & 0xffff) & 0x0800 >> 9) & 0xff
+        let lookup: Byte = r1 | r2 | r3
+        
 		A = Byte(result & 0xff)
 		
-		var carry: Byte = F_C
+		var carry: Byte = FLAG_C
 		if result & 0x100 == 0x00 {
 			carry = 0x00
 		}
-		
-		var sign: Byte = F_S
-		if A & 0x80 == 0x00 {
-			sign = 0x00
-		}
-		
-		var zero: Byte = F_Z
-		if A != 0 {
-			zero = 0x00
-		}
-		
-		F = zero | sign | carry | halfcarry_add_table[lookup & 0x07] | overflow_add_table[lookup >> 4]
+				
+		F = carry | halfcarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] | SZ35Table[A]
 		
 	}
 	
+    /**
+     * BIT - Sets the flags based on the supplied bit being set or not in the supplied value
+     */
+    mutating func BIT(bit: Byte, value: Byte) {
+        
+        F = (F & FLAG_C) | FLAG_H | (value & ( FLAG_3 | FLAG_5 ))
+        
+        if value & (0x01 << bit) != 0x00 {
+            F |= FLAG_P
+        } else {
+            F |= FLAG_Z
+        }
+        
+        if bit == 9 && value & 0x80 != 0x00 {
+            F |= FLAG_S
+        }
+        
+    }
+    
+    /**
+     * BIT_I - Sets the flags based on the supplied bit being set or not in the supplied value/address!!
+     */
+    mutating func BIT_I(bit: Byte, value: Byte, address: Word) {
+        F = ( F & FLAG_C ) | FLAG_H | ( Byte(( address >> 8 ) & 0xff) & ( FLAG_3 | FLAG_5 ) )
+
+        if value & (0x01 << bit) != 0x00 {
+            F |= FLAG_P
+        } else {
+            F |= FLAG_Z
+        }
+        
+        if bit == 7 && value & 0x80 != 0x00 {
+            F |= FLAG_S
+        }
+    }
+
+    /**
+     * CALL
+     */
+    mutating func CALL() {
+        let tempL = memoryReadAddress(PC)
+        PC = PC + 1
+        let tempH = memoryReadAddress(PC)
+        contend_read_no_mreq(PC, tStates: 1)
+        PC = PC + 1
+        PCl = tempL
+        PCh = tempH
+    }
+    
+    /**
+     * CP
+     */
+    mutating func CP(value: Byte) {
+        let result: Int = Int(A) - Int(value)
+        let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result & 0xff) & 0x88) >> 1)
+
+        var carry: Byte = FLAG_C
+        if result & 0x100 == 0x00 {
+            carry = 0x00
+        }
+        
+        var zero: Byte = FLAG_Z
+        if result != 0x00 {
+            zero = 0x00
+        }
+
+        F = carry | zero | FLAG_N | halfcarrySubTable[lookup & 0x07] | overflowSubTable[lookup >> 4] | (value & (FLAG_3 | FLAG_5)) | (Byte(result & 0xff) & FLAG_S)
+    }
+    
+    /**
+     * DEC - Decrement the contents of a register
+     */
+    mutating func DEC(inout value: Byte) {
+        
+        var halfCarry: Byte = FLAG_H
+        if value & 0x0f != 0x00 {
+            halfCarry = 0x00
+        }
+        
+        F = ( F & FLAG_C ) | halfCarry | FLAG_N
+        
+        value = value &- 1
+        
+        var overflow: Byte = FLAG_V
+        if value != 0xf7 {
+            overflow = 0x00
+        }
+        
+        F |= overflow | SZ35Table[value]
+    }
+    
+    /**
+     * Z80_IN
+     */
+    mutating func Z80_IN(inout register: Byte, port: Byte) {
+        
+//        register = readport(port)
+        F = (F & FLAG_C) | SZ35Table[register] | parityTable[register]
+        
+    }
+    
+    /**
+     * INC - Increment the contents of a register
+     */
+    mutating func INC(inout value: Byte) {
+        
+        value = value &+ 1
+        
+        var overflow: Byte = FLAG_V
+        if value != 0x80 {
+            overflow = 0x00
+        }
+        
+        var halfcarry: Byte = FLAG_H
+        if value & 0x0f != 0x00 {
+            halfcarry = 0x00
+        }
+        
+        F = (F & FLAG_C) | overflow | halfcarry | SZ35Table[value]
+    }
+    
+    /**
+     * LD16_NNRR
+     */
+    mutating func LD16_NNRR(regL: Byte, regH: Byte) {
+
+        var temp: Word = Word(memoryReadAddress(PC)) & 0xffff
+        PC = PC + 1
+        temp |= (Word(memoryReadAddress(PC)) & 0xffff) << 8
+        PC = PC + 1
+        memoryWriteAddress(temp, value: regL)
+        temp = temp + 1
+        memoryWriteAddress(temp, value: regH)
+    }
+
+    /**
+     * LD16_RRNN
+     */
+    mutating func LD16_RRNN(inout regL: Byte, inout regH: Byte) {
+        
+        var temp: Word = Word(memoryReadAddress(PC)) & 0xffff
+        PC = PC + 1
+        temp |= (Word(memoryReadAddress(PC)) & 0xffff) << 8
+        PC = PC + 1
+        regL = memoryReadAddress(temp)
+        temp = temp + 1
+        regH = memoryReadAddress(temp)
+    }
+
+    /**
+     * JP
+     */
+    mutating func JP() {
+        
+        var temp: Word = PC
+        PCl = memoryReadAddress(temp)
+        temp = temp + 1
+        PCh = memoryReadAddress(temp)
+    }
+
+    /**
+     * JR
+     */
+    mutating func JR() {
+        
+        let temp: Byte = memoryReadAddress(PC)
+        contend_read_no_mreq(PC, tStates: 1)
+        contend_read_no_mreq(PC, tStates: 1)
+        contend_read_no_mreq(PC, tStates: 1)
+        contend_read_no_mreq(PC, tStates: 1)
+        contend_read_no_mreq(PC, tStates: 1)
+        PC += Word(temp)
+    }
+    
+    /**
+     * OR
+     */
+    mutating func OR(value: Byte) {
+        A |= value
+        F |= SZ35Table[A] | parityTable[A]
+    }
+    
+    /**
+     * POP16
+     */
+    mutating func POP16(inout regL: Byte, inout regH: Byte) {
+        regL = memoryReadAddress(SP)
+        SP = SP + 1
+        regH = memoryReadAddress(SP)
+        SP = SP + 1
+    }
+
+    /**
+     * PUSH 16
+     */
+    mutating func PUSH16(inout regL: Byte, inout regH: Byte) {
+        memoryWriteAddress(SP, value: regH)
+        SP = SP - 1
+        memoryWriteAddress(SP, value: regL)
+        SP = SP - 1
+    }
+
+    /**
+     * RET
+     */
+    mutating func RET() {
+        POP16(&PCl, regH: &PCh)
+    }
+    
+    /**
+     * RL
+     */
+    mutating func RL(inout value: Byte) {
+        let temp: Byte = value
+        value = value << 1 | (F & FLAG_C)
+        F = temp >> 7 | SZ35Table[value]
+    }
+
+    /**
+     * RLC
+     */
+    mutating func RLC(inout value: Byte) {
+        value = value << 1 | value >> 7
+        F = (value & FLAG_C) | SZ35Table[value] | parityTable[value]
+    }
+    
+    /**
+     * RR
+     */
+    mutating func RR(inout value: Byte) {
+        let temp: Byte = value
+        value = (value >> 1) | (F << 7)
+        F = (temp & FLAG_C) | SZ35Table[value]
+    }
+    
+    /**
+     * RRC
+     */
+    mutating func RRC(inout value: Byte) {
+        F = value & FLAG_C
+        value = value >> 1 | value << 7
+        F |= SZ35Table[value] | parityTable[value]
+    }
+    
+    /**
+     * RST
+     */
+    mutating func RST(value: Word) {
+        PUSH16(&PCl, regH: &PCh)
+        PC = value
+    }
+    
+    /**
+     * SBC
+     */
+    mutating func SBC(value: Byte) {
+        let result: Int = Int(A) - Int(value) - Int(F & FLAG_C)
+        let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result & 0xff) & 0x88) >> 1)
+        A = Byte(result & 0xff)
+
+        var carry = FLAG_C
+        if result & 0x100 == 0x00 {
+            carry = 0x00
+        }
+        
+        F = carry | FLAG_N | halfcarrySubTable[lookup & 0x07] | overflowSubTable[lookup >> 4] | SZ35Table[A]
+
+    }
+
+    /**
+     * SBC16
+     */
+    mutating func SBC16(value: Word) {
+        let result: Int = Int(HL) - Int(value) - Int(F & FLAG_C)
+        
+        let r1 = Byte(HL & 0x0800 >> 11) & 0xff
+        let r2 = Byte(value & 0x0800 >> 10) & 0xff
+        let r3 = Byte(Word(result & 0xffff) & 0x0800 >> 9) & 0xff
+        let lookup: Byte = r1 | r2 | r3
+        
+        HL = Word(result & 0xffff)
+
+        var carry: Byte = FLAG_C
+        if result & 0x1000 == 0x00 {
+            carry = 0x00
+        }
+        
+        var zero: Byte = FLAG_Z
+        if HL != 0x00 {
+            zero = 0x00
+        }
+        
+        F = carry | FLAG_N | halfcarrySubTable[lookup & 0x07] | overflowSubTable[lookup >> 4] | (H & (FLAG_3 | FLAG_5 | FLAG_S)) | zero
+    }
+
+    /**
+     * SLA
+     */
+    mutating func SLA(inout value: Byte) {
+        F = value >> 7
+        value <<= 1
+        F |= SZ35Table[value] | parityTable[value]
+    }
+    
+    /**
+     * SLL
+     */
+    mutating func SLL(inout value: Byte) {
+        F = value >> 7
+        value = value << 1 | 0x01
+        F |= SZ35Table[value]
+    }
+    
+    /**
+     * SRA
+     */
+    mutating func SRA(inout value: Byte) {
+        F = value & FLAG_C
+        value = (value & 0x80) | value >> 1
+        F |= SZ35Table[value] | parityTable[value]
+    }
+    
+    /**
+     * SRL
+     */
+    mutating func SRL(inout value: Byte) {
+        F = value & FLAG_C
+        value >>= 1
+        F |= SZ35Table[value] | parityTable[value]
+    }
+
 	/**
 	* SUB - The integer in byte is subtracted from the contents of the accumulator replacing the accumulators contents with
 	* the new value
@@ -85,82 +429,22 @@ extension SwiftZ80Core {
 		
 		A = Byte(result & 0xff)
 		
-		var carry = F_C
+		var carry = FLAG_C
 		if result & 0x100 == 0x00 {
 			carry = 0x00
 		}
 		
-		var sign: Byte = F_S
-		if A & 0x80 == 0x00 {
-			sign = 0x00
-		}
-		
-		var zero: Byte = F_Z
-		if A != 0 {
-			zero = 0x00
-		}
-		
-		F = zero | sign | carry | F_N | halfcarry_sub_table[lookup & 0x07] | overflow_sub_table[lookup >> 4]
+		F = carry | FLAG_N | halfcarrySubTable[lookup & 0x07] | overflowSubTable[lookup >> 4] | SZ35Table[A]
 		
 	}
 	
-	mutating func ADC(value: Byte) {
-		
-		var result: Int = 0
-		
-		ResetFlag(F_N)
-		ValFlag(F_H, value: (((A & 0x0f) + (value & 0x0f)) & 0x10))
-		
-		result = Int(A) + Int(value)
-		
-		if getFlag(F_C) != 0 {
-			result += 1
-		}
-		
-		ValFlag(F_S, value: (Byte(result & 0x80)))
-		
-		if result & 0x100 == 0 {
-			ResetFlag(F_C)
-		} else {
-			SetFlag(F_C)
-		}
-		
-		if result & 0xff > 0 {
-			ResetFlag(F_Z)
-		} else {
-			SetFlag(F_Z)
-		}
-		
-		A = Byte(result & 0xff)
-	}
-	
-	mutating func DAA() {
-		
-		var add: Byte = 0
-		var carry: Byte = getFlag(F_C)
-		
-		if (getFlag(F_C) != 0x00 || A & 0x0f > 9) {
-			add = 0x06
-		}
-		
-		if (carry != 0x00 || A > 0x99) {
-			add |= 0x60
-		}
-		
-		if (A > 0x99) {
-			carry = F_C
-		}
-		
-		// Sub if N flag is set
-		if (F & F_N != 0x00) {
-			SUB(add)
-		} else {
-			ADD(add)
-		}
-		
-		F = (F & ~(F_C | F_P)) | carry | parity_table[A]
-		
-	}
-	
+    /**
+     * XOR
+     */
+    mutating func XOR(value: Byte) {
+        A ^= value
+        F = SZ35Table[A] | parityTable[A]
+    }
+    
 
 }
