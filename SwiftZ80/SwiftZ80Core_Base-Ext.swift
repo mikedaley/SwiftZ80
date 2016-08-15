@@ -929,7 +929,7 @@ extension SwiftZ80Core {
             opcode2 = memoryReadAddress(PC)
             PC += 1
             R = R + 1
-            lookupDDFDOIXpcode(opcode2)
+            lookupDDFDOpcode(opcode2, REGISTER: &R1.IX, REGISTERL: &R1.IXl, REGISTERH: &R1.IXh)
             break
         case 0xde:		/* SBC A,nn */
             let temp: Byte = memoryReadAddress(PC)
@@ -1128,7 +1128,7 @@ extension SwiftZ80Core {
             PC += 1
             R = R &+ 1
             debug()
-            lookupDDFDIYOpcode(opcode2)
+			lookupDDFDOpcode(opcode2, REGISTER: &R1.IY, REGISTERL: &R1.IYl, REGISTERH: &R1.IYh)
             break
         case 0xfe:		/* CP nn */
             let temp = memoryReadAddress(PC)

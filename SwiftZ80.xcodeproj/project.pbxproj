@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		990447FD1D5FCC6A004667A8 /* ZXSpectrum48.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */; };
 		990448001D5FDA5E004667A8 /* 48.ROM in Resources */ = {isa = PBXBuildFile; fileRef = 990447FF1D5FDA5E004667A8 /* 48.ROM */; };
-		990448021D61004F004667A8 /* SwiftZ80Core-DDFD-IY-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990448011D61004F004667A8 /* SwiftZ80Core-DDFD-IY-Ext.swift */; };
 		9977DC021D4416B900EE72C3 /* MemoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9977DC001D4416B900EE72C3 /* MemoryViewController.swift */; };
 		9977DC031D4416B900EE72C3 /* MemoryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9977DC011D4416B900EE72C3 /* MemoryViewController.xib */; };
 		ED4BF3931D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */; };
@@ -25,7 +24,7 @@
 		ED778B6C1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6B1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift */; };
 		ED778B6E1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6D1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift */; };
 		ED778B701D50B9B100727B31 /* SwiftZ80Core-ED-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6F1D50B9B100727B31 /* SwiftZ80Core-ED-Ext.swift */; };
-		ED778B721D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift */; };
+		ED778B721D50B9BF00727B31 /* SwiftZ80Core-DDFD-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-Ext.swift */; };
 		ED778B741D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B731D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift */; };
 		ED778B771D50F9F500727B31 /* Array-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B761D50F9F500727B31 /* Array-Extensions.swift */; };
 		EDAD5B991D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD5B981D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift */; };
@@ -41,7 +40,6 @@
 /* Begin PBXFileReference section */
 		990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZXSpectrum48.swift; sourceTree = "<group>"; };
 		990447FF1D5FDA5E004667A8 /* 48.ROM */ = {isa = PBXFileReference; lastKnownFileType = file; path = 48.ROM; sourceTree = "<group>"; };
-		990448011D61004F004667A8 /* SwiftZ80Core-DDFD-IY-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core-DDFD-IY-Ext.swift"; sourceTree = "<group>"; };
 		9977DC001D4416B900EE72C3 /* MemoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryViewController.swift; sourceTree = "<group>"; };
 		9977DC011D4416B900EE72C3 /* MemoryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MemoryViewController.xib; sourceTree = "<group>"; };
 		ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwifZ80Core_Debug-Ext.swift"; sourceTree = "<group>"; };
@@ -57,7 +55,7 @@
 		ED778B6B1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_Base-Ext.swift"; sourceTree = "<group>"; };
 		ED778B6D1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_CB-Ext.swift"; sourceTree = "<group>"; };
 		ED778B6F1D50B9B100727B31 /* SwiftZ80Core-ED-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core-ED-Ext.swift"; sourceTree = "<group>"; };
-		ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core-DDFD-IX-Ext.swift"; sourceTree = "<group>"; };
+		ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core-DDFD-Ext.swift"; sourceTree = "<group>"; };
 		ED778B731D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core-DDFDCB-Ext.swift"; sourceTree = "<group>"; };
 		ED778B761D50F9F500727B31 /* Array-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array-Extensions.swift"; sourceTree = "<group>"; };
 		EDAD5B971D534BFD00B83148 /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
@@ -141,8 +139,7 @@
 				ED778B6B1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift */,
 				ED778B6D1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift */,
 				ED778B6F1D50B9B100727B31 /* SwiftZ80Core-ED-Ext.swift */,
-				ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift */,
-				990448011D61004F004667A8 /* SwiftZ80Core-DDFD-IY-Ext.swift */,
+				ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-Ext.swift */,
 				ED778B731D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift */,
 			);
 			name = OpCodes;
@@ -287,11 +284,10 @@
 				ED778B701D50B9B100727B31 /* SwiftZ80Core-ED-Ext.swift in Sources */,
 				EDAD5B991D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift in Sources */,
 				EDC1F08C1D412CB10026C2D2 /* SwiftZ80Core.swift in Sources */,
-				ED778B721D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift in Sources */,
+				ED778B721D50B9BF00727B31 /* SwiftZ80Core-DDFD-Ext.swift in Sources */,
 				ED778B6A1D509D3400727B31 /* Operators.swift in Sources */,
 				ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */,
 				ED4BF39A1D5251CB003D1BDE /* Word-Extensions.swift in Sources */,
-				990448021D61004F004667A8 /* SwiftZ80Core-DDFD-IY-Ext.swift in Sources */,
 				EDFF5C251D6228350001EFDC /* SwiftZ80CoreTest.swift in Sources */,
 				ED4BF3951D524E2D003D1BDE /* String-Extensions.swift in Sources */,
 				ED778B6C1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift in Sources */,
