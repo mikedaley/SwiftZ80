@@ -60,12 +60,12 @@ class MemoryViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
 			let string = String(format: "%5i: ", i)
 			let attrString = NSMutableAttributedString.init(string: string, attributes: [NSFontAttributeName : boldFont])
 			for index in i ... i + 31 {
-				let value = appDelegate!.memory[index]
+				let value = appDelegate!.machine.memory[index]
 				
 				var textColor: NSColor = NSColor.blackColor()
 				if index >= 0x4000 && index < 0x5800 {
 					textColor = NSColor.blueColor()
-				} else if appDelegate!.memory[index] != 0x00 {
+				} else if appDelegate!.machine.memory[index] != 0x00 {
 					textColor = NSColor.redColor()
 				}
 				let memoryString = NSAttributedString.init(string: String(format:"%02X ", value), attributes: [NSForegroundColorAttributeName : textColor])

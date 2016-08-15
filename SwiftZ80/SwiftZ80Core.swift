@@ -72,10 +72,10 @@ struct SwiftZ80Core
 	}
 	var C: Byte {
 		get {
-			return R1.B
+			return R1.C
 		}
 		set {
-			R1.B = newValue
+			R1.C = newValue
 		}
 	}
 	var DE: Word {
@@ -426,56 +426,9 @@ struct SwiftZ80Core
     mutating func execute() {
 		
 		let opcode: Byte = memoryReadAddress(PC)
-		PC += 1
+		PC = PC &+ 1
 		lookupBaseOpcode(opcode)
 	
-	}
-
-    /**
-     * Execure an entire frame. The number of tStates in the frame are supplied
-     */
-    mutating func executeFrameWithTstates(tStatesInFrame: Int) {
-        
-        self.tStates = 0
-        
-        while self.tStates <= tStatesInFrame  {
-            execute()
-        }
-
-    }
-	
-	// MARK: Core flag functions
-
-	/**
-	* Get the specified flag
-	*/
-	func getFlag(flag: Byte) -> Byte {
-		return F & flag
-	}
-
-	/**
-	* Reset the specific flag
-	*/
-	mutating func ResetFlag(flag: Byte) {
-		F &= ~flag
-	}
-
-	/**
-	* Set the specified flag
-	*/
-	mutating func SetFlag(flag: Byte) {
-		F |= flag
-	}
-	
-	/**
-	* Get or Reset the specified flag based on the value passed in
-	*/
-	mutating func ValFlag(flag: Byte, value: Byte) {
-		if value != 0 {
-			SetFlag(flag)
-		} else {
-			ResetFlag(flag)
-		}
 	}
 
 }

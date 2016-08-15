@@ -54,7 +54,7 @@ extension SwiftZ80Core {
         HL = Word(result & 0xffff)
         
         var carry = FLAG_C
-        if result & 0x100 == 0x00 {
+        if result & 0x10000 == 0x00 {
             carry = 0x00
         }
         
@@ -93,7 +93,7 @@ extension SwiftZ80Core {
 	* ADD16 - The integer word value is added to the contents of the accumulator replacing the accumulators contents with
 	* the new value
 	*/
-	mutating func ADD16(value1: Word, value2: Word) {
+	mutating func ADD16(inout value1: Word, value2: Word) {
 		
 		let result: Int = Int(value1) + Int(value2)
         let r1: Byte = Byte(value1 & 0x0800 >> 11) & 0xff
@@ -101,15 +101,22 @@ extension SwiftZ80Core {
         let r3: Byte = Byte(Word(result & 0xffff) & 0x0800 >> 9) & 0xff
         let lookup: Byte = r1 | r2 | r3
         
-		A = Byte(result & 0xff)
-		
-		var carry: Byte = FLAG_C
-		if result & 0x100 == 0x00 {
-			carry = 0x00
-		}
-				
-		F = carry | halfcarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] | SZ35Table[A]
-		
+		value1 = Word(result & 0xffff)
+						
+        var carry: Byte = FLAG_C
+        if result & 0x10000 == 0x00 {
+            carry = 0x00
+        }
+        
+        let v = Byte((result & 0xffff) >> 8) & 0xff
+        
+        let f1 = ( F & (FLAG_V | FLAG_Z | FLAG_S))
+        let f2 = carry
+        let f3 = v & (FLAG_3 | FLAG_5)
+        let f4 = halfcarryAddTable[lookup]
+        
+        F = f1 | f2 | f3 | f4
+
 	}
 	
     /**
@@ -277,13 +284,17 @@ extension SwiftZ80Core {
      */
     mutating func JR() {
         
-        let temp: Byte = memoryReadAddress(PC)
+        let temp: Int8 = Int8(bitPattern: memoryReadAddress(PC))
         contend_read_no_mreq(PC, tStates: 1)
         contend_read_no_mreq(PC, tStates: 1)
         contend_read_no_mreq(PC, tStates: 1)
         contend_read_no_mreq(PC, tStates: 1)
         contend_read_no_mreq(PC, tStates: 1)
-        PC += Word(temp)
+        
+        var signedPC = Int16(PC)
+        signedPC += Int16(temp)
+        
+        PC = Word(signedPC)
     }
     
     /**
@@ -299,9 +310,9 @@ extension SwiftZ80Core {
      */
     mutating func POP16(inout regL: Byte, inout regH: Byte) {
         regL = memoryReadAddress(SP)
-        SP = SP + 1
+        SP = SP &+ 1
         regH = memoryReadAddress(SP)
-        SP = SP + 1
+        SP = SP &+ 1
     }
 
     /**
@@ -309,9 +320,9 @@ extension SwiftZ80Core {
      */
     mutating func PUSH16(inout regL: Byte, inout regH: Byte) {
         memoryWriteAddress(SP, value: regH)
-        SP = SP - 1
+        SP = SP &- 1
         memoryWriteAddress(SP, value: regL)
-        SP = SP - 1
+        SP = SP &- 1
     }
 
     /**
@@ -385,6 +396,7 @@ extension SwiftZ80Core {
      * SBC16
      */
     mutating func SBC16(value: Word) {
+   
         let result: Int = Int(HL) - Int(value) - Int(F & FLAG_C)
         
         let r1 = Byte(HL & 0x0800 >> 11) & 0xff
@@ -395,7 +407,7 @@ extension SwiftZ80Core {
         HL = Word(result & 0xffff)
 
         var carry: Byte = FLAG_C
-        if result & 0x1000 == 0x00 {
+        if result & 0x10000 == 0x00 {
             carry = 0x00
         }
         

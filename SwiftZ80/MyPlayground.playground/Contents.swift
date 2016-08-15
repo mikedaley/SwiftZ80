@@ -12,8 +12,17 @@ var b: Int16 = Int16(a) - Int16(v)
 
 a = Byte(b & 0xff)
 
-func ADD<T>(value: T) {
-	
-	let result: Int = value as! Int
-	
-}
+var p: Word = 4753
+
+var j: Int8 = -6
+
+var spc: Int16 = Int16(bitPattern: p)
+
+spc += Int16(j)
+
+p = Word(spc)
+
+
+let f53: Byte = Byte((p >> 8) & 0xff)
+
+

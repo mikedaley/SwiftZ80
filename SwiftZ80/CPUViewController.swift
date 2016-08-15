@@ -40,6 +40,7 @@ class CPUViewController: NSViewController {
 	@IBOutlet weak var IM: NSTextField!
 	@IBOutlet weak var R: NSTextField!
 	@IBOutlet weak var I: NSTextField!
+    @IBOutlet weak var PC: NSTextField!
 	
 	@IBOutlet weak var F_S: NSButton!
 	@IBOutlet weak var F_Z: NSButton!
