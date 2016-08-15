@@ -33,6 +33,9 @@
 		EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */; };
 		EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F0811D412C7A0026C2D2 /* MainMenu.xib */; };
 		EDC1F08C1D412CB10026C2D2 /* SwiftZ80Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F08B1D412CB10026C2D2 /* SwiftZ80Core.swift */; };
+		EDFF5C251D6228350001EFDC /* SwiftZ80CoreTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDFF5C241D6228350001EFDC /* SwiftZ80CoreTest.swift */; };
+		EDFF5C281D6228960001EFDC /* tests.expected in Resources */ = {isa = PBXBuildFile; fileRef = EDFF5C261D6228960001EFDC /* tests.expected */; };
+		EDFF5C291D6228960001EFDC /* tests.in in Resources */ = {isa = PBXBuildFile; fileRef = EDFF5C271D6228960001EFDC /* tests.in */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +68,9 @@
 		EDC1F0821D412C7A0026C2D2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		EDC1F0841D412C7A0026C2D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EDC1F08B1D412CB10026C2D2 /* SwiftZ80Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80Core.swift; sourceTree = "<group>"; };
+		EDFF5C241D6228350001EFDC /* SwiftZ80CoreTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80CoreTest.swift; sourceTree = "<group>"; };
+		EDFF5C261D6228960001EFDC /* tests.expected */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tests.expected; sourceTree = "<group>"; };
+		EDFF5C271D6228960001EFDC /* tests.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tests.in; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +175,7 @@
 				EDC1F08A1D412C8F0026C2D2 /* Z80 Core */,
 				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
 				990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */,
+				EDFF5C231D6228120001EFDC /* Core Tests */,
 				EDAD5B971D534BFD00B83148 /* MyPlayground.playground */,
 			);
 			path = SwiftZ80;
@@ -183,6 +190,16 @@
 				EDAD5B961D52657700B83148 /* OpCodes */,
 			);
 			name = "Z80 Core";
+			sourceTree = "<group>";
+		};
+		EDFF5C231D6228120001EFDC /* Core Tests */ = {
+			isa = PBXGroup;
+			children = (
+				EDFF5C261D6228960001EFDC /* tests.expected */,
+				EDFF5C271D6228960001EFDC /* tests.in */,
+				EDFF5C241D6228350001EFDC /* SwiftZ80CoreTest.swift */,
+			);
+			name = "Core Tests";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -243,6 +260,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDFF5C291D6228960001EFDC /* tests.in in Resources */,
+				EDFF5C281D6228960001EFDC /* tests.expected in Resources */,
 				EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */,
 				ED56C7471D4B59AE00541BDF /* GraphicalMemoryController.xib in Resources */,
 				ED6B38251D4A59BD00D24DA7 /* CPUViewController.xib in Resources */,
@@ -273,6 +292,7 @@
 				ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */,
 				ED4BF39A1D5251CB003D1BDE /* Word-Extensions.swift in Sources */,
 				990448021D61004F004667A8 /* SwiftZ80Core-DDFD-IY-Ext.swift in Sources */,
+				EDFF5C251D6228350001EFDC /* SwiftZ80CoreTest.swift in Sources */,
 				ED4BF3951D524E2D003D1BDE /* String-Extensions.swift in Sources */,
 				ED778B6C1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift in Sources */,
 				EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */,
