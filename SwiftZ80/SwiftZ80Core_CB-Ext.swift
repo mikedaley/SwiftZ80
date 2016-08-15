@@ -32,10 +32,10 @@ extension SwiftZ80Core {
             RLC(&L)
             break
         case 0x06:		/* RLC (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             RLC(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x07:		/* RLC A */
             RLC(&A)
@@ -59,10 +59,10 @@ extension SwiftZ80Core {
             RRC(&L)
             break
         case 0x0e:		/* RRC (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             RRC(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x0f:		/* RRC A */
             RRC(&A)
@@ -86,10 +86,10 @@ extension SwiftZ80Core {
             RL(&L)
             break
         case 0x16:		/* RL (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             RL(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x17:		/* RL A */
             RL(&A)
@@ -113,10 +113,10 @@ extension SwiftZ80Core {
             RR(&L)
             break
         case 0x1e:		/* RR (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             RR(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x1f:		/* RR A */
             RR(&A)
@@ -140,10 +140,10 @@ extension SwiftZ80Core {
             SLA(&L)
             break
         case 0x26:		/* SLA (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             SLA(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x27:		/* SLA A */
             SLA(&A)
@@ -167,10 +167,10 @@ extension SwiftZ80Core {
             SRA(&L)
             break
         case 0x2e:		/* SRA (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             SRA(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x2f:		/* SRA A */
             SRA(&A)
@@ -194,10 +194,10 @@ extension SwiftZ80Core {
             SLL(&L)
             break
         case 0x36:		/* SLL (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             SLL(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x37:		/* SLL A */
             SLL(&A)
@@ -221,10 +221,10 @@ extension SwiftZ80Core {
             SRL(&L)
             break
         case 0x3e:		/* SRL (HL) */
-            var temp: Byte = memoryReadAddress(HL)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             SRL(&temp)
-            memoryWriteAddress(HL, value: temp)
+            internalWriteAddress(HL, value: temp)
             break
         case 0x3f:		/* SRL A */
             SRL(&A)
@@ -248,7 +248,7 @@ extension SwiftZ80Core {
             BIT(0, value:L)
             break
         case 0x46:		/* BIT 0,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(0, value: temp)
             break
@@ -274,7 +274,7 @@ extension SwiftZ80Core {
             BIT(1, value:L)
             break
         case 0x4e:		/* BIT 1,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(1, value: temp)
             break
@@ -300,7 +300,7 @@ extension SwiftZ80Core {
             BIT(2, value:L)
             break
         case 0x56:		/* BIT 2,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(2, value: temp)
             break
@@ -326,7 +326,7 @@ extension SwiftZ80Core {
             BIT(3, value:L)
             break
         case 0x5e:		/* BIT 3,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(3, value: temp)
             break
@@ -352,7 +352,7 @@ extension SwiftZ80Core {
             BIT(4, value:L)
             break
         case 0x66:		/* BIT 4,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(4, value: temp)
             break
@@ -378,7 +378,7 @@ extension SwiftZ80Core {
             BIT(5, value:L)
             break
         case 0x6e:		/* BIT 5,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(5, value: temp)
             break
@@ -404,7 +404,7 @@ extension SwiftZ80Core {
             BIT(6, value:L)
             break
         case 0x76:		/* BIT 6,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(6, value: temp)
             break
@@ -430,7 +430,7 @@ extension SwiftZ80Core {
             BIT(7, value:L)
             break
         case 0x7e:		/* BIT 7,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             BIT(7, value: temp)
             break
@@ -456,9 +456,9 @@ extension SwiftZ80Core {
             L &= 0xfe
             break
         case 0x86:		/* RES 0,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0xfe)
+            internalWriteAddress(HL, value: temp & 0xfe)
             break
         case 0x87:		/* RES 0,A */
             A &= 0xfe
@@ -482,9 +482,9 @@ extension SwiftZ80Core {
             L &= 0xfd
             break
         case 0x8e:		/* RES 1,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0xfd)
+            internalWriteAddress(HL, value: temp & 0xfd)
             break
         case 0x8f:		/* RES 1,A */
             A &= 0xfd
@@ -508,9 +508,9 @@ extension SwiftZ80Core {
             L &= 0xfb
             break
         case 0x96:		/* RES 2,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0xfb)
+            internalWriteAddress(HL, value: temp & 0xfb)
             break
         case 0x97:		/* RES 2,A */
             A &= 0xfb
@@ -534,9 +534,9 @@ extension SwiftZ80Core {
             L &= 0xf7
             break
         case 0x9e:		/* RES 3,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0xf7)
+            internalWriteAddress(HL, value: temp & 0xf7)
             break
         case 0x9f:		/* RES 3,A */
             A &= 0xf7
@@ -560,9 +560,9 @@ extension SwiftZ80Core {
             L &= 0xef
             break
         case 0xa6:		/* RES 4,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0xef)
+            internalWriteAddress(HL, value: temp & 0xef)
             break
         case 0xa7:		/* RES 4,A */
             A &= 0xef
@@ -586,9 +586,9 @@ extension SwiftZ80Core {
             L &= 0xdf
             break
         case 0xae:		/* RES 5,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0xdf)
+            internalWriteAddress(HL, value: temp & 0xdf)
             break
         case 0xaf:		/* RES 5,A */
             A &= 0xdf
@@ -612,9 +612,9 @@ extension SwiftZ80Core {
             L &= 0xbf
             break
         case 0xb6:		/* RES 6,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0xbf)
+            internalWriteAddress(HL, value: temp & 0xbf)
             break
         case 0xb7:		/* RES 6,A */
             A &= 0xbf
@@ -638,9 +638,9 @@ extension SwiftZ80Core {
             L &= 0x7f
             break
         case 0xbe:		/* RES 7,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp & 0x7f)
+            internalWriteAddress(HL, value: temp & 0x7f)
             break
         case 0xbf:		/* RES 7,A */
             A &= 0x7f
@@ -664,9 +664,9 @@ extension SwiftZ80Core {
             L |= 0x01
             break
         case 0xc6:		/* SET 0,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x01)
+            internalWriteAddress(HL, value: temp | 0x01)
             break
         case 0xc7:		/* SET 0,A */
             A |= 0x01
@@ -690,9 +690,9 @@ extension SwiftZ80Core {
             L |= 0x02
             break
         case 0xce:		/* SET 1,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x02)
+            internalWriteAddress(HL, value: temp | 0x02)
             break
         case 0xcf:		/* SET 1,A */
             A |= 0x02
@@ -716,9 +716,9 @@ extension SwiftZ80Core {
             L |= 0x04
             break
         case 0xd6:		/* SET 2,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x04)
+            internalWriteAddress(HL, value: temp | 0x04)
             break
         case 0xd7:		/* SET 2,A */
             A |= 0x04
@@ -742,9 +742,9 @@ extension SwiftZ80Core {
             L |= 0x08
             break
         case 0xde:		/* SET 3,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x08)
+            internalWriteAddress(HL, value: temp | 0x08)
             break
         case 0xdf:		/* SET 3,A */
             A |= 0x08
@@ -768,9 +768,9 @@ extension SwiftZ80Core {
             L |= 0x10
             break
         case 0xe6:		/* SET 4,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x10)
+            internalWriteAddress(HL, value: temp | 0x10)
             break
         case 0xe7:		/* SET 4,A */
             A |= 0x10
@@ -794,9 +794,9 @@ extension SwiftZ80Core {
             L |= 0x20
             break
         case 0xee:		/* SET 5,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x20)
+            internalWriteAddress(HL, value: temp | 0x20)
             break
         case 0xef:		/* SET 5,A */
             A |= 0x20
@@ -820,9 +820,9 @@ extension SwiftZ80Core {
             L |= 0x40
             break
         case 0xf6:		/* SET 6,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x40)
+            internalWriteAddress(HL, value: temp | 0x40)
             break
         case 0xf7:		/* SET 6,A */
             A |= 0x40
@@ -846,9 +846,9 @@ extension SwiftZ80Core {
             L |= 0x80
             break
         case 0xfe:		/* SET 7,(HL) */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL, value: temp | 0x80)
+            internalWriteAddress(HL, value: temp | 0x80)
             break
         case 0xff:		/* SET 7,A */
             A |= 0x80

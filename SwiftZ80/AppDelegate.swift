@@ -32,9 +32,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	let displayQueue = dispatch_queue_create("displayQueue", nil)
 	var displayTimer: dispatch_source_t
 	
+	var tests: SwiftZ80CoreTest
+	
 	override init() {
 		emulationTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, emulationQueue)
 		displayTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, displayQueue)
+		tests = SwiftZ80CoreTest()
 	}
 	
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
@@ -72,11 +75,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         
         // TESTING
-        
-//        machine.core!.IYl = 0xa8
-//        machine.core!.IYh = 0x3c
+        tests.runTests()
 		
-        
 		// Emulation timer
         dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1/50 * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(emulationTimer) {
@@ -85,7 +85,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			
 		}
 		
-		dispatch_resume(emulationTimer)
+//		dispatch_resume(emulationTimer)
 
         // UI Timer
 		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(1/50 * Double(NSEC_PER_SEC)), 0)

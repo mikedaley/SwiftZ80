@@ -369,6 +369,14 @@ struct SwiftZ80Core
 	     contentionWriteNoMREQ: (address: Word, tStates: Int) -> (),
 	     contentionRead: (address: Word, tStates: Int) -> ()) {
 		
+		self.memoryReadAddress = memoryRead
+		self.memoryWriteAddress = memoryWrite
+		self.ioReadAddress = ioRead
+		self.ioWriteAddress = ioWrite
+		self.contend_read_no_mreq = contentionReadNoMREQ
+		self.contend_write_no_mreq = contentionWriteNoMREQ
+		self.contend_read = contentionRead
+		
 		R1 = Z80Registers()
 		R2 = Z80Registers()
 		PC = 0x00
@@ -380,14 +388,7 @@ struct SwiftZ80Core
 		IM = 0x00
 		halted = false
 		tStates = 0
-		self.memoryReadAddress = memoryRead
-		self.memoryWriteAddress = memoryWrite
-		self.ioReadAddress = ioRead
-		self.ioWriteAddress = ioWrite
-		self.contend_read_no_mreq = contentionReadNoMREQ
-		self.contend_write_no_mreq = contentionWriteNoMREQ
-		self.contend_read = contentionRead
-        
+		
         setupTables()
 	}
 	
@@ -425,10 +426,46 @@ struct SwiftZ80Core
      */
     mutating func execute() {
 		
-		let opcode: Byte = memoryReadAddress(PC)
+		let opcode: Byte = internalReadAddress(PC, tStates: 4)
 		PC = PC &+ 1
+		R = R &+ 1
 		lookupBaseOpcode(opcode)
 	
 	}
+	
+	mutating func reset() {
+		R1 = Z80Registers()
+		R2 = Z80Registers()
+		PC = 0x00
+		SP = 0x00
+		R = 0x00
+		I = 0x00
+		IFF1 = 0x00
+		IFF2 = 0x00
+		IM = 0x00
+		halted = false
+		tStates = 0
+	}
 
+	/**
+	* Internal memory functions
+	*/
+	mutating func internalReadAddress(address: Word, tStates: Int) -> (Byte) {
+		
+		contend_read(PC, tStates: self.tStates)
+		self.tStates += tStates
+		return memoryReadAddress(PC)
+		
+	}
+
+	mutating func internalWriteAddress(address: Word, value: Byte) {
+		
+		contend_read(PC, tStates: self.tStates)
+		self.tStates += 3
+		memoryWriteAddress(address, value: value)
+		
+	}
+
+
+	
 }

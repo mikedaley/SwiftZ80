@@ -166,12 +166,12 @@ extension SwiftZ80Core {
             LD16_NNRR(L,regH: H)
             break
         case 0x67:		/* RRD */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             contend_read_no_mreq(HL, tStates: 1)
             contend_read_no_mreq(HL, tStates: 1)
             contend_read_no_mreq(HL, tStates: 1)
-            memoryWriteAddress(HL,  value: (A << 4) | (temp >> 4))
+            internalWriteAddress(HL,  value: (A << 4) | (temp >> 4))
             A = (A & 0xf0) | (temp & 0x0f)
             F = (F & FLAG_C) | SZ35Table[A]
             break
@@ -195,7 +195,7 @@ extension SwiftZ80Core {
             LD16_RRNN(&L,regH: &H)
             break
         case 0x6f:		/* RLD */
-            let temp: Byte = memoryReadAddress(HL)
+            let temp: Byte = internalReadAddress(HL, tStates: 3)
             contend_read_no_mreq(HL, tStates: 1)
             contend_read_no_mreq(HL, tStates: 1)
             contend_read_no_mreq(HL, tStates: 1)
@@ -246,9 +246,9 @@ extension SwiftZ80Core {
             LD16_RRNN(&SPl,regH: &SPh)
             break
         case 0xa0:		/* LDI */
-            var temp = memoryReadAddress(HL)
+            var temp = internalReadAddress(HL, tStates: 3)
             BC = BC &- 1
-            memoryWriteAddress(DE,value: temp)
+            internalWriteAddress(DE,value: temp)
             contend_write_no_mreq(DE, tStates: 1)
             contend_write_no_mreq(DE, tStates: 1)
             DE = DE &+ 1
@@ -258,7 +258,7 @@ extension SwiftZ80Core {
                 (temp & FLAG_3) | ((temp & 0x02) != 0x00 ? FLAG_5 : 0)
             break
         case 0xa1:		/* CPI */
-            let value: Byte = memoryReadAddress(HL)
+            let value: Byte = internalReadAddress(HL, tStates: 3)
             var temp: Byte = A - value
             let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(temp & 0xff) & 0x88) >> 1)
             
@@ -295,7 +295,7 @@ extension SwiftZ80Core {
             var temp2: Byte
             
             contend_read_no_mreq(IR, tStates: 1)
-            temp1 = memoryReadAddress(HL)
+            temp1 = internalReadAddress(HL, tStates: 3)
             B -= 1	/* This does happen first, despite what the specs say */
             ioWriteAddress(BC, value: temp1)
             
@@ -304,9 +304,9 @@ extension SwiftZ80Core {
             F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (temp2 < temp1 ? FLAG_H | FLAG_C : 0) | (parityTable[ (temp2 & 0x07) ^ B ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
             break
         case 0xa8:		/* LDD */
-            var temp = memoryReadAddress(HL)
+            var temp = internalReadAddress(HL, tStates: 3)
             BC = BC &- 1
-            memoryWriteAddress(DE, value: temp)
+            internalWriteAddress(DE, value: temp)
             contend_write_no_mreq(DE, tStates: 1)
             contend_write_no_mreq(DE, tStates: 1)
             DE = DE &- 1
@@ -316,7 +316,7 @@ extension SwiftZ80Core {
                 (temp & FLAG_3) | ((temp & 0x02) != 0x00 ? FLAG_5 : 0)
             break
         case 0xa9:		/* CPD */
-            let value: Byte = memoryReadAddress(HL)
+            let value: Byte = internalReadAddress(HL, tStates: 3)
             var temp: Byte = A - value
             let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(temp & 0xff) & 0x88) >> 1)
             contend_read_no_mreq(HL, tStates: 1)
@@ -338,7 +338,7 @@ extension SwiftZ80Core {
                 
             contend_read_no_mreq(IR, tStates: 1)
             temp1 = ioReadAddress(BC)
-            memoryWriteAddress(HL, value: temp1)
+            internalWriteAddress(HL, value: temp1)
             
             B = B &- 1
             HL = HL &- 1
@@ -353,7 +353,7 @@ extension SwiftZ80Core {
             var temp2: Byte
             
             contend_read_no_mreq(IR, tStates: 1)
-            temp1 = memoryReadAddress(HL)
+            temp1 = internalReadAddress(HL, tStates: 3)
             B = B &- 1	/* This does happen first, despite what the specs say */
             ioWriteAddress(BC, value: temp1)
             
@@ -364,8 +364,8 @@ extension SwiftZ80Core {
             
             break
         case 0xb0:		/* LDIR */
-            var temp: Byte = memoryReadAddress(HL)
-            memoryWriteAddress(DE, value: temp)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
+            internalWriteAddress(DE, value: temp)
             contend_write_no_mreq(DE, tStates: 1)
             contend_write_no_mreq(DE, tStates: 1)
             BC = BC &- 1
@@ -384,7 +384,7 @@ extension SwiftZ80Core {
             DE = DE &+ 1
             break
         case 0xb1:		/* CPIR */
-            let value: Byte = memoryReadAddress(HL)
+            let value: Byte = internalReadAddress(HL, tStates: 3)
             var temp: Byte = A - value
             let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(temp & 0xff) & 0x88) >> 1)
 
@@ -420,7 +420,7 @@ extension SwiftZ80Core {
             
             contend_read_no_mreq(IR, tStates: 1)
             temp1 = ioReadAddress(BC)
-            memoryWriteAddress(HL, value: temp1)
+            internalWriteAddress(HL, value: temp1)
             
             B = B &- 1
             temp2 = temp1 + C + 1
@@ -441,7 +441,7 @@ extension SwiftZ80Core {
             var temp2: Byte
             
             contend_read_no_mreq(IR, tStates: 1)
-            temp1 = memoryReadAddress(HL)
+            temp1 = internalReadAddress(HL, tStates: 3)
             B = B &- 1	/* This does happen first, despite what the specs say */
             ioWriteAddress(BC, value: temp1)
             
@@ -459,8 +459,8 @@ extension SwiftZ80Core {
             }
             break
         case 0xb8:		/* LDDR */
-            var temp: Byte = memoryReadAddress(HL)
-            memoryWriteAddress(DE,value: temp)
+            var temp: Byte = internalReadAddress(HL, tStates: 3)
+            internalWriteAddress(DE,value: temp)
             contend_write_no_mreq(DE, tStates: 1)
             contend_write_no_mreq(DE, tStates: 1)
             BC = BC &- 1
@@ -479,7 +479,7 @@ extension SwiftZ80Core {
             DE = DE &- 1
             break
         case 0xb9:		/* CPDR */
-            let value: Byte = memoryReadAddress(HL)
+            let value: Byte = internalReadAddress(HL, tStates: 3)
             var temp = A - value
             let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(temp & 0xff) & 0x88) >> 1)
 
@@ -513,7 +513,7 @@ extension SwiftZ80Core {
             
             contend_read_no_mreq(IR, tStates: 1)
             temp1 = ioReadAddress(BC)
-            memoryWriteAddress(HL, value: temp1)
+            internalWriteAddress(HL, value: temp1)
             
             B = B &- 1
             temp2 = temp1 + C - 1
@@ -535,7 +535,7 @@ extension SwiftZ80Core {
             var temp2: Byte
             
             contend_read_no_mreq(IR, tStates: 1)
-            temp1 = memoryReadAddress(HL)
+            temp1 = internalReadAddress(HL, tStates: 3)
             B  = B &- 1	/* This does happen first, despite what the specs say */
             ioWriteAddress(BC, value : temp1)
             
