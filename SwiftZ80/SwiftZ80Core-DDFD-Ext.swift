@@ -37,7 +37,6 @@ extension SwiftZ80Core {
             PC += 1
             REGISTERH = internalReadAddress(PC, tStates: 3)
             PC += 1
-            debug()
             break
         case 0x22:		/* LD (nnnn),REGISTER */
             LD16_NNRR(REGISTERL,regH: REGISTERH)

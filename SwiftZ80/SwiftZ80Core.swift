@@ -329,7 +329,7 @@ struct SwiftZ80Core
 	var IM: Byte
 	
 	// General core properties
-	var halted: Bool = false
+	var halted: Byte = 0
 	var tStates: Int = 0
 	
 	// References to functions that manage memory access
@@ -341,9 +341,9 @@ struct SwiftZ80Core
 	var ioWriteAddress: (Word, value: Byte) -> ()
 	
 	// References to functions that manage any contention rules
-	var contend_read_no_mreq: (Word, tStates: Int) -> ()
-	var contend_write_no_mreq: (Word, tStates: Int) -> ()
-	var contend_read: (Word, tStates: Int) -> ()
+	var externalContendReadNoMreq: (Word, tStates: Int) -> ()
+	var externalContendWriteNoMreq: (Word, tStates: Int) -> ()
+	var externalContendRead: (Word, tStates: Int) -> ()
 	
 	// Flag tables
 	let halfcarryAddTable: [Byte] = [0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H]
@@ -373,9 +373,9 @@ struct SwiftZ80Core
 		self.memoryWriteAddress = memoryWrite
 		self.ioReadAddress = ioRead
 		self.ioWriteAddress = ioWrite
-		self.contend_read_no_mreq = contentionReadNoMREQ
-		self.contend_write_no_mreq = contentionWriteNoMREQ
-		self.contend_read = contentionRead
+		self.externalContendReadNoMreq = contentionReadNoMREQ
+		self.externalContendWriteNoMreq = contentionWriteNoMREQ
+		self.externalContendRead = contentionRead
 		
 		R1 = Z80Registers()
 		R2 = Z80Registers()
@@ -386,7 +386,7 @@ struct SwiftZ80Core
 		IFF1 = 0x00
 		IFF2 = 0x00
 		IM = 0x00
-		halted = false
+		halted = 0
 		tStates = 0
 		
         setupTables()
@@ -443,29 +443,72 @@ struct SwiftZ80Core
 		IFF1 = 0x00
 		IFF2 = 0x00
 		IM = 0x00
-		halted = false
+		halted = 0
 		tStates = 0
 	}
 
+	// MARK: Internal memory and contention functions
+	// These are called by the core so that the internal tstate count can be adjusted based on memory reads, writes and contention.
+	//
+	
+	
 	/**
-	* Internal memory functions
+	* Internal Read Address
+	* Update the cores tState count based on the tStates passed in. The tState value will be 4 for an opcode read and 3
+	* for a data read.
 	*/
 	mutating func internalReadAddress(address: Word, tStates: Int) -> (Byte) {
 		
-		contend_read(PC, tStates: self.tStates)
+		// First of all call out to see if any contention needs to be added. This is managed by the emulator
+		externalContendRead(PC, tStates: self.tStates)
+		
+		// Now increase the cores tState count based on the tStates passed in
 		self.tStates += tStates
+		
+		// Return the byte returned from calling the external memory read
 		return memoryReadAddress(PC)
 		
 	}
 
+	/**
+	* Internal Write Address
+	*/
 	mutating func internalWriteAddress(address: Word, value: Byte) {
 		
-		contend_read(PC, tStates: self.tStates)
-		self.tStates += 3
-		memoryWriteAddress(address, value: value)
+		externalContendWriteNoMreq(PC, tStates: self.tStates)
 		
+		// Writing data to memory always uses 3 tStates
+		self.tStates += 3
+		
+		memoryWriteAddress(address, value: value)
+	}
+	
+	/**
+	* Contend Read No Mreq
+	*/
+	mutating func contend_read_no_mreq(address: Word, tStates: Int) {
+
+		// Check for any contention based on the address and tStates passed in
+		externalContendReadNoMreq(address, tStates: tStates)
+		
+		// ...then update the cores tState count based on the tStates passed in
+		self.tStates += tStates
 	}
 
+	/**
+	* Contend Write No Mreq
+	*/
+	mutating func contend_write_no_mreq(address: Word, tStates: Int) {
+		externalContendWriteNoMreq(address, tStates: tStates)
+		self.tStates += tStates
+	}
 
-	
+	/**
+	* Contend Read
+	*/
+	mutating func contend_read(address: Word, tStates: Int) {
+		externalContendRead(address, tStates: tStates)
+		self.tStates += tStates
+	}
+
 }

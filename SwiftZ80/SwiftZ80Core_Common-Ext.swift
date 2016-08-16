@@ -159,9 +159,9 @@ extension SwiftZ80Core {
      * CALL
      */
     mutating func CALL() {
-        let tempL = memoryReadAddress(PC)
+        let tempL = internalReadAddress(PC, tStates: 3)
         PC = PC + 1
-        let tempH = memoryReadAddress(PC)
+        let tempH = internalReadAddress(PC, tStates: 3)
         contend_read_no_mreq(PC, tStates: 1)
         PC = PC + 1
         PCl = tempL
@@ -245,9 +245,9 @@ extension SwiftZ80Core {
      */
     mutating func LD16_NNRR(regL: Byte, regH: Byte) {
 
-        var temp: Word = Word(memoryReadAddress(PC)) & 0xffff
+        var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
         PC = PC + 1
-        temp |= (Word(memoryReadAddress(PC)) & 0xffff) << 8
+        temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
         PC = PC + 1
         memoryWriteAddress(temp, value: regL)
         temp = temp + 1
@@ -259,13 +259,13 @@ extension SwiftZ80Core {
      */
     mutating func LD16_RRNN(inout regL: Byte, inout regH: Byte) {
         
-        var temp: Word = Word(memoryReadAddress(PC)) & 0xffff
+        var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
         PC = PC + 1
-        temp |= (Word(memoryReadAddress(PC)) & 0xffff) << 8
+        temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
         PC = PC + 1
-        regL = memoryReadAddress(temp)
+        regL = internalReadAddress(temp, tStates: 3)
         temp = temp + 1
-        regH = memoryReadAddress(temp)
+        regH = internalReadAddress(temp, tStates: 3)
     }
 
     /**
@@ -274,9 +274,9 @@ extension SwiftZ80Core {
     mutating func JP() {
         
         var temp: Word = PC
-        PCl = memoryReadAddress(temp)
+        PCl = internalReadAddress(temp, tStates: 3)
         temp = temp + 1
-        PCh = memoryReadAddress(temp)
+        PCh = internalReadAddress(temp, tStates: 3)
     }
 
     /**
@@ -284,7 +284,7 @@ extension SwiftZ80Core {
      */
     mutating func JR() {
         
-        let temp: Int8 = Int8(bitPattern: memoryReadAddress(PC))
+        let temp: Int8 = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
         contend_read_no_mreq(PC, tStates: 1)
         contend_read_no_mreq(PC, tStates: 1)
         contend_read_no_mreq(PC, tStates: 1)
@@ -292,9 +292,13 @@ extension SwiftZ80Core {
         contend_read_no_mreq(PC, tStates: 1)
         
         var signedPC = Int16(PC)
-        signedPC += Int16(temp)
+		
+		// Added 1 to PC to cater for the memory read that has occured 
+		signedPC += Int16(temp) + 1
         
-        PC = Word(signedPC)
+		if signedPC >= 0 {
+			PC = Word(signedPC)
+		}
     }
     
     /**
@@ -309,9 +313,9 @@ extension SwiftZ80Core {
      * POP16
      */
     mutating func POP16(inout regL: Byte, inout regH: Byte) {
-        regL = memoryReadAddress(SP)
+        regL = internalReadAddress(SP, tStates: 3)
         SP = SP &+ 1
-        regH = memoryReadAddress(SP)
+        regH = internalReadAddress(SP, tStates: 3)
         SP = SP &+ 1
     }
 

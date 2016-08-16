@@ -100,8 +100,9 @@ extension SwiftZ80Core {
                 JR()
             } else {
                 contend_read(PC, tStates: 3)
+				PC += 1
             }
-            PC += 1
+//			PC += 1
             break
         case 0x11:		/* LD DE,nnnn */
             E = internalReadAddress(PC, tStates: 3)
@@ -226,9 +227,9 @@ extension SwiftZ80Core {
             if F & FLAG_Z == FLAG_Z {
                 JR()
             } else {
-                contend_read(PC, tStates: 3)
+				internalReadAddress(PC, tStates: 3)
+				PC += 1
             }
-            PC += 1
             break
         case 0x29:		/* ADD HL,HL */
             contend_read_no_mreq(IR, tStates: 1)
@@ -516,7 +517,7 @@ extension SwiftZ80Core {
             internalWriteAddress(HL,value: L)
             break
         case 0x76:		/* HALT */
-            halted = true
+            halted = 0x01
             PC = PC - 1
             break
         case 0x77:		/* LD (HL),A */
@@ -1125,7 +1126,6 @@ extension SwiftZ80Core {
             opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
-            debug()
 			lookupDDFDOpcode(opcode2, REGISTER: &R1.IY, REGISTERL: &R1.IYl, REGISTERH: &R1.IYh)
             break
         case 0xfe:		/* CP nn */

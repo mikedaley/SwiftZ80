@@ -14,6 +14,7 @@ class SwiftZ80CoreTest {
 	var initialMemory = [Byte](count: 64 * 1024, repeatedValue: 0x00)
 	var core: SwiftZ80Core?
 	var scanner: StreamScanner?
+	var outputString: String = ""
 	
 	init() {
 		
@@ -32,32 +33,32 @@ class SwiftZ80CoreTest {
 	*/
 	
 	func readFromMemoryAddress(address: Word) -> Byte {
-		print(String.localizedStringWithFormat("%5d MR %04x %02x\n", core!.tStates, address, memory[address]))
+		print(String.localizedStringWithFormat("%5d MR %04x %02x", core!.tStates, address, memory[address]))
 		return memory[address]
 	}
 	
 	func writeToMemoryAddress(address: Word, value: Byte) {
-		print(String.localizedStringWithFormat("%5d MW %04x %02x\n", core!.tStates, address, value))
+		print(String.localizedStringWithFormat("%5d MW %04x %02x", core!.tStates, address, value))
 		memory[address] = value
 	}
 	
 	func ioReadAddress(address: Word) -> Byte {
 		
 		if address & 0xc000 == 0x4000 {
-			print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+			print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 		}
 		core!.tStates += 1
 		
-		print(String.localizedStringWithFormat("%5d PR %04x\n", core!.tStates, address, address >> 8))
+		print(String.localizedStringWithFormat("%5d PR %04x %02x", core!.tStates, address, address >> 8))
 		
 		if address & 0x0001 != 0 {
 			
 			if address & 0xc000 == 0x4000 {
-				print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 				core!.tStates += 1
 			} else {
 				core!.tStates += 3
@@ -74,46 +75,44 @@ class SwiftZ80CoreTest {
 	func ioWriteAddress(address: Word, value: Byte) {
 		
 		if address & 0xc000 == 0x4000 {
-			print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+			print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 		}
 		core!.tStates += 1
 		
-		print(String.localizedStringWithFormat("%5d PW %04x\n", core!.tStates, address, address >> 8))
+		print(String.localizedStringWithFormat("%5d PW %04x %02x", core!.tStates, address, address >> 8))
 		
 		if address & 0x0001 != 0 {
 			
 			if address & 0xc000 == 0x4000 {
-				print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 				core!.tStates += 1
 			} else {
 				core!.tStates += 3
 			}
 			
 		} else {
-			print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+			print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
 			core!.tStates += 3
 		}
 	}
 	
 	func contentionReadNoMREQAddress(address: Word, tStates: Int) {
-		print(String.localizedStringWithFormat("%5d MC %04x\n", core!.tStates, address))
+		print(String.localizedStringWithFormat("%5d MC %04x", core!.tStates, address))
 	}
 	
 	func contentionWriteNoMREQAddress(address: Word, tStates: Int) {
-		print(String.localizedStringWithFormat("%5d MC %04x\n", core!.tStates, address))
+		print(String.localizedStringWithFormat("%5d MC %04x", core!.tStates, address))
 	}
 	
 	func contentionReadAddress(address: Word, tStates: Int) {
-		print(String.localizedStringWithFormat("%5d MC %04x\n", core!.tStates, address))
+		print(String.localizedStringWithFormat("%5d MC %04x", core!.tStates, address))
 	}
 	
-	/**
-	* Test control routines
-	*/
+	//MARK: Core test functions
 	
 	func reset() {
 		core!.reset()
@@ -159,25 +158,22 @@ class SwiftZ80CoreTest {
 			end_tstates -= core!.tStates - tStatesBefore
 		}
 		
+		dumpZ80()
+		dumpMemory()
+		print("")
+
 		return true
 		
 	}
 	
 	func readTest() -> (available: Bool, tStates: Int) {
 		
-		
-//		while let line: String = scanner.read() {
-//			print(line)
-//		}
-//		
-//		return (false, 0)
-		
-		let testName: String = scanner!.read()!
-		
-		if testName == "" {
+		if !scanner!.ready() {
 			return (false, 0)
 		}
 		
+		let testName: String = scanner!.read()!
+
 		let af: String = scanner!.read()!
 		core!.AF = Word(Int(strtoul(af, nil, 16)))
 		let bc: String = scanner!.read()!
@@ -216,26 +212,20 @@ class SwiftZ80CoreTest {
 		let im: String = scanner!.read()!
 		core!.IM = Byte(Int(strtoul(im, nil, 16)))
 		let halted: String = scanner!.read()!
-		
-		if Int(halted) == 0 {
-			core!.halted = false
-		} else {
-			core!.halted = true
-		}
+		core!.halted = Byte(Int(strtoul(halted, nil, 16)))
 
 		let tstates: String = scanner!.read()!
 		let end_tstates = Int(tstates)!
 		
-//		dumpZ80()
-		
 		while true {
 			
 			let addr: String = scanner!.read()!
-			let readAddress: Int = Int(addr)!
-			
-			if readAddress == -1 {
+			if addr == "-1" {
 				break
 			}
+
+			let readAddress: Int = Int(strtoul(addr, nil, 16))
+			
 
 			var address = Word(readAddress)
 			
@@ -260,10 +250,33 @@ class SwiftZ80CoreTest {
 	}
 	
 	func dumpZ80() {
-		print(core!.AF, core!.BC, core!.DE, core!.HL)
-		print(core!.AF_, core!.BC_, core!.DE_, core!.HL_)
-		print(core!.IX, core!.IY, core!.SP, core!.PC)
-		print(core!.I, core!.R, core!.IFF1, core!.IFF2, core!.IM, core!.halted, core!.tStates)
+		print(String.localizedStringWithFormat("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x",core!.AF, core!.BC, core!.DE, core!.HL, core!.AF_, core!.BC_, core!.DE_, core!.HL_, core!.IX, core!.IY, core!.SP, core!.PC))
+		print(String.localizedStringWithFormat("%02x %02x %d %d %d %d %d",core!.I, core!.R, core!.IFF1, core!.IFF2, core!.IM, core!.halted, core!.tStates))
+	}
+	
+	func dumpMemory() {
+		
+		for var i in 0 ..< 0x10000 {
+			
+			var output = ""
+			
+			if memory[i] == initialMemory[i] {
+				continue
+			}
+			
+			output = output.stringByAppendingFormat("%04x ", UInt(i))
+			
+			while i < 0x10000 && memory[i] != initialMemory[i] {
+				output = output.stringByAppendingFormat("%02x ", memory[i])
+				i += 1
+			}
+			
+			output = output.stringByAppendingString("-1")
+			print(output)
+			
+		}
+		
+		
 	}
 	
 }
