@@ -164,6 +164,7 @@ extension SwiftZ80Core {
         let tempH = internalReadAddress(PC, tStates: 3)
         contend_read_no_mreq(PC, tStates: 1)
         PC = PC + 1
+		PUSH16(PCl, regH: PCh)
         PCl = tempL
         PCh = tempH
     }
@@ -315,19 +316,19 @@ extension SwiftZ80Core {
      */
     mutating func POP16(inout regL: Byte, inout regH: Byte) {
         regL = internalReadAddress(SP, tStates: 3)
-        SP = SP &+ 1
+		SP = SP &+ 1
         regH = internalReadAddress(SP, tStates: 3)
-        SP = SP &+ 1
+		SP = SP &+ 1
     }
 
     /**
      * PUSH 16
      */
-    mutating func PUSH16(inout regL: Byte, inout regH: Byte) {
+    mutating func PUSH16(regL: Byte, regH: Byte) {
+		SP = SP &- 1
         internalWriteAddress(SP, value: regH)
-        SP = SP &- 1
+		SP = SP &- 1
         internalWriteAddress(SP, value: regL)
-        SP = SP &- 1
     }
 
     /**
@@ -376,7 +377,7 @@ extension SwiftZ80Core {
      * RST
      */
     mutating func RST(value: Word) {
-        PUSH16(&PCl, regH: &PCh)
+        PUSH16(PCl, regH: PCh)
         PC = value
     }
     

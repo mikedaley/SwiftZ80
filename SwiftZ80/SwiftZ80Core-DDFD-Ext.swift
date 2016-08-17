@@ -546,7 +546,7 @@ extension SwiftZ80Core {
             break
         case 0xe5:		/* PUSH REGISTER */
             contend_read_no_mreq(IR, tStates: 1)
-            PUSH16(&REGISTERL,regH: &REGISTERH)
+            PUSH16(REGISTERL,regH: REGISTERH)
             break
         case 0xe9:		/* JP REGISTER */
             PC=REGISTER		/* NB: NOT INDIRECT! */

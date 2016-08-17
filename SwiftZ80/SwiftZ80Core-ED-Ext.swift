@@ -367,8 +367,8 @@ extension SwiftZ80Core {
             break
         case 0xab:		/* OUTD */
             var temp1: Byte
-            var temp2: Byte
-            
+//            var temp2: Byte
+			
             contend_read_no_mreq(IR, tStates: 1)
             temp1 = internalReadAddress(HL, tStates: 3)
             B = B &- 1	/* This does happen first, despite what the specs say */

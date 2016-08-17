@@ -333,12 +333,13 @@ extension SwiftZ80Core {
             var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
             PC += 1
             temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
+			PC += 1
             A = internalReadAddress(temp, tStates: 3)
             break
         case 0x3b:		/* DEC SP */
             contend_read_no_mreq(IR, tStates: 1)
             contend_read_no_mreq(IR, tStates: 1)
-            SP = SP + 1
+            SP = SP &- 1
             break
         case 0x3c:		/* INC A */
             INC(&A)
@@ -352,9 +353,9 @@ extension SwiftZ80Core {
             break
         case 0x3f:		/* CCF */
             
-            var flag: Byte = FLAG_H
+            var flag: Byte = FLAG_C
             if F & FLAG_C == FLAG_C {
-                flag = FLAG_C
+                flag = FLAG_H
             }
             
             F = (F & (FLAG_P | FLAG_Z | FLAG_S)) |
@@ -753,7 +754,7 @@ extension SwiftZ80Core {
 //                if(tape_load_trap() == 0) break
 //            }
 
-            if F & FLAG_Z == 0x00 {
+            if F & FLAG_Z != FLAG_Z {
                 RET()
             }
             break
@@ -773,7 +774,7 @@ extension SwiftZ80Core {
             JP()
             break
         case 0xc4:		/* CALL NZ,nnnn */
-            if F & FLAG_Z == 0x00 {
+            if F & FLAG_Z != FLAG_Z {
                 CALL()
             } else {
                 contend_read(PC, tStates: 3)
@@ -783,10 +784,11 @@ extension SwiftZ80Core {
             break
         case 0xc5:		/* PUSH BC */
             contend_read_no_mreq(IR, tStates: 1)
-            PUSH16(&C,regH: &B)
+            PUSH16(C,regH: B)
             break
         case 0xc6:		/* ADD A,nn */
             let temp: Byte = internalReadAddress(PC, tStates: 3)
+			PC += 1
             ADD(temp)
             break
         case 0xc7:		/* RST 00 */
@@ -795,7 +797,7 @@ extension SwiftZ80Core {
             break
         case 0xc8:		/* RET Z */
             contend_read_no_mreq(IR, tStates: 1)
-            if F & FLAG_Z == 0x01 {
+            if F & FLAG_Z == FLAG_Z {
                 RET()
             }
             break
@@ -859,7 +861,7 @@ extension SwiftZ80Core {
             }
             break
         case 0xd3:		/* OUT (nn),A */
-            let temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff + ((Word(A) & 0xffff) << 8)
+            let temp: Word = (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
             PC += 1
             ioWriteAddress(temp, value: A)
             break
@@ -874,7 +876,7 @@ extension SwiftZ80Core {
             break
         case 0xd5:		/* PUSH DE */
             contend_read_no_mreq(IR, tStates: 1)
-            PUSH16(&E, regH:&D)
+            PUSH16(E, regH:D)
             break
         case 0xd6:		/* SUB nn */
             let temp: Byte = internalReadAddress(PC, tStates: 3)
@@ -980,7 +982,7 @@ extension SwiftZ80Core {
             break
         case 0xe5:		/* PUSH HL */
             contend_read_no_mreq(IR, tStates: 1)
-            PUSH16(&L, regH:&H)
+            PUSH16(L, regH:H)
             break
         case 0xe6:		/* AND nn */
                 let temp = internalReadAddress(PC, tStates: 3)
@@ -1073,7 +1075,7 @@ extension SwiftZ80Core {
             break
         case 0xf5:		/* PUSH AF */
             contend_read_no_mreq(IR, tStates: 1)
-            PUSH16(&F, regH:&A)
+            PUSH16(F, regH:A)
             break
         case 0xf6:		/* OR nn */
             let temp = internalReadAddress(PC, tStates: 3)

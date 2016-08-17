@@ -132,7 +132,7 @@ class SwiftZ80CoreTest {
             outputString = ""
 		}
 
-        let resultsPath = "/Users/mdaley/Desktop/results.txt"
+        let resultsPath = "/Users/mikedaley/Desktop/results.txt"
         
         do {
             try fileString.writeToFile(resultsPath, atomically: true, encoding: NSUTF8StringEncoding)
@@ -141,7 +141,8 @@ class SwiftZ80CoreTest {
             print("Writing results failed")
         }
         
-        print(fileString)
+//        print(fileString)
+		print("Tests complete...")
 	}
 	
 	func runTest() -> (Bool) {
@@ -186,6 +187,8 @@ class SwiftZ80CoreTest {
 		
 		let testName: String = scanner!.read()!
 
+		print(testName)
+		
 		let af: String = scanner!.read()!
 		core!.AF = Word(Int(strtoul(af, nil, 16)))
 		let bc: String = scanner!.read()!
@@ -269,8 +272,11 @@ class SwiftZ80CoreTest {
 	
 	func dumpMemory() {
 		
-		for var i in 0 ..< 0x10000 {
-			
+		
+		let i = 0 ..< 0x10000
+		var generator = i.generate()
+	
+		while var i = generator.next() {
 			var output = ""
 			
 			if memory[i] == initialMemory[i] {
@@ -281,16 +287,16 @@ class SwiftZ80CoreTest {
 			
 			while i < 0x10000 && memory[i] != initialMemory[i] {
 				output = output.stringByAppendingFormat("%02x ", memory[i])
-				i += 1
+				i = generator.next()!
 			}
 			
 			output = output.stringByAppendingString("-1\n")
 			
-            outputString = outputString.stringByAppendingString(output)
+			outputString = outputString.stringByAppendingString(output)
 			
+			i = generator.next()!
 		}
-		
-		
+	
 	}
 	
 }
