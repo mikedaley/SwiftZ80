@@ -8,21 +8,21 @@
 
 extension SwiftZ80Core {
 	
-	mutating func lookupDDFDOpcode(opcode: Byte, inout REGISTER: Word, inout REGISTERL: Byte, inout REGISTERH: Byte) {
+	mutating func lookupDDFDIYOpcode(opcode: Byte) {
         
         switch opcode {
 
-        case 0x09:		/* ADD REGISTER,BC */
-            contend_read_no_mreq(IR, tStates: 1)
+        case 0x09:		/* ADD IY,BC */
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
-            ADD16(&REGISTER,value2: BC)
+            contend_read_no_mreq(IR, tStates:1)
+            ADD16(&IY, value2: BC)
             break
-        case 0x19:		/* ADD REGISTER,DE */
+        case 0x19:		/* ADD IY,DE */
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
@@ -30,61 +30,61 @@ extension SwiftZ80Core {
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
-            ADD16(&REGISTER,value2: DE)
+            ADD16(&IY,value2: DE)
             break
-        case 0x21:		/* LD REGISTER,nnnn */
-            REGISTERL = internalReadAddress(PC, tStates: 3)
+        case 0x21:		/* LD IY,nnnn */
+            IYl = internalReadAddress(PC, tStates: 3)
             PC += 1
-            REGISTERH = internalReadAddress(PC, tStates: 3)
-            PC += 1
-            break
-        case 0x22:		/* LD (nnnn),REGISTER */
-            LD16_NNRR(REGISTERL,regH: REGISTERH)
-            break
-        case 0x23:		/* INC REGISTER */
-            contend_read_no_mreq(IR, tStates:1)
-            contend_read_no_mreq(IR, tStates:1)
-            REGISTER += 1
-            break
-        case 0x24:		/* INC REGISTERH */
-            INC(&REGISTERH)
-            break
-        case 0x25:		/* DEC REGISTERH */
-            DEC(&REGISTERH)
-            break
-        case 0x26:		/* LD REGISTERH,nn */
-            REGISTERH = internalReadAddress(PC, tStates: 3)
+            IYh = internalReadAddress(PC, tStates: 3)
             PC += 1
             break
-        case 0x29:		/* ADD REGISTER,REGISTER */
-            contend_read_no_mreq(IR, tStates:1)
-            contend_read_no_mreq(IR, tStates:1)
-            contend_read_no_mreq(IR, tStates:1)
-            contend_read_no_mreq(IR, tStates:1)
-            contend_read_no_mreq(IR, tStates:1)
-            contend_read_no_mreq(IR, tStates:1)
-            contend_read_no_mreq(IR, tStates:1)
-            ADD16(&REGISTER,value2: REGISTER)
+        case 0x22:		/* LD (nnnn),IY */
+            LD16_NNRR(IYl,regH: IYh)
             break
-        case 0x2a:		/* LD REGISTER,(nnnn) */
-            LD16_RRNN(&REGISTERL,regH: &REGISTERH)
-            break
-        case 0x2b:		/* DEC REGISTER */
+        case 0x23:		/* INC IY */
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
-            REGISTER += 1
+            IY += 1
             break
-        case 0x2c:		/* INC REGISTERL */
-            INC(&REGISTERL)
+        case 0x24:		/* INC IYh */
+            INC(&IYh)
             break
-        case 0x2d:		/* DEC REGISTERL */
-            DEC(&REGISTERL)
+        case 0x25:		/* DEC IYh */
+            DEC(&IYh)
             break
-        case 0x2e:		/* LD REGISTERL,nn */
-            REGISTERL = internalReadAddress(PC, tStates: 3)
+        case 0x26:		/* LD IYh,nn */
+            IYh = internalReadAddress(PC, tStates: 3)
             PC += 1
             break
-        case 0x34:		/* INC (REGISTER+dd) */
+        case 0x29:		/* ADD IY,IY */
+            contend_read_no_mreq(IR, tStates:1)
+            contend_read_no_mreq(IR, tStates:1)
+            contend_read_no_mreq(IR, tStates:1)
+            contend_read_no_mreq(IR, tStates:1)
+            contend_read_no_mreq(IR, tStates:1)
+            contend_read_no_mreq(IR, tStates:1)
+            contend_read_no_mreq(IR, tStates:1)
+            ADD16(&IY,value2: IY)
+            break
+        case 0x2a:		/* LD IY,(nnnn) */
+            LD16_RRNN(&IYl,regH: &IYh)
+            break
+        case 0x2b:		/* DEC IY */
+            contend_read_no_mreq(IR, tStates:1)
+            contend_read_no_mreq(IR, tStates:1)
+            IY = IY &- 1
+            break
+        case 0x2c:		/* INC IYl */
+            INC(&IYl)
+            break
+        case 0x2d:		/* DEC IYl */
+            DEC(&IYl)
+            break
+        case 0x2e:		/* LD IYl,nn */
+            IYl = internalReadAddress(PC, tStates: 3)
+            PC += 1
+            break
+        case 0x34:		/* INC (IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             var wordTemp: Word
@@ -96,13 +96,13 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            wordTemp = REGISTER + Word(offset) & 0xffff
+            wordTemp = IY + Word(offset) & 0xffff
             byteTemp = internalReadAddress(wordTemp, tStates: 3)
             contend_read_no_mreq(wordTemp, tStates:1)
             INC(&byteTemp)
             internalWriteAddress(wordTemp,value: byteTemp)
             break
-        case 0x35:		/* DEC (REGISTER+dd) */
+        case 0x35:		/* DEC (IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             var wordTemp: Word
@@ -114,13 +114,13 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            wordTemp = REGISTER + Word(offset) & 0xffff
+            wordTemp = IY + Word(offset) & 0xffff
             byteTemp = internalReadAddress(wordTemp, tStates: 3)
             contend_read_no_mreq(wordTemp, tStates:1)
             DEC(&byteTemp)
             internalWriteAddress(wordTemp,value: byteTemp)
             break
-        case 0x36:		/* LD (REGISTER+dd),nn */
+        case 0x36:		/* LD (IY+dd),nn */
             var offset: Byte
             var value: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -129,9 +129,9 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates: 1)
             contend_read_no_mreq(PC, tStates: 1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: value)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: value)
             break
-        case 0x39:		/* ADD REGISTER,SP */
+        case 0x39:		/* ADD IY,SP */
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
@@ -139,15 +139,15 @@ extension SwiftZ80Core {
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
             contend_read_no_mreq(IR, tStates:1)
-            ADD16(&REGISTER,value2: SP)
+            ADD16(&IY,value2: SP)
             break
-        case 0x44:		/* LD B,REGISTERH */
-            B = REGISTERH
+        case 0x44:		/* LD B,IYh */
+            B = IYh
             break
-        case 0x45:		/* LD B,REGISTERL */
-            B = REGISTERL
+        case 0x45:		/* LD B,IYl */
+            B = IYl
             break
-        case 0x46:		/* LD B,(REGISTER+dd) */
+        case 0x46:		/* LD B,(IY+dd) */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -156,15 +156,15 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            B = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            B = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             break
-        case 0x4c:		/* LD C,REGISTERH */
-            C = REGISTERH
+        case 0x4c:		/* LD C,IYh */
+            C = IYh
             break
-        case 0x4d:		/* LD C,REGISTERL */
-            C = REGISTERL
+        case 0x4d:		/* LD C,IYl */
+            C = IYl
             break
-        case 0x4e:		/* LD C,(REGISTER+dd) */
+        case 0x4e:		/* LD C,(IY+dd) */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -173,15 +173,15 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            C = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            C = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             break
-        case 0x54:		/* LD D,REGISTERH */
-            D = REGISTERH
+        case 0x54:		/* LD D,IYh */
+            D = IYh
             break
-        case 0x55:		/* LD D,REGISTERL */
-            D = REGISTERL
+        case 0x55:		/* LD D,IYl */
+            D = IYl
             break
-        case 0x56:		/* LD D,(REGISTER+dd) */
+        case 0x56:		/* LD D,(IY+dd) */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -190,15 +190,15 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            D = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            D = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             break
-        case 0x5c:		/* LD E,REGISTERH */
-            E = REGISTERH
+        case 0x5c:		/* LD E,IYh */
+            E = IYh
             break
-        case 0x5d:		/* LD E,REGISTERL */
-            E = REGISTERL
+        case 0x5d:		/* LD E,IYl */
+            E = IYl
             break
-        case 0x5e:		/* LD E,(REGISTER+dd) */
+        case 0x5e:		/* LD E,(IY+dd) */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -207,26 +207,26 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            E = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            E = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             break
-        case 0x60:		/* LD REGISTERH,B */
-            REGISTERH = B
+        case 0x60:		/* LD IYh,B */
+            IYh = B
             break
-        case 0x61:		/* LD REGISTERH,C */
-            REGISTERH = C
+        case 0x61:		/* LD IYh,C */
+            IYh = C
             break
-        case 0x62:		/* LD REGISTERH,D */
-            REGISTERH = D
+        case 0x62:		/* LD IYh,D */
+            IYh = D
             break
-        case 0x63:		/* LD REGISTERH,E */
-            REGISTERH = E
+        case 0x63:		/* LD IYh,E */
+            IYh = E
             break
-        case 0x64:		/* LD REGISTERH,REGISTERH */
+        case 0x64:		/* LD IYh,IYh */
             break
-        case 0x65:		/* LD REGISTERH,REGISTERL */
-            REGISTERH = REGISTERL
+        case 0x65:		/* LD IYh,IYl */
+            IYh = IYl
             break
-        case 0x66:		/* LD H,(REGISTER+dd) */
+        case 0x66:		/* LD H,(IY+dd) */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -235,29 +235,29 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            H = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            H = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             break
-        case 0x67:		/* LD REGISTERH,A */
-            REGISTERH = A
+        case 0x67:		/* LD IYh,A */
+            IYh = A
             break
-        case 0x68:		/* LD REGISTERL,B */
-            REGISTERL = B
+        case 0x68:		/* LD IYl,B */
+            IYl = B
             break
-        case 0x69:		/* LD REGISTERL,C */
-            REGISTERL = C
+        case 0x69:		/* LD IYl,C */
+            IYl = C
             break
-        case 0x6a:		/* LD REGISTERL,D */
-            REGISTERL = D
+        case 0x6a:		/* LD IYl,D */
+            IYl = D
             break
-        case 0x6b:		/* LD REGISTERL,E */
-            REGISTERL = E
+        case 0x6b:		/* LD IYl,E */
+            IYl = E
             break
-        case 0x6c:		/* LD REGISTERL,REGISTERH */
-            REGISTERL = REGISTERH
+        case 0x6c:		/* LD IYl,IYh */
+            IYl = IYh
             break
-        case 0x6d:		/* LD REGISTERL,REGISTERL */
+        case 0x6d:		/* LD IYl,IYl */
             break
-        case 0x6e:		/* LD L,(REGISTER+dd) */
+        case 0x6e:		/* LD L,(IY+dd) */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -266,12 +266,12 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            L = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            L = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             break
-        case 0x6f:		/* LD REGISTERL,A */
-            REGISTERL = A
+        case 0x6f:		/* LD IYl,A */
+            IYl = A
             break
-        case 0x70:		/* LD (REGISTER+dd),B */
+        case 0x70:		/* LD (IY+dd),B */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -280,9 +280,9 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: B)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: B)
             break
-        case 0x71:		/* LD (REGISTER+dd),C */
+        case 0x71:		/* LD (IY+dd),C */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -291,9 +291,9 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: C)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: C)
             break
-        case 0x72:		/* LD (REGISTER+dd),D */
+        case 0x72:		/* LD (IY+dd),D */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -302,9 +302,9 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: D)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: D)
             break
-        case 0x73:		/* LD (REGISTER+dd),E */
+        case 0x73:		/* LD (IY+dd),E */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -313,9 +313,9 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: E)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: E)
             break
-        case 0x74:		/* LD (REGISTER+dd),H */
+        case 0x74:		/* LD (IY+dd),H */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -324,9 +324,9 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: H)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: H)
             break
-        case 0x75:		/* LD (REGISTER+dd),L */
+        case 0x75:		/* LD (IY+dd),L */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -335,9 +335,9 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: L)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: L)
             break
-        case 0x77:		/* LD (REGISTER+dd),A */
+        case 0x77:		/* LD (IY+dd),A */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -346,15 +346,15 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(REGISTER + Word(offset) & 0xffff, value: A)
+            internalWriteAddress(IY + Word(offset) & 0xffff, value: A)
             break
-        case 0x7c:		/* LD A,REGISTERH */
-            A = REGISTERH
+        case 0x7c:		/* LD A,IYh */
+            A = IYh
             break
-        case 0x7d:		/* LD A,REGISTERL */
-            A = REGISTERL
+        case 0x7d:		/* LD A,IYl */
+            A = IYl
             break
-        case 0x7e:		/* LD A,(REGISTER+dd) */
+        case 0x7e:		/* LD A,(IY+dd) */
             var offset: Byte
             offset = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates:1)
@@ -363,15 +363,15 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            A = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            A = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             break
-        case 0x84:		/* ADD A,REGISTERH */
-            ADD(REGISTERH)
+        case 0x84:		/* ADD A,IYh */
+            ADD(IYh)
             break
-        case 0x85:		/* ADD A,REGISTERL */
-            ADD(REGISTERL)
+        case 0x85:		/* ADD A,IYl */
+            ADD(IYl)
             break
-        case 0x86:		/* ADD A,(REGISTER+dd) */
+        case 0x86:		/* ADD A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -381,16 +381,16 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             ADD(byteTemp)
             break
-        case 0x8c:		/* ADC A,REGISTERH */
-            ADC(REGISTERH)
+        case 0x8c:		/* ADC A,IYh */
+            ADC(IYh)
             break
-        case 0x8d:		/* ADC A,REGISTERL */
-            ADC(REGISTERL)
+        case 0x8d:		/* ADC A,IYl */
+            ADC(IYl)
             break
-        case 0x8e:		/* ADC A,(REGISTER+dd) */
+        case 0x8e:		/* ADC A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -400,16 +400,16 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             ADC(byteTemp)
             break
-        case 0x94:		/* SUB A,REGISTERH */
-            SUB(REGISTERH)
+        case 0x94:		/* SUB A,IYh */
+            SUB(IYh)
             break
-        case 0x95:		/* SUB A,REGISTERL */
-            SUB(REGISTERL)
+        case 0x95:		/* SUB A,IYl */
+            SUB(IYl)
             break
-        case 0x96:		/* SUB A,(REGISTER+dd) */
+        case 0x96:		/* SUB A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -419,16 +419,16 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             SUB(byteTemp)
             break
-        case 0x9c:		/* SBC A,REGISTERH */
-            SBC(REGISTERH)
+        case 0x9c:		/* SBC A,IYh */
+            SBC(IYh)
             break
-        case 0x9d:		/* SBC A,REGISTERL */
-            SBC(REGISTERL)
+        case 0x9d:		/* SBC A,IYl */
+            SBC(IYl)
             break
-        case 0x9e:		/* SBC A,(REGISTER+dd) */
+        case 0x9e:		/* SBC A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -438,16 +438,16 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             SBC(byteTemp)
             break
-        case 0xa4:		/* AND A,REGISTERH */
-            AND(REGISTERH)
+        case 0xa4:		/* AND A,IYh */
+            AND(IYh)
             break
-        case 0xa5:		/* AND A,REGISTERL */
-            AND(REGISTERL)
+        case 0xa5:		/* AND A,IYl */
+            AND(IYl)
             break
-        case 0xa6:		/* AND A,(REGISTER+dd) */
+        case 0xa6:		/* AND A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -457,16 +457,16 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             AND(byteTemp)
             break
-        case 0xac:		/* XOR A,REGISTERH */
-            XOR(REGISTERH)
+        case 0xac:		/* XOR A,IYh */
+            XOR(IYh)
             break
-        case 0xad:		/* XOR A,REGISTERL */
-            XOR(REGISTERL)
+        case 0xad:		/* XOR A,IYl */
+            XOR(IYl)
             break
-        case 0xae:		/* XOR A,(REGISTER+dd) */
+        case 0xae:		/* XOR A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -476,16 +476,16 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             XOR(byteTemp)
             break
-        case 0xb4:		/* OR A,REGISTERH */
-            OR(REGISTERH)
+        case 0xb4:		/* OR A,IYh */
+            OR(IYh)
             break
-        case 0xb5:		/* OR A,REGISTERL */
-            OR(REGISTERL)
+        case 0xb5:		/* OR A,IYl */
+            OR(IYl)
             break
-        case 0xb6:		/* OR A,(REGISTER+dd) */
+        case 0xb6:		/* OR A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -495,16 +495,16 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             OR(byteTemp)
             break
-        case 0xbc:		/* CP A,REGISTERH */
-            CP(REGISTERH)
+        case 0xbc:		/* CP A,IYh */
+            CP(IYh)
             break
-        case 0xbd:		/* CP A,REGISTERL */
-            CP(REGISTERL)
+        case 0xbd:		/* CP A,IYl */
+            CP(IYl)
             break
-        case 0xbe:		/* CP A,(REGISTER+dd) */
+        case 0xbe:		/* CP A,(IY+dd) */
             var offset: Byte
             var byteTemp: Byte
             offset = internalReadAddress(PC, tStates: 3)
@@ -514,13 +514,13 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            byteTemp = internalReadAddress(REGISTER + Word(offset) & 0xffff, tStates: 3)
+            byteTemp = internalReadAddress(IY + Word(offset) & 0xffff, tStates: 3)
             CP(byteTemp)
             break
         case 0xcb:		/* shift DDFDCB */
             var opcode3: Byte
             contend_read(PC, tStates: 3)
-            let tempAddr: Word = REGISTER + (Word(internalReadAddress(PC, tStates: 3)) & 0xffff)
+            let tempAddr: Word = IY + (Word(internalReadAddress(PC, tStates: 3)) & 0xffff)
             PC += 1
             opcode3 = internalReadAddress(PC, tStates: 4)
             contend_read_no_mreq(PC, tStates: 1)
@@ -528,33 +528,33 @@ extension SwiftZ80Core {
             PC += 1
             lookupDDFDCBOpcode(opcode3, address: tempAddr)
             break
-        case 0xe1:		/* POP REGISTER */
-            POP16(&REGISTERL,regH: &REGISTERH)
+        case 0xe1:		/* POP IY */
+            POP16(&IYl,regH: &IYh)
             break
-        case 0xe3:		/* EX (SP),REGISTER */
+        case 0xe3:		/* EX (SP),IY */
             var byteTempL: Byte
             var byteTempH: Byte
             byteTempL = internalReadAddress(SP, tStates: 3)
             byteTempH = internalReadAddress(SP + 1, tStates: 3)
             contend_read_no_mreq(SP + 1, tStates: 1)
-            internalWriteAddress(SP + 1, value: REGISTERH)
-            internalWriteAddress(SP, value: REGISTERL)
+            internalWriteAddress(SP + 1, value: IYh)
+            internalWriteAddress(SP, value: IYl)
             contend_read_no_mreq(SP, tStates: 1)
             contend_read_no_mreq(SP, tStates: 1)
-            REGISTERL = byteTempL
-            REGISTERH = byteTempH
+            IYl = byteTempL
+            IYh = byteTempH
             break
-        case 0xe5:		/* PUSH REGISTER */
+        case 0xe5:		/* PUSH IY */
             contend_read_no_mreq(IR, tStates: 1)
-            PUSH16(REGISTERL,regH: REGISTERH)
+            PUSH16(IYl,regH: IYh)
             break
-        case 0xe9:		/* JP REGISTER */
-            PC=REGISTER		/* NB: NOT INDIRECT! */
+        case 0xe9:		/* JP IY */
+            PC=IY		/* NB: NOT INDIRECT! */
             break
-        case 0xf9:		/* LD SP,REGISTER */
+        case 0xf9:		/* LD SP,IY */
             contend_read_no_mreq(IR, tStates: 1)
             contend_read_no_mreq(IR, tStates: 1)
-            SP = REGISTER
+            SP = IY
             break
         default:		/* Instruction did not involve H or L, so backtrack
              one instruction and parse again */

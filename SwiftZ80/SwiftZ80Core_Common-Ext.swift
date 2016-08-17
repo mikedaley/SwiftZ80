@@ -96,6 +96,7 @@ extension SwiftZ80Core {
 	mutating func ADD16(inout value1: Word, value2: Word) {
 		
 		let result: Int = Int(value1) + Int(value2)
+        
         let r1: Byte = Byte((value1 & 0x0800) >> 11) & 0xff
         let r2: Byte = Byte((value2 & 0x0800) >> 10) & 0xff
         let r3: Byte = Byte((Word(result & 0xffff) & 0x0800) >> 9) & 0xff
@@ -126,13 +127,11 @@ extension SwiftZ80Core {
         
         F = (F & FLAG_C) | FLAG_H | (value & ( FLAG_3 | FLAG_5 ))
         
-        if value & (0x01 << bit) != 0x00 {
-            F |= FLAG_P
-        } else {
-            F |= FLAG_Z
+        if value & (0x01 << bit) == 0x00 {
+            F |= FLAG_P | FLAG_Z
         }
         
-        if bit == 9 && value & 0x80 != 0x00 {
+        if bit == 7 && value & 0x80 != 0x00 {
             F |= FLAG_S
         }
         
@@ -343,15 +342,15 @@ extension SwiftZ80Core {
      */
     mutating func RL(inout value: Byte) {
         let temp: Byte = value
-        value = value << 1 | (F & FLAG_C)
-        F = temp >> 7 | SZ35Table[value]
+        value = (value << 1) | (F & FLAG_C)
+        F = (temp >> 7) | SZ35Table[value] | parityTable[value]
     }
 
     /**
      * RLC
      */
     mutating func RLC(inout value: Byte) {
-        value = value << 1 | value >> 7
+        value = (value << 1) | (value >> 7)
         F = (value & FLAG_C) | SZ35Table[value] | parityTable[value]
     }
     
@@ -361,7 +360,7 @@ extension SwiftZ80Core {
     mutating func RR(inout value: Byte) {
         let temp: Byte = value
         value = (value >> 1) | (F << 7)
-        F = (temp & FLAG_C) | SZ35Table[value]
+        F = (temp & FLAG_C) | SZ35Table[value] | parityTable[value]
     }
     
     /**
@@ -439,8 +438,8 @@ extension SwiftZ80Core {
      */
     mutating func SLL(inout value: Byte) {
         F = value >> 7
-        value = value << 1 | 0x01
-        F |= SZ35Table[value]
+        value = (value << 1) | 0x01
+        F |= SZ35Table[value] | parityTable[value]
     }
     
     /**

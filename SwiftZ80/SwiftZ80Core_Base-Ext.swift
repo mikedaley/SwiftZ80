@@ -805,7 +805,7 @@ extension SwiftZ80Core {
             RET()
             break
         case 0xca:		/* JP Z,nnnn */
-            if F & FLAG_Z == 0x01 {
+            if F & FLAG_Z == FLAG_Z {
                 JP()
             } else {
                 contend_read(PC, tStates: 3)
@@ -815,8 +815,8 @@ extension SwiftZ80Core {
             break
         case 0xcb:		/* shift CB */
             var opcode2: Byte
-            contend_read(PC, tStates: 4)
-            opcode2 = internalReadAddress(PC, tStates: 3)
+//            contend_read(PC, tStates: 4)
+            opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
             lookupCBOpcode(opcode2)
@@ -896,7 +896,7 @@ extension SwiftZ80Core {
         case 0xd9:		/* EXX */
                 var temp: Word = BC
                 BC = BC_
-                BC = temp
+                BC_ = temp
                 temp = DE
                 DE = DE_
                 DE_ = temp
@@ -914,7 +914,8 @@ extension SwiftZ80Core {
             }
             break
         case 0xdb:		/* IN A,(nn) */
-            let temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff + ((Word(A) & 0xffff) << 8)
+            let temp: Word = (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
+            PC += 1
             A = ioReadAddress(temp)
             break
         case 0xdc:		/* CALL C,nnnn */
@@ -930,8 +931,8 @@ extension SwiftZ80Core {
             var opcode2: Byte
             opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
-            R = R + 1
-            lookupDDFDOpcode(opcode2, REGISTER: &R1.IX, REGISTERL: &R1.IXl, REGISTERH: &R1.IXh)
+            R = R &+ 1
+            lookupDDFDIXOpcode(opcode2)
             break
         case 0xde:		/* SBC A,nn */
             let temp: Byte = internalReadAddress(PC, tStates: 3)
@@ -1128,7 +1129,7 @@ extension SwiftZ80Core {
             opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
-			lookupDDFDOpcode(opcode2, REGISTER: &R1.IY, REGISTERL: &R1.IYl, REGISTERH: &R1.IYh)
+			lookupDDFDIYOpcode(opcode2)
             break
         case 0xfe:		/* CP nn */
             let temp = internalReadAddress(PC, tStates: 3)

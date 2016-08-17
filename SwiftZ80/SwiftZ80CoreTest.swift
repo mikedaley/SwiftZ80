@@ -132,7 +132,7 @@ class SwiftZ80CoreTest {
             outputString = ""
 		}
 
-        let resultsPath = "/Users/mikedaley/Desktop/results.txt"
+        let resultsPath = "/Users/mdaley/Desktop/results.txt"
         
         do {
             try fileString.writeToFile(resultsPath, atomically: true, encoding: NSUTF8StringEncoding)
@@ -187,7 +187,7 @@ class SwiftZ80CoreTest {
 		
 		let testName: String = scanner!.read()!
 
-		print(testName)
+//		print(testName)
 		
 		let af: String = scanner!.read()!
 		core!.AF = Word(Int(strtoul(af, nil, 16)))
