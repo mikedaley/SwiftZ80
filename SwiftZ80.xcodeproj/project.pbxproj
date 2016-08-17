@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		990447FD1D5FCC6A004667A8 /* ZXSpectrum48.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */; };
 		990448001D5FDA5E004667A8 /* 48.ROM in Resources */ = {isa = PBXBuildFile; fileRef = 990447FF1D5FDA5E004667A8 /* 48.ROM */; };
+		990448041D63AC9B004667A8 /* tests.expected in Resources */ = {isa = PBXBuildFile; fileRef = 990448031D63AC9B004667A8 /* tests.expected */; };
 		9977DC021D4416B900EE72C3 /* MemoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9977DC001D4416B900EE72C3 /* MemoryViewController.swift */; };
 		9977DC031D4416B900EE72C3 /* MemoryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9977DC011D4416B900EE72C3 /* MemoryViewController.xib */; };
 		ED4BF3931D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */; };
@@ -41,6 +42,7 @@
 /* Begin PBXFileReference section */
 		990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZXSpectrum48.swift; sourceTree = "<group>"; };
 		990447FF1D5FDA5E004667A8 /* 48.ROM */ = {isa = PBXFileReference; lastKnownFileType = file; path = 48.ROM; sourceTree = "<group>"; };
+		990448031D63AC9B004667A8 /* tests.expected */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tests.expected; sourceTree = "<group>"; };
 		9977DC001D4416B900EE72C3 /* MemoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryViewController.swift; sourceTree = "<group>"; };
 		9977DC011D4416B900EE72C3 /* MemoryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MemoryViewController.xib; sourceTree = "<group>"; };
 		ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwifZ80Core_Debug-Ext.swift"; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 		EDC1F07C1D412C7A0026C2D2 /* SwiftZ80 */ = {
 			isa = PBXGroup;
 			children = (
+				EDAD5B971D534BFD00B83148 /* MyPlayground.playground */,
 				990447FE1D5FDA4D004667A8 /* ROMS */,
 				9977DBFB1D4407C900EE72C3 /* Other */,
 				9977DBFA1D4407BD00EE72C3 /* Assets */,
@@ -175,7 +178,6 @@
 				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
 				990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */,
 				EDFF5C231D6228120001EFDC /* Core Tests */,
-				EDAD5B971D534BFD00B83148 /* MyPlayground.playground */,
 			);
 			path = SwiftZ80;
 			sourceTree = "<group>";
@@ -195,6 +197,7 @@
 			isa = PBXGroup;
 			children = (
 				EDFF5C2A1D62381D0001EFDC /* StreamScanner.swift */,
+				990448031D63AC9B004667A8 /* tests.expected */,
 				EDFF5C261D6228960001EFDC /* tests.expected */,
 				EDFF5C271D6228960001EFDC /* tests.in */,
 				EDFF5C241D6228350001EFDC /* SwiftZ80CoreTest.swift */,
@@ -265,6 +268,7 @@
 				EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */,
 				ED56C7471D4B59AE00541BDF /* GraphicalMemoryController.xib in Resources */,
 				ED6B38251D4A59BD00D24DA7 /* CPUViewController.xib in Resources */,
+				990448041D63AC9B004667A8 /* tests.expected in Resources */,
 				EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */,
 				990448001D5FDA5E004667A8 /* 48.ROM in Resources */,
 				9977DC031D4416B900EE72C3 /* MemoryViewController.xib in Resources */,

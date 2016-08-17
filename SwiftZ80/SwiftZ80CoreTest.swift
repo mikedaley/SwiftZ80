@@ -15,6 +15,7 @@ class SwiftZ80CoreTest {
 	var core: SwiftZ80Core?
 	var scanner: StreamScanner?
 	var outputString: String = ""
+    var fileString: String = ""
 	
 	init() {
 		
@@ -33,39 +34,39 @@ class SwiftZ80CoreTest {
 	*/
 	
 	func readFromMemoryAddress(address: Word) -> Byte {
-		print(String.localizedStringWithFormat("%5d MR %04x %02x", core!.tStates, address, memory[address]))
+        outputString = outputString.stringByAppendingFormat("%5d MR %04x %02x\n", core!.tStates, address, memory[address])
 		return memory[address]
 	}
 	
 	func writeToMemoryAddress(address: Word, value: Byte) {
-		print(String.localizedStringWithFormat("%5d MW %04x %02x", core!.tStates, address, value))
+        outputString = outputString.stringByAppendingFormat("%5d MW %04x %02x\n", core!.tStates, address, value)
 		memory[address] = value
 	}
 	
 	func ioReadAddress(address: Word) -> Byte {
 		
 		if address & 0xc000 == 0x4000 {
-			print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+            outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 		}
 		core!.tStates += 1
 		
-		print(String.localizedStringWithFormat("%5d PR %04x %02x", core!.tStates, address, address >> 8))
+        outputString = outputString.stringByAppendingFormat("%5d PR %04x %02x\n", core!.tStates, address, address >> 8)
 		
 		if address & 0x0001 != 0 {
 			
 			if address & 0xc000 == 0x4000 {
-				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+                outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+                outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+                outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 				core!.tStates += 1
 			} else {
 				core!.tStates += 3
 			}
 			
 		} else {
-			print(String.localizedStringWithFormat("%5d PC %04x\n", core!.tStates, address))
+            outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 			core!.tStates += 3
 		}
 		
@@ -75,41 +76,41 @@ class SwiftZ80CoreTest {
 	func ioWriteAddress(address: Word, value: Byte) {
 		
 		if address & 0xc000 == 0x4000 {
-			print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+            outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 		}
 		core!.tStates += 1
 		
-		print(String.localizedStringWithFormat("%5d PW %04x %02x", core!.tStates, address, address >> 8))
+        outputString = outputString.stringByAppendingFormat("%5d PW %04x %02x\n", core!.tStates, address, address >> 8)
 		
 		if address & 0x0001 != 0 {
 			
 			if address & 0xc000 == 0x4000 {
-				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+                outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+                outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 				core!.tStates += 1
-				print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+                outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 				core!.tStates += 1
 			} else {
 				core!.tStates += 3
 			}
 			
 		} else {
-			print(String.localizedStringWithFormat("%5d PC %04x", core!.tStates, address))
+            outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
 			core!.tStates += 3
 		}
 	}
 	
 	func contentionReadNoMREQAddress(address: Word, tStates: Int) {
-		print(String.localizedStringWithFormat("%5d MC %04x", core!.tStates, address))
+        outputString = outputString.stringByAppendingFormat("%5d MC %04x\n", core!.tStates, address)
 	}
 	
 	func contentionWriteNoMREQAddress(address: Word, tStates: Int) {
-		print(String.localizedStringWithFormat("%5d MC %04x", core!.tStates, address))
+        outputString = outputString.stringByAppendingFormat("%5d MC %04x\n", core!.tStates, address)
 	}
 	
 	func contentionReadAddress(address: Word, tStates: Int) {
-		print(String.localizedStringWithFormat("%5d MC %04x", core!.tStates, address))
+        outputString = outputString.stringByAppendingFormat("%5d MC %04x\n", core!.tStates, address)
 	}
 	
 	//MARK: Core test functions
@@ -126,9 +127,21 @@ class SwiftZ80CoreTest {
 		scanner = StreamScanner(source: handle!, delimiters: NSCharacterSet(charactersInString: " \n"))
 
 		while runTest() {
-			
+            outputString = outputString.stringByAppendingString("\n")
+            fileString = fileString.stringByAppendingString(outputString)
+            outputString = ""
 		}
-		
+
+        let resultsPath = "/Users/mdaley/Desktop/results.txt"
+        
+        do {
+            try fileString.writeToFile(resultsPath, atomically: true, encoding: NSUTF8StringEncoding)
+            
+        } catch {
+            print("Writing results failed")
+        }
+        
+        print(fileString)
 	}
 	
 	func runTest() -> (Bool) {
@@ -157,10 +170,9 @@ class SwiftZ80CoreTest {
 			core!.execute()
 			end_tstates -= core!.tStates - tStatesBefore
 		}
-		
-		dumpZ80()
+
+        dumpZ80()
 		dumpMemory()
-		print("")
 
 		return true
 		
@@ -243,15 +255,16 @@ class SwiftZ80CoreTest {
 			}
 		}
 
-		print("\(testName)")
+		outputString = outputString.stringByAppendingString("\(testName)\n")
 		
 		return (true, end_tstates)
 		
 	}
 	
 	func dumpZ80() {
-		print(String.localizedStringWithFormat("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x",core!.AF, core!.BC, core!.DE, core!.HL, core!.AF_, core!.BC_, core!.DE_, core!.HL_, core!.IX, core!.IY, core!.SP, core!.PC))
-		print(String.localizedStringWithFormat("%02x %02x %d %d %d %d %d",core!.I, core!.R, core!.IFF1, core!.IFF2, core!.IM, core!.halted, core!.tStates))
+        outputString = outputString.stringByAppendingFormat("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x\n",core!.AF, core!.BC, core!.DE, core!.HL, core!.AF_, core!.BC_, core!.DE_, core!.HL_, core!.IX, core!.IY, core!.SP, core!.PC)
+
+        outputString = outputString.stringByAppendingFormat("%02x %02x %d %d %d %d %d\n",core!.I, core!.R, core!.IFF1, core!.IFF2, core!.IM, core!.halted, core!.tStates)
 	}
 	
 	func dumpMemory() {
@@ -271,8 +284,9 @@ class SwiftZ80CoreTest {
 				i += 1
 			}
 			
-			output = output.stringByAppendingString("-1")
-			print(output)
+			output = output.stringByAppendingString("-1\n")
+			
+            outputString = outputString.stringByAppendingString(output)
 			
 		}
 		

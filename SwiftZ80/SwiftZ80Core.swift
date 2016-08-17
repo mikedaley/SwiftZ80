@@ -460,13 +460,13 @@ struct SwiftZ80Core
 	mutating func internalReadAddress(address: Word, tStates: Int) -> (Byte) {
 		
 		// First of all call out to see if any contention needs to be added. This is managed by the emulator
-		externalContendRead(PC, tStates: self.tStates)
+		externalContendRead(address, tStates: self.tStates)
 		
 		// Now increase the cores tState count based on the tStates passed in
 		self.tStates += tStates
 		
 		// Return the byte returned from calling the external memory read
-		return memoryReadAddress(PC)
+		return memoryReadAddress(address)
 		
 	}
 
@@ -475,7 +475,7 @@ struct SwiftZ80Core
 	*/
 	mutating func internalWriteAddress(address: Word, value: Byte) {
 		
-		externalContendWriteNoMreq(PC, tStates: self.tStates)
+		externalContendWriteNoMreq(address, tStates: self.tStates)
 		
 		// Writing data to memory always uses 3 tStates
 		self.tStates += 3

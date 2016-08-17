@@ -136,7 +136,7 @@ extension SwiftZ80Core {
             break
         case 0x18:		/* JR offset */
             JR()
-            PC += 1
+//            PC += 1
             break
         case 0x19:		/* ADD HL,DE */
             contend_read_no_mreq(IR, tStates: 1)
@@ -154,7 +154,7 @@ extension SwiftZ80Core {
         case 0x1b:		/* DEC DE */
             contend_read_no_mreq(IR, tStates: 1)
             contend_read_no_mreq(IR, tStates: 1)
-            DE = DE - 1
+            DE = DE &- 1
             break
         case 0x1c:		/* INC E */
             INC(&E)
@@ -177,8 +177,8 @@ extension SwiftZ80Core {
                 JR()
             } else {
                 contend_read(PC, tStates: 3)
+                PC += 1
             }
-            PC += 1
             break
         case 0x21:		/* LD HL,nnnn */
             L = internalReadAddress(PC, tStates: 3)
@@ -227,7 +227,7 @@ extension SwiftZ80Core {
             if F & FLAG_Z == FLAG_Z {
                 JR()
             } else {
-				internalReadAddress(PC, tStates: 3)
+				contend_read(PC, tStates: 3)
 				PC += 1
             }
             break
@@ -269,8 +269,8 @@ extension SwiftZ80Core {
                 JR()
             } else {
                 contend_read(PC, tStates: 3)
+                PC += 1
             }
-            PC += 1
             break
         case 0x31:		/* LD SP,nnnn */
             SPl = internalReadAddress(PC, tStates: 3)
@@ -316,8 +316,8 @@ extension SwiftZ80Core {
                 JR()
             } else {
                 contend_read(PC, tStates: 3)
+                PC += 1
             }
-            PC += 1
             break
         case 0x39:		/* ADD HL,SP */
             contend_read_no_mreq(IR, tStates: 1)

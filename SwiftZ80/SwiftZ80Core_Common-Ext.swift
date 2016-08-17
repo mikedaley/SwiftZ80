@@ -46,9 +46,9 @@ extension SwiftZ80Core {
     mutating func ADC16(value: Word) {
 
         let result: Int = Int(HL) + Int(value) + Int(F & FLAG_C)
-        let r1: Byte = Byte(HL & 0x0800 >> 11) & 0xff
-        let r2: Byte = Byte(value & 0x0800 >> 10) & 0xff
-        let r3: Byte = Byte(Word(result & 0xffff) & 0x0800 >> 9) & 0xff
+        let r1: Byte = Byte((HL & 0x0800) >> 11) & 0xff
+        let r2: Byte = Byte((value & 0x0800) >> 10) & 0xff
+        let r3: Byte = Byte((Word(result & 0xffff) & 0x0800) >> 9) & 0xff
         let lookup: Byte = r1 | r2 | r3
         
         HL = Word(result & 0xffff)
@@ -96,9 +96,9 @@ extension SwiftZ80Core {
 	mutating func ADD16(inout value1: Word, value2: Word) {
 		
 		let result: Int = Int(value1) + Int(value2)
-        let r1: Byte = Byte(value1 & 0x0800 >> 11) & 0xff
-        let r2: Byte = Byte(value2 & 0x0800 >> 10) & 0xff
-        let r3: Byte = Byte(Word(result & 0xffff) & 0x0800 >> 9) & 0xff
+        let r1: Byte = Byte((value1 & 0x0800) >> 11) & 0xff
+        let r2: Byte = Byte((value2 & 0x0800) >> 10) & 0xff
+        let r3: Byte = Byte((Word(result & 0xffff) & 0x0800) >> 9) & 0xff
         let lookup: Byte = r1 | r2 | r3
         
 		value1 = Word(result & 0xffff)
@@ -108,7 +108,7 @@ extension SwiftZ80Core {
             carry = 0x00
         }
         
-        let v = Byte((result & 0xffff) >> 8) & 0xff
+        let v = Byte(value1 >> 8) & 0xff
         
         let f1 = ( F & (FLAG_V | FLAG_Z | FLAG_S))
         let f2 = carry
@@ -194,6 +194,7 @@ extension SwiftZ80Core {
     mutating func DEC(inout value: Byte) {
         
         var halfCarry: Byte = FLAG_H
+        
         if value & 0x0f != 0x00 {
             halfCarry = 0x00
         }
@@ -203,7 +204,7 @@ extension SwiftZ80Core {
         value = value &- 1
         
         var overflow: Byte = FLAG_V
-        if value != 0xf7 {
+        if value != 0x7f {
             overflow = 0x00
         }
         
@@ -249,9 +250,9 @@ extension SwiftZ80Core {
         PC = PC + 1
         temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
         PC = PC + 1
-        memoryWriteAddress(temp, value: regL)
+        internalWriteAddress(temp, value: regL)
         temp = temp + 1
-        memoryWriteAddress(temp, value: regH)
+        internalWriteAddress(temp, value: regH)
     }
 
     /**
@@ -323,9 +324,9 @@ extension SwiftZ80Core {
      * PUSH 16
      */
     mutating func PUSH16(inout regL: Byte, inout regH: Byte) {
-        memoryWriteAddress(SP, value: regH)
+        internalWriteAddress(SP, value: regH)
         SP = SP &- 1
-        memoryWriteAddress(SP, value: regL)
+        internalWriteAddress(SP, value: regL)
         SP = SP &- 1
     }
 
@@ -403,9 +404,9 @@ extension SwiftZ80Core {
    
         let result: Int = Int(HL) - Int(value) - Int(F & FLAG_C)
         
-        let r1 = Byte(HL & 0x0800 >> 11) & 0xff
-        let r2 = Byte(value & 0x0800 >> 10) & 0xff
-        let r3 = Byte(Word(result & 0xffff) & 0x0800 >> 9) & 0xff
+        let r1 = Byte((HL & 0x0800) >> 11) & 0xff
+        let r2 = Byte((value & 0x0800) >> 10) & 0xff
+        let r3 = Byte((Word(result & 0xffff) & 0x0800) >> 9) & 0xff
         let lookup: Byte = r1 | r2 | r3
         
         HL = Word(result & 0xffff)
