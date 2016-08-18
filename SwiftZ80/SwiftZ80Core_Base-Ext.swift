@@ -102,7 +102,6 @@ extension SwiftZ80Core {
                 contend_read(PC, tStates: 3)
 				PC += 1
             }
-//			PC += 1
             break
         case 0x11:		/* LD DE,nnnn */
             E = internalReadAddress(PC, tStates: 3)
@@ -136,7 +135,6 @@ extension SwiftZ80Core {
             break
         case 0x18:		/* JR offset */
             JR()
-//            PC += 1
             break
         case 0x19:		/* ADD HL,DE */
             contend_read_no_mreq(IR, tStates: 1)
@@ -815,7 +813,6 @@ extension SwiftZ80Core {
             break
         case 0xcb:		/* shift CB */
             var opcode2: Byte
-//            contend_read(PC, tStates: 4)
             opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
@@ -929,7 +926,6 @@ extension SwiftZ80Core {
             break
         case 0xdd:		/* shift DD */
             var opcode2: Byte
-//			contend_read(PC, tStates: 4)
 			opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
@@ -1029,7 +1025,6 @@ extension SwiftZ80Core {
             break
         case 0xed:		/* shift ED */
             var opcode2: Byte
-//            contend_read(PC, tStates: 4)
             opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
@@ -1109,8 +1104,6 @@ extension SwiftZ80Core {
             }
             break
         case 0xfb:		/* EI */
-            /* Interrupts are not accepted immediately after an EI, but are
-             accepted after the next instruction */
             IFF1 = 1
             IFF2 = 1
 //            z80.interrupts_enabled_at = tstates
@@ -1127,7 +1120,6 @@ extension SwiftZ80Core {
             break
         case 0xfd:		/* shift FD */
             var opcode2: Byte
-//			contend_read(PC, tStates: 4)
             opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1

@@ -433,12 +433,15 @@ struct SwiftZ80Core
 	 * If a mult-byte opcode is identified then it will call into the next opcode level e.g. CB and
 	 * then ED etc. until it finds the opcode implementation needed
      */
-    mutating func execute() {
+    mutating func execute() -> (Int) {
 		
+		let tStatesBefore = tStates
 		let opcode: Byte = internalReadAddress(PC, tStates: 4)
 		PC = PC &+ 1
 		R = R &+ 1
 		lookupBaseOpcode(opcode)
+		
+		return tStates - tStatesBefore
 	
 	}
 	

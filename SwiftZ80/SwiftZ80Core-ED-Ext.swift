@@ -52,7 +52,6 @@ extension SwiftZ80Core {
         case 0x7d:		/* RETN */
             IFF1 = IFF2
             RET()
-//            z80_retn()
             break
         case 0x46: fallthrough
         case 0x4e: fallthrough
@@ -85,8 +84,6 @@ extension SwiftZ80Core {
             break
         case 0x4f:		/* LD R,A */
             contend_read_no_mreq(IR, tStates: 1)
-            /* Keep the RZX instruction counter right */
-//            rzx_instructions_offset += (R - A)
             R = A
 //            R7 = A
             break

@@ -551,12 +551,10 @@ extension SwiftZ80Core {
 			break
 		case 0xcb:		/* shift DDFDCB */
 			var opcode3: Byte
-//			contend_read(PC, tStates: 3)
 			let add = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
 			let signedIY = Int(IY)
 			let tempAddr = Word(Int(signedIY) + Int(add))
 			PC += 1
-//			contend_read_no_mreq(PC, tStates: 3)
 			opcode3 = internalReadAddress(PC, tStates: 3)
 			contend_read_no_mreq(PC, tStates: 1)
 			contend_read_no_mreq(PC, tStates: 1)

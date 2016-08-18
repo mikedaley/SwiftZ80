@@ -166,9 +166,7 @@ class SwiftZ80CoreTest {
 		initialMemory = memory
 		
 		while end_tstates > 0 {
-			let tStatesBefore = Int(core!.tStates)
-			core!.execute()
-			end_tstates -= core!.tStates - tStatesBefore
+			end_tstates -= core!.execute()
 		}
 
         dumpZ80()
