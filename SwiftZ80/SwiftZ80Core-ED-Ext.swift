@@ -173,7 +173,7 @@ extension SwiftZ80Core {
             contend_read_no_mreq(HL, tStates: 1)
             internalWriteAddress(HL,  value: (A << 4) | (temp >> 4))
             A = (A & 0xf0) | (temp & 0x0f)
-            F = (F & FLAG_C) | SZ35Table[A]
+            F = (F & FLAG_C) | SZ35Table[A] | parityTable[A]
             break
         case 0x68:		/* IN L,(C) */
             Z80_IN(&L, port: BC)
@@ -200,16 +200,14 @@ extension SwiftZ80Core {
             contend_read_no_mreq(HL, tStates: 1)
             contend_read_no_mreq(HL, tStates: 1)
             contend_read_no_mreq(HL, tStates: 1)
-            ioWriteAddress(HL, value: (temp << 4) | (A & 0x0f))
+            internalWriteAddress(HL, value: (temp << 4) | (A & 0x0f))
             A = (A & 0xf0) | (temp >> 4)
-            F = (F & FLAG_C) | SZ35Table[A]
+            F = (F & FLAG_C) | SZ35Table[A] | parityTable[A]
             break
         case 0x70:		/* IN F,(C) */
-//            {
-//                libspectrum_byte bytetemp
-//                Z80_IN(bytetemp, BC)
-//            }
-            break
+			var temp: Byte = 0
+			Z80_IN(&temp, port: BC)
+			break
         case 0x71:		/* OUT (C),0 */
             ioWriteAddress(BC, value: 0)
             break
@@ -277,44 +275,37 @@ extension SwiftZ80Core {
             break
         case 0xa2:		/* INI */
             var temp1: Byte
-//            var temp2: Byte
 			
             contend_read_no_mreq(IR, tStates: 1)
             temp1 = ioReadAddress(BC)
-            ioWriteAddress(HL, value: temp1)
+            internalWriteAddress(HL, value: temp1)
             
             B = B &- 1
             HL = HL &+ 1
+			let temp2: Byte = temp1 &+ C &+ 1
 			
-			let signedC = Int16(bitPattern: Word(C) & 0xffff)
-			let signedTemp1 = Int16(bitPattern: Word(temp1) & 0xffff)
-			let signedTemp2 = signedTemp1 + signedC + 1
+            let t = Byte((temp2 & 0x07) ^ B)
 			
-//            temp2 = temp1 + C + 1
+            F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (temp2 < temp1 ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
 			
-            let t = Byte(signedTemp2 & 0x07 ^ Int16(B))
-            F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (signedTemp2 < Int16(temp1) ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
             break
         case 0xa3:		/* OUTI */
             var temp1: Byte
-//            var temp2: Byte
-			
-            contend_read_no_mreq(IR, tStates: 1)
+
+			contend_read_no_mreq(IR, tStates: 1)
             temp1 = internalReadAddress(HL, tStates: 3)
             B = B &- 1	/* This does happen first, despite what the specs say */
             ioWriteAddress(BC, value: temp1)
             
             HL = HL &+ 1
 
-			let signedL = Int16(bitPattern: Word(L) & 0xffff)
-			let signedTemp1 = Int16(bitPattern: Word(temp1) & 0xffff)
-			let signedTemp2 = signedTemp1 + signedL + 1
+			let temp2: Byte = temp1 &+ L
 			
+			let t = Byte((temp2 & 0x07) ^ B)
 			
-//			temp2 = temp1 + L
-			let t = Byte(signedTemp2 & 0x07 ^ Int16(B))
-            F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (signedTemp2 < Int16(temp1) ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
-            break
+			F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (temp2 < temp1 ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
+			
+			break
         case 0xa8:		/* LDD */
             var temp = internalReadAddress(HL, tStates: 3)
             BC = BC &- 1
@@ -346,28 +337,23 @@ extension SwiftZ80Core {
             break
         case 0xaa:		/* IND */
             var temp1: Byte
-//            var temp2: Byte
-			
-            contend_read_no_mreq(IR, tStates: 1)
+
+			contend_read_no_mreq(IR, tStates: 1)
             temp1 = ioReadAddress(BC)
             internalWriteAddress(HL, value: temp1)
             
             B = B &- 1
             HL = HL &- 1
 			
-			let signedC = Int16(bitPattern: Word(C) & 0xffff)
-			let signedTemp1 = Int16(bitPattern: Word(temp1) & 0xffff)
-			let signedTemp2 = signedTemp1 + signedC + 1
+			let temp2: Byte = temp1 &+ C &- 1
 
-//            temp2 = temp1 + C - 1
+			let t = Byte((temp2 & 0x07) ^ B)
 			
-			let t = Byte(signedTemp2 & 0x07 ^ Int16(B))
-			F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (signedTemp2 < Int16(temp1) ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
+			F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (temp2 < temp1 ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
 			
             break
         case 0xab:		/* OUTD */
             var temp1: Byte
-//            var temp2: Byte
 			
             contend_read_no_mreq(IR, tStates: 1)
             temp1 = internalReadAddress(HL, tStates: 3)
@@ -375,11 +361,12 @@ extension SwiftZ80Core {
             ioWriteAddress(BC, value: temp1)
             
             HL = HL &- 1
-			let signedL = Int16(bitPattern: Word(L) & 0xffff)
-			let signedTemp1 = Int16(bitPattern: Word(temp1) & 0xffff)
-			let signedTemp2 = signedTemp1 + signedL + 1
-			let t = Byte(signedTemp2 & 0x07 ^ Int16(B))
-			F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (signedTemp2 < Int16(temp1) ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
+			
+			let temp2 = temp1 &+ L
+			
+			let t = Byte((temp2 & 0x07) ^ B)
+			
+			F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | (temp2 < temp1 ? FLAG_H | FLAG_C : 0) | (parityTable[ t ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
 			
             break
         case 0xb0:		/* LDIR */

@@ -929,7 +929,8 @@ extension SwiftZ80Core {
             break
         case 0xdd:		/* shift DD */
             var opcode2: Byte
-            opcode2 = internalReadAddress(PC, tStates: 4)
+//			contend_read(PC, tStates: 4)
+			opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
             lookupDDFDIXOpcode(opcode2)
@@ -966,7 +967,7 @@ extension SwiftZ80Core {
             let tempH: Byte = internalReadAddress(SP + 1, tStates: 3)
             contend_read_no_mreq(SP + 1, tStates: 1)
             internalWriteAddress(SP + 1, value: H)
-            internalWriteAddress(SP,     value: L )
+            internalWriteAddress(SP, value: L )
             contend_write_no_mreq(SP, tStates: 1)
             contend_write_no_mreq(SP, tStates: 1)
             L = tempL
@@ -1004,7 +1005,7 @@ extension SwiftZ80Core {
             PC = HL		/* NB: NOT INDIRECT! */
             break
         case 0xea:		/* JP PE,nnnn */
-            if F & FLAG_P != FLAG_P {
+            if F & FLAG_P == FLAG_P {
                 JP()
             } else {
                 contend_read(PC, tStates: 3)
@@ -1018,7 +1019,7 @@ extension SwiftZ80Core {
             HL = temp
             break
         case 0xec:		/* CALL PE,nnnn */
-            if F & FLAG_P != FLAG_P {
+            if F & FLAG_P == FLAG_P {
                 CALL()
             } else {
                 contend_read(PC, tStates: 3)
@@ -1028,8 +1029,8 @@ extension SwiftZ80Core {
             break
         case 0xed:		/* shift ED */
             var opcode2: Byte
-            contend_read(PC, tStates: 4)
-            opcode2 = internalReadAddress(PC, tStates: 3)
+//            contend_read(PC, tStates: 4)
+            opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1
             lookupEDOpcode(opcode2)
@@ -1126,6 +1127,7 @@ extension SwiftZ80Core {
             break
         case 0xfd:		/* shift FD */
             var opcode2: Byte
+//			contend_read(PC, tStates: 4)
             opcode2 = internalReadAddress(PC, tStates: 4)
             PC += 1
             R = R &+ 1

@@ -124,15 +124,15 @@ class ZXSpectrum48 {
     }
     
     func contentionReadNoMREQAddress(address: Word, tStates: Int) {
-        core!.tStates += tStates
+//        core!.tStates += tStates
     }
     
     func contentionWriteNoMREQAddress(address: Word, tStates: Int) {
-        core!.tStates += tStates
+//        core!.tStates += tStates
     }
     
     func contentionReadAddress(address: Word, tStates: Int) {
-        core!.tStates += tStates
+//        core!.tStates += tStates
     }
     
     

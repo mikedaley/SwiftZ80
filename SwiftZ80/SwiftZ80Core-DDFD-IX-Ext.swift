@@ -85,11 +85,11 @@ extension SwiftZ80Core {
             PC += 1
             break
         case 0x34:		/* INC (IX+dd) */
-            var offset: Byte
+            var offset: Int8
             var byteTemp: Byte
             var wordTemp: Word
             
-            offset = internalReadAddress(PC, tStates: 3)
+			offset = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
             
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
@@ -98,9 +98,10 @@ extension SwiftZ80Core {
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
             
-            let signedOffset = Int16(bitPattern: Word(offset) & 0xffff)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
             
-            wordTemp = IX + Word(signedOffset)
+            wordTemp = Word(signedAddress)
             
             byteTemp = internalReadAddress(wordTemp, tStates: 3)
             
@@ -111,33 +112,42 @@ extension SwiftZ80Core {
             internalWriteAddress(wordTemp, value: byteTemp)
             break
         case 0x35:		/* DEC (IX+dd) */
-            var offset: Byte
+            var offset: Int8
             var byteTemp: Byte
             var wordTemp: Word
             
-            offset = internalReadAddress(PC, tStates: 3)
+            offset = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            wordTemp = IX + Word(offset) & 0xffff
+			
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+
+            wordTemp = Word(signedAddress)
+			
             byteTemp = internalReadAddress(wordTemp, tStates: 3)
             contend_read_no_mreq(wordTemp, tStates:1)
             DEC(&byteTemp)
             internalWriteAddress(wordTemp,value: byteTemp)
             break
         case 0x36:		/* LD (IX+dd),nn */
-            var offset: Byte
+            var offset: Int8
             var value: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+			offset = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
             PC += 1
             value = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates: 1)
             contend_read_no_mreq(PC, tStates: 1)
             PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: value)
+			
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			
+            internalWriteAddress(Word(signedAddress), value: value)
             break
         case 0x39:		/* ADD IX,SP */
             contend_read_no_mreq(IR, tStates:1)
@@ -156,15 +166,16 @@ extension SwiftZ80Core {
             B = IXl
             break
         case 0x46:		/* LD B,(IX+dd) */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            B = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+            B = internalReadAddress(Word(signedAddress) & 0xffff, tStates: 3)
             break
         case 0x4c:		/* LD C,IXh */
             C = IXh
@@ -173,15 +184,16 @@ extension SwiftZ80Core {
             C = IXl
             break
         case 0x4e:		/* LD C,(IX+dd) */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            C = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+            C = internalReadAddress(Word(signedAddress), tStates: 3)
             break
         case 0x54:		/* LD D,IXh */
             D = IXh
@@ -190,15 +202,16 @@ extension SwiftZ80Core {
             D = IXl
             break
         case 0x56:		/* LD D,(IX+dd) */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            D = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+            D = internalReadAddress(Word(signedAddress), tStates: 3)
             break
         case 0x5c:		/* LD E,IXh */
             E = IXh
@@ -207,15 +220,16 @@ extension SwiftZ80Core {
             E = IXl
             break
         case 0x5e:		/* LD E,(IX+dd) */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+            let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            E = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+            E = internalReadAddress(Word(signedAddress), tStates: 3)
             break
         case 0x60:		/* LD IXh,B */
             IXh = B
@@ -235,15 +249,16 @@ extension SwiftZ80Core {
             IXh = IXl
             break
         case 0x66:		/* LD H,(IX+dd) */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+            let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            H = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+            H = internalReadAddress(Word(signedAddress), tStates: 3)
             break
         case 0x67:		/* LD IXh,A */
             IXh = A
@@ -266,95 +281,103 @@ extension SwiftZ80Core {
         case 0x6d:		/* LD IXl,IXl */
             break
         case 0x6e:		/* LD L,(IX+dd) */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+            let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            L = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			L = internalReadAddress(Word(signedAddress), tStates: 3)
             break
         case 0x6f:		/* LD IXl,A */
             IXl = A
             break
         case 0x70:		/* LD (IX+dd),B */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             contend_read_no_mreq(PC, tStates:1)
             PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: B)
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+            internalWriteAddress(Word(signedAddress), value: B)
             break
         case 0x71:		/* LD (IX+dd),C */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: C)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			internalWriteAddress(Word(signedAddress), value: C)
             break
         case 0x72:		/* LD (IX+dd),D */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: D)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			internalWriteAddress(Word(signedAddress), value: D)
             break
         case 0x73:		/* LD (IX+dd),E */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: E)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			internalWriteAddress(Word(signedAddress), value: E)
             break
         case 0x74:		/* LD (IX+dd),H */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: H)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			internalWriteAddress(Word(signedAddress), value: H)
             break
         case 0x75:		/* LD (IX+dd),L */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: L)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			internalWriteAddress(Word(signedAddress), value: L)
             break
         case 0x77:		/* LD (IX+dd),A */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            internalWriteAddress(IX + Word(offset) & 0xffff, value: A)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			internalWriteAddress(Word(signedAddress), value: A)
             break
         case 0x7c:		/* LD A,IXh */
             A = IXh
@@ -363,15 +386,16 @@ extension SwiftZ80Core {
             A = IXl
             break
         case 0x7e:		/* LD A,(IX+dd) */
-            var offset: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            A = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			A = internalReadAddress(Word(signedAddress), tStates: 3)
             break
         case 0x84:		/* ADD A,IXh */
             ADD(IXh)
@@ -380,16 +404,16 @@ extension SwiftZ80Core {
             ADD(IXl)
             break
         case 0x86:		/* ADD A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             ADD(byteTemp)
             break
         case 0x8c:		/* ADC A,IXh */
@@ -399,16 +423,16 @@ extension SwiftZ80Core {
             ADC(IXl)
             break
         case 0x8e:		/* ADC A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             ADC(byteTemp)
             break
         case 0x94:		/* SUB A,IXh */
@@ -418,16 +442,16 @@ extension SwiftZ80Core {
             SUB(IXl)
             break
         case 0x96:		/* SUB A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             SUB(byteTemp)
             break
         case 0x9c:		/* SBC A,IXh */
@@ -437,16 +461,16 @@ extension SwiftZ80Core {
             SBC(IXl)
             break
         case 0x9e:		/* SBC A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             SBC(byteTemp)
             break
         case 0xa4:		/* AND A,IXh */
@@ -456,16 +480,16 @@ extension SwiftZ80Core {
             AND(IXl)
             break
         case 0xa6:		/* AND A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             AND(byteTemp)
             break
         case 0xac:		/* XOR A,IXh */
@@ -475,16 +499,16 @@ extension SwiftZ80Core {
             XOR(IXl)
             break
         case 0xae:		/* XOR A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             XOR(byteTemp)
             break
         case 0xb4:		/* OR A,IXh */
@@ -494,16 +518,16 @@ extension SwiftZ80Core {
             OR(IXl)
             break
         case 0xb6:		/* OR A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             OR(byteTemp)
             break
         case 0xbc:		/* CP A,IXh */
@@ -513,24 +537,27 @@ extension SwiftZ80Core {
             CP(IXl)
             break
         case 0xbe:		/* CP A,(IX+dd) */
-            var offset: Byte
-            var byteTemp: Byte
-            offset = internalReadAddress(PC, tStates: 3)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            contend_read_no_mreq(PC, tStates:1)
-            PC += 1
-            byteTemp = internalReadAddress(IX + Word(offset) & 0xffff, tStates: 3)
+			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			contend_read_no_mreq(PC, tStates:1)
+			PC += 1
+			let signedIX = Int(IX)
+			let signedAddress: Int = Int(signedIX) + Int(offset)
+			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
             CP(byteTemp)
             break
         case 0xcb:		/* shift DDFDCB */
             var opcode3: Byte
-            contend_read(PC, tStates: 3)
-            let tempAddr: Word = IX + (Word(internalReadAddress(PC, tStates: 3)) & 0xffff)
+//            contend_read(PC, tStates: 3)
+			let add = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			let signedIX = Int(IX)
+			let tempAddr = Word(Int(signedIX) + Int(add))
             PC += 1
-            opcode3 = internalReadAddress(PC, tStates: 4)
+//			contend_read_no_mreq(PC, tStates: 3)
+            opcode3 = internalReadAddress(PC, tStates: 3)
             contend_read_no_mreq(PC, tStates: 1)
             contend_read_no_mreq(PC, tStates: 1)
             PC += 1

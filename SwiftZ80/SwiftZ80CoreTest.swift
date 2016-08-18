@@ -80,8 +80,7 @@ class SwiftZ80CoreTest {
 		}
 		core!.tStates += 1
 		
-        outputString = outputString.stringByAppendingFormat("%5d PW %04x %02x\n", core!.tStates, address, address >> 8)
-		
+        outputString = outputString.stringByAppendingFormat("%5d PW %04x %02x\n", core!.tStates, address, value)
 		if address & 0x0001 != 0 {
 			
 			if address & 0xc000 == 0x4000 {
@@ -132,7 +131,7 @@ class SwiftZ80CoreTest {
             outputString = ""
 		}
 
-        let resultsPath = "/Users/mdaley/Desktop/results.txt"
+        let resultsPath = "/Users/mikedaley/Desktop/results.txt"
         
         do {
             try fileString.writeToFile(resultsPath, atomically: true, encoding: NSUTF8StringEncoding)
@@ -186,8 +185,6 @@ class SwiftZ80CoreTest {
 		}
 		
 		let testName: String = scanner!.read()!
-
-//		print(testName)
 		
 		let af: String = scanner!.read()!
 		core!.AF = Word(Int(strtoul(af, nil, 16)))
@@ -272,29 +269,28 @@ class SwiftZ80CoreTest {
 	
 	func dumpMemory() {
 		
-		
-		let i = 0 ..< 0x10000
-		var generator = i.generate()
-	
-		while var i = generator.next() {
+		var i = 0
+		while i < 0x10000 {
+			
 			var output = ""
 			
-			if memory[i] == initialMemory[i] {
-				continue
+			if memory[i] != initialMemory[i] {
+				
+				output = output.stringByAppendingFormat("%04x ", UInt(i))
+				
+				while i < 0xffff && memory[i] != initialMemory[i] {
+					output = output.stringByAppendingFormat("%02x ", memory[i])
+					i += 1
+				}
+				
+				output = output.stringByAppendingString("-1\n")
+				
+				outputString = outputString.stringByAppendingString(output)
+				
+				i += 1
 			}
 			
-			output = output.stringByAppendingFormat("%04x ", UInt(i))
-			
-			while i < 0x10000 && memory[i] != initialMemory[i] {
-				output = output.stringByAppendingFormat("%02x ", memory[i])
-				i = generator.next()!
-			}
-			
-			output = output.stringByAppendingString("-1\n")
-			
-			outputString = outputString.stringByAppendingString(output)
-			
-			i = generator.next()!
+			i += 1
 		}
 	
 	}

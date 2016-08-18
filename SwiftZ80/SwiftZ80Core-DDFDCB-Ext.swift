@@ -770,7 +770,7 @@ extension SwiftZ80Core {
             internalWriteAddress(tempaddr, value: bytetemp & 0xbf)
             break
         case 0xb7:		/* LD A,RES 6,(REGISTER+dd) */
-            A = internalReadAddress(tempaddr, tStates: 3) & 0xbf
+            A = (internalReadAddress(tempaddr, tStates: 3) & 0xbf)
             contend_read_no_mreq(tempaddr, tStates: 1)
             internalWriteAddress(tempaddr, value: A)
             break
@@ -847,7 +847,7 @@ extension SwiftZ80Core {
         case 0xc6:		/* SET 0,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x01)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x01)
             break
         case 0xc7:		/* LD A,SET 0,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x01
@@ -887,7 +887,7 @@ extension SwiftZ80Core {
         case 0xce:		/* SET 1,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x02)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x02)
             break
         case 0xcf:		/* LD A,SET 1,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x02
@@ -927,7 +927,7 @@ extension SwiftZ80Core {
         case 0xd6:		/* SET 2,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x04)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x04)
             break
         case 0xd7:		/* LD A,SET 2,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x04
@@ -967,7 +967,7 @@ extension SwiftZ80Core {
         case 0xde:		/* SET 3,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x08)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x08)
             break
         case 0xdf:		/* LD A,SET 3,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x08
@@ -1007,7 +1007,7 @@ extension SwiftZ80Core {
         case 0xe6:		/* SET 4,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x10)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x10)
             break
         case 0xe7:		/* LD A,SET 4,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x10
@@ -1047,7 +1047,7 @@ extension SwiftZ80Core {
         case 0xee:		/* SET 5,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x20)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x20)
             break
         case 0xef:		/* LD A,SET 5,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x20
@@ -1087,7 +1087,7 @@ extension SwiftZ80Core {
         case 0xf6:		/* SET 6,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x40)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x40)
             break
         case 0xf7:		/* LD A,SET 6,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x40
@@ -1127,7 +1127,7 @@ extension SwiftZ80Core {
         case 0xfe:		/* SET 7,(REGISTER+dd) */
             let bytetemp: Byte = internalReadAddress(tempaddr, tStates: 3)
             contend_read_no_mreq(tempaddr, tStates: 1)
-            internalWriteAddress(tempaddr, value: bytetemp & 0x80)
+            internalWriteAddress(tempaddr, value: bytetemp | 0x80)
             break
         case 0xff:		/* LD A,SET 7,(REGISTER+dd) */
             A = internalReadAddress(tempaddr, tStates: 3) | 0x80

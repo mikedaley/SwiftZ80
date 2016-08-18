@@ -46,9 +46,9 @@ extension SwiftZ80Core {
     mutating func ADC16(value: Word) {
 
         let result: Int = Int(HL) + Int(value) + Int(F & FLAG_C)
-        let r1: Byte = Byte((HL & 0x0800) >> 11) & 0xff
-        let r2: Byte = Byte((value & 0x0800) >> 10) & 0xff
-        let r3: Byte = Byte((Word(result & 0xffff) & 0x0800) >> 9) & 0xff
+        let r1: Byte = Byte((HL & 0x8800) >> 11) & 0xff
+        let r2: Byte = Byte((value & 0x8800) >> 10) & 0xff
+        let r3: Byte = Byte((Word(result & 0xffff) & 0x8800) >> 9) & 0xff
         let lookup: Byte = r1 | r2 | r3
         
         HL = Word(result & 0xffff)
@@ -62,8 +62,8 @@ extension SwiftZ80Core {
         if HL != 0x00 {
             zero = 0x00
         }
-        
-        F = carry | halfcarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] | zero
+		
+        F = carry | halfcarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] | (H & (FLAG_3 | FLAG_5 | FLAG_S)) | zero
         
     }
 
@@ -141,12 +141,11 @@ extension SwiftZ80Core {
      * BIT_I - Sets the flags based on the supplied bit being set or not in the supplied value/address!!
      */
     mutating func BIT_I(bit: Byte, value: Byte, address: Word) {
+		
         F = ( F & FLAG_C ) | FLAG_H | ( Byte(( address >> 8 ) & 0xff) & ( FLAG_3 | FLAG_5 ) )
 
-        if value & (0x01 << bit) != 0x00 {
-            F |= FLAG_P
-        } else {
-            F |= FLAG_Z
+        if value & (0x01 << bit) == 0x00 {
+            F |= FLAG_P | FLAG_Z
         }
         
         if bit == 7 && value & 0x80 != 0x00 {
@@ -307,7 +306,7 @@ extension SwiftZ80Core {
      */
     mutating func OR(value: Byte) {
         A |= value
-        F |= SZ35Table[A] | parityTable[A]
+        F = SZ35Table[A] | parityTable[A]
     }
     
     /**
@@ -404,9 +403,9 @@ extension SwiftZ80Core {
    
         let result: Int = Int(HL) - Int(value) - Int(F & FLAG_C)
         
-        let r1 = Byte((HL & 0x0800) >> 11) & 0xff
-        let r2 = Byte((value & 0x0800) >> 10) & 0xff
-        let r3 = Byte((Word(result & 0xffff) & 0x0800) >> 9) & 0xff
+        let r1 = Byte((HL & 0x8800) >> 11) & 0xff
+        let r2 = Byte((value & 0x8800) >> 10) & 0xff
+        let r3 = Byte((Word(result & 0xffff) & 0x8800) >> 9) & 0xff
         let lookup: Byte = r1 | r2 | r3
         
         HL = Word(result & 0xffff)

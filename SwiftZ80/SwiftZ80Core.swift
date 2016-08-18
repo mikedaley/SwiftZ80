@@ -6,6 +6,15 @@
 //  Copyright © 2016 71Squared Ltd. All rights reserved.
 //
 
+
+/**
+* This Z80 core has been developed based on the Fuse Z80 core written by Philip Kendall (philip-fuse@shadowmagic.org.uk)
+*/
+
+
+/**
+* Give sensible names to the main types being used in the core
+*/
 public typealias Byte = UInt8
 public typealias Word = UInt16
 

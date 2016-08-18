@@ -76,6 +76,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // TESTING
         tests.runTests()
+//		machine = ZXSpectrum48()
 		
 		// Emulation timer
         dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1/50 * Double(NSEC_PER_SEC)), 0)
@@ -88,7 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //		dispatch_resume(emulationTimer)
 
         // UI Timer
-		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(1/50 * Double(NSEC_PER_SEC)), 0)
+		dispatch_source_set_timer(displayTimer, DISPATCH_TIME_NOW, UInt64(0.5 * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(displayTimer) {
 			dispatch_async(dispatch_get_main_queue(), { 
 				self.updateUI()
