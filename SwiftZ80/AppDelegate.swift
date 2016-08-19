@@ -20,12 +20,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	
 	var machine: ZXSpectrum48!
 	
+    var runCoreTests = false
+    var coreTests: SwiftZ80CoreTest = SwiftZ80CoreTest()
+    
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
 		
         window.contentView?.wantsLayer = true
 		machine = ZXSpectrum48(view: emulationDisplayViewController.view)
 		setupView()
-        machine.startExecution()
+        
+        if runCoreTests {
+            coreTests.runTests()
+        } else {
+            machine.startExecution()
+        }
 		
     }
 

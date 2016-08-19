@@ -291,14 +291,11 @@ extension SwiftZ80Core {
         contend_read_no_mreq(PC, tStates: 1)
         contend_read_no_mreq(PC, tStates: 1)
         
-        var signedPC = Int16(PC)
+        var signedPC = Int16(bitPattern: PC)
 		
 		// Added 1 to PC to cater for the memory read that has occured 
-		signedPC += Int16(temp) + 1
-        
-		if signedPC >= 0 {
-			PC = Word(signedPC)
-		}
+		signedPC = signedPC &+ Int16(temp) + 1
+        PC = Word(UInt16(bitPattern: signedPC))
     }
     
     /**

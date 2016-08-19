@@ -131,7 +131,7 @@ class SwiftZ80CoreTest {
             outputString = ""
 		}
 
-        let resultsPath = "/Users/mikedaley/Desktop/results.txt"
+        let resultsPath = "/Users/mdaley/Desktop/results.txt"
         
         do {
             try fileString.writeToFile(resultsPath, atomically: true, encoding: NSUTF8StringEncoding)

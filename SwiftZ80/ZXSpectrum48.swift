@@ -144,13 +144,14 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 	]
 	
-	var keyboardMap: [Int] = [Int](count: 8, repeatedValue: 0x01)
+	var keyboardMap: [Int] = [Int](count: 8, repeatedValue: 0xff)
     
     // MARK: Init
 
     var appDelegate: AppDelegate
 
 	init(view: NSView) {
+        
 	
 		emulationDisplayView = view
 		appDelegate = NSApplication.sharedApplication().delegate as! AppDelegate
@@ -256,7 +257,11 @@ class ZXSpectrum48: ViewEventProtocol {
     // MARK: ROM loading
     
     func loadROM() {
-        let path = NSBundle.mainBundle().pathForResource("48", ofType: "ROM")
+        let path = NSBundle.mainBundle().pathForResource("manic", ofType: "sna")
+        
+        loadSnapShot(path!)
+        return
+        
         let data = NSData.init(contentsOfFile: path!)
         let count = data!.length / sizeof(Byte)
         var fileBytes = [Byte](count: count, repeatedValue: 0x00)
@@ -286,6 +291,37 @@ class ZXSpectrum48: ViewEventProtocol {
                 snaAddr += 1
             }
             
+            core.I = fileBytes[0]
+            core.L_ = fileBytes[1]
+            core.H_ = fileBytes[2]
+            core.E_ = fileBytes[3]
+            core.D_ = fileBytes[4]
+            core.C_ = fileBytes[5]
+            core.B_ = fileBytes[6]
+            core.F_ = fileBytes[7]
+            core.A_ = fileBytes[8]
+            core.L = fileBytes[9]
+            core.H = fileBytes[10]
+            core.E = fileBytes[11]
+            core.D = fileBytes[12]
+            core.C = fileBytes[13]
+            core.B = fileBytes[14]
+            core.IYl = fileBytes[15]
+            core.IYh = fileBytes[16]
+            core.IXl = fileBytes[17]
+            core.IXh = fileBytes[18]
+            core.IFF2 = fileBytes[19]
+            core.IFF1 = fileBytes[19]
+            core.R = fileBytes[20]
+            core.A = fileBytes[21]
+            core.F = fileBytes[22]
+            core.SPl = fileBytes[23]
+            core.SPh = fileBytes[24]
+            core.IM = fileBytes[25]
+            borderColour = Int(fileBytes[26])
+            
+            core.PCl = memory[Int(core.SP)]
+            core.PCh = memory[Int(core.SP + 1)]
         }
         
     }
@@ -297,17 +333,20 @@ class ZXSpectrum48: ViewEventProtocol {
     }
     
     func writeToMemoryAddress(address: Word, value: Byte) {
-        memory[Int(address)] = value
+        if address >= 16384 {
+            memory[Int(address)] = value
+        }
     }
     
     func ioReadAddress(address: Word) -> Byte {
 		
 		if address & 0xff == 0xfe {
 			for i in 0 ..< 8 {
-				let add: Word = Word(address) & Word(0x100 << i)
-				print(add)
-				if add == 0 {
-//					return Byte(keyboardMap[i])
+				let addr: Word = Word(address) & Word(0x100 << i)
+				if addr == 0 {
+//                    print(Byte(keyboardMap[i] & 0xff))
+//					return Byte(keyboardMap[i] & 0xff)
+                    return 0xff
 				}
 			}
 		}
@@ -522,6 +561,7 @@ class ZXSpectrum48: ViewEventProtocol {
 					var val: Int = keyboardMap[entry]
 					val = val & newValue
 					keyboardMap[keyboardLookup[i].mapEntry] = val
+                    print("DOWN: mapentry: \(keyboardLookup[i].mapEntry) - value: \(val)")
 					break;
 				}
 			}
@@ -562,11 +602,12 @@ class ZXSpectrum48: ViewEventProtocol {
 			
 			for i in 0 ..< keyboardLookup.count {
 				if keyboardLookup[i].keyCode == Int(theEvent.keyCode) {
-					let newValue: Int = ~(1 << keyboardLookup[i].mapBit)
+					let newValue: Int = (1 << keyboardLookup[i].mapBit)
 					let entry: Int = keyboardLookup[i].mapEntry
-					var val: Int = keyboardMap[entry]
+					var val: Int = keyboardMap[Int(entry)]
 					val = val | newValue
 					keyboardMap[keyboardLookup[i].mapEntry] = val
+                    print("UP: mapentry: \(keyboardLookup[i].mapEntry) - value: \(val)")
 					break;
 				}
 			}

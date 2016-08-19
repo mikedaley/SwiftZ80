@@ -388,20 +388,21 @@ class SwiftZ80Core
 		self.externalContendWriteNoMreq = contentionWriteNoMREQ
 		self.externalContendRead = contentionRead
 		
-		R1 = Z80Registers()
-		R2 = Z80Registers()
-		PC = 0x00
-		SP = 0x00
-		R = 0x00
-		I = 0x00
-		IFF1 = 0x00
-		IFF2 = 0x00
-		IM = 0x00
-		halted = 0
-		tStates = 0
-		
+        R1 = Z80Registers()
+        R2 = Z80Registers()
+
+        PC = 0x00
+        R = 0x00
+        I = 0x00
+        SP = 0xffff
+        IFF1 = 0x00
+        IFF2 = 0x00
+        IM = 0x00
+        halted = 0x00
+        tStates = 0x00
+        
         setupTables()
-	}
+    }
 	
     func setupTables() {
 
@@ -449,7 +450,7 @@ class SwiftZ80Core
 			IFF1 = 0
 			IFF2 = 0
 			interruptRequested = false
-			R = R & 0x80 | R + 1 & 0x7f
+			R = (R & 0x80) | ((R + 1) & 0x7f)
 			
 			switch IM {
 			case 0: fallthrough
@@ -462,7 +463,7 @@ class SwiftZ80Core
 			case 2:
 				PUSH16(PCl, regH: PCh)
 				
-				let address: Word = Word(I << 8) | 0
+                let address: Word = Word(I) << 8 | 0
 				PCl = internalReadAddress(address + 0, tStates: 3)
 				PCh = internalReadAddress(address + 1, tStates: 3)
 				tStates += 7
@@ -475,7 +476,6 @@ class SwiftZ80Core
 		let opcode: Byte = internalReadAddress(PC, tStates: 4)
 		PC = PC &+ 1
 		lookupBaseOpcode(opcode)
-
 		return tStates - tStatesBefore
 	
 	}
@@ -485,23 +485,23 @@ class SwiftZ80Core
 	}
 	
 	func reset() {
-		R1 = Z80Registers()
-		R2 = Z80Registers()
-		PC = 0x00
-		SP = 0x00
-		R = 0x00
-		I = 0x00
-		IFF1 = 0x00
-		IFF2 = 0x00
-		IM = 0x00
-		halted = 0
-		tStates = 0
+        PC = 0x00
+        R = 0x00
+        I = 0x00
+        AF = 0xffff
+        AF_ = 0xffff
+        SP = 0xffff
+        
+        IFF1 = 0x00
+        IFF2 = 0x00
+        IM = 0x00
+        halted = 0x00
+        tStates = 0x00
 	}
 
 	// MARK: Internal memory and contention functions
 	// These are called by the core so that the internal tstate count can be adjusted based on memory reads, writes and contention.
 	//
-	
 	
 	/**
 	* Internal Read Address

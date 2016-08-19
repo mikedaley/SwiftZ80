@@ -388,7 +388,7 @@ extension SwiftZ80Core {
             break
         case 0xb1:		/* CPIR */
             let value: Byte = internalReadAddress(HL, tStates: 3)
-            var temp: Byte = A - value
+            var temp: Byte = A &- value
             let lookup: Byte = ((A & 0x08) >> 3) | ((value & 0x08) >> 2) | ((Byte(temp & 0xff) & 0x08) >> 1)
 
             contend_read_no_mreq(HL, tStates: 1)

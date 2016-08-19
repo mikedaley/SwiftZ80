@@ -134,32 +134,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SwiftZ80/SwiftZ80Core-DDFD-IX-Ext.swift"
-            timestampString = "493163121.920504"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "101"
-            endingLineNumber = "101"
-            landmarkName = "lookupDDFDIXOpcode(_:)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SwiftZ80/ZXSpectrum48.swift"
-            timestampString = "493255108.673458"
+            filePath = "SwiftZ80/SwiftZ80Core-ED-Ext.swift"
+            timestampString = "493330582.981052"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "282"
-            endingLineNumber = "282"
-            landmarkName = "updateScreenFromTstate(_:numberOfTstates:)"
+            startingLineNumber = "86"
+            endingLineNumber = "86"
+            landmarkName = "lookupEDOpcode(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
