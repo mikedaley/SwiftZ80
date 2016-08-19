@@ -244,11 +244,11 @@ class ZXSpectrum48 {
     // MARK: Memory IO routines
     
     func readFromMemoryAddress(address: Word) -> Byte {
-        return memory[address]
+        return memory[Int(address)]
     }
     
     func writeToMemoryAddress(address: Word, value: Byte) {
-        memory[address] = value
+        memory[Int(address)] = value
     }
     
     func ioReadAddress(address: Word) -> Byte {
@@ -344,7 +344,7 @@ class ZXSpectrum48 {
                         let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
                         let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
                         
-                        let pixelByte = Int(memoryBuffer[Int(pixelAddress)])
+                        let pixelByte = memoryBuffer[Int(pixelAddress)]
                         let attributeByte = memoryBuffer[Int(attributeAddress)]
                         
                         var ink:Int = Int(((attributeByte & 0x07) + ((attributeByte & 0x04) >> 3)) * 4)
@@ -358,7 +358,7 @@ class ZXSpectrum48 {
                         
                         let displayBufferIndex = y * pixelDisplayWidth + x
                         
-                        if pixelByte & (0x80 >> (px & 7)) != 0 {
+                        if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
                             
                             
                             mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }

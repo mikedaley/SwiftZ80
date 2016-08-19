@@ -60,11 +60,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	
 	func updateUI() {
 		// Update the memory view
-		memoryViewController.update(machine.core!)
-        
+//		memoryViewController.update(machine.core!)
+		
 		// Update the CPU view
-        cpuViewController.update(machine.core!, tStatesInCurrentFrame: machine.tStatesInCurrentFrame)
-        
+//        cpuViewController.update(machine.core!, tStatesInCurrentFrame: machine.tStatesInCurrentFrame)
+		
         screenView.layer?.contents = machine.imageRef
 	}
 	
