@@ -42,7 +42,7 @@ class ZXSpectrum48 {
     let pixelRightBorderWidth = 32
     let pixelTopBorderHeight = 56 //56
     let pixelScreenHeight = 192
-    let pixelBottomBorderHeight = 56 //56
+    let pixelBottomBorderHeight:Int = 56 //56
     let pixelLinesVerticalBlank = 8
     
     let tStatesPerFrame = 69888
@@ -158,11 +158,11 @@ class ZXSpectrum48 {
         return core!.tStates - currentTStates
     }
     
-    func step(inout mutableDisplayBuffer:UnsafeMutableBufferPointer<PixelData>) -> (Int) {
+    func step(inout mutableDisplayBuffer:UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) -> (Int) {
         
         let cpuStates = self.execute()
         
-        updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer)
+        updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
         
         tStatesInCurrentFrame += cpuStates
         
@@ -178,18 +178,22 @@ class ZXSpectrum48 {
         var count = tStatesPerFrame
         
         displayBuffer!.withUnsafeMutableBufferPointer { mutableDisplayBuffer -> () in
-            while count > 0 {
-                
-                if shouldReset {
-                    shouldReset = false
-                    count == 0
-                    core!.reset()
-                    loadROM()
-                }
-                
-                count -= self.step(&mutableDisplayBuffer)
-            }
             
+            
+            memory.withUnsafeBufferPointer { memoryBuffer -> () in
+            
+                while count > 0 {
+                    
+                    if shouldReset {
+                        shouldReset = false
+                        count == 0
+                        core!.reset()
+                        loadROM()
+                    }
+                    
+                    count -= self.step(&mutableDisplayBuffer, memoryBuffer: memoryBuffer)
+                }
+            }
         }
         
         generateScreenImage()
@@ -269,7 +273,7 @@ class ZXSpectrum48 {
     
     // MARK: Screen routines
     
-    func updateScreenFromTstate(tState: Int, numberOfTstates: Int, inout mutableDisplayBuffer: UnsafeMutableBufferPointer<PixelData>) {
+    func updateScreenFromTstate(tState: Int, numberOfTstates: Int, inout mutableDisplayBuffer: UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) {
         
         let pall : [UInt8] = [
             
@@ -298,10 +302,16 @@ class ZXSpectrum48 {
         
         for _ in 0 ..< (numberOfTstates << 1) {
             
-            let x = pixelBeamXPos
-            let y = pixelBeamYPos - pixelLinesVerticalBlank
+            let x:Int = pixelBeamXPos
+            let y:Int = pixelBeamYPos - pixelLinesVerticalBlank
             
-            if y >= 0 && y < (pixelDisplayHeight + pixelBottomBorderHeight) && x < pixelDisplayWidth {
+            let c1 = x < pixelDisplayWidth
+            let c2 = y < (pixelDisplayHeight + pixelBottomBorderHeight)
+            let c3 = y >= 0
+            
+            if c3 && c2 && c1 {
+                
+
                 
                 if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
                     
@@ -334,8 +344,8 @@ class ZXSpectrum48 {
                         let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
                         let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
                         
-                        let pixelByte = Int(memory[pixelAddress])
-                        let attributeByte = memory[attributeAddress]
+                        let pixelByte = Int(memoryBuffer[Int(pixelAddress)])
+                        let attributeByte = memoryBuffer[Int(attributeAddress)]
                         
                         var ink:Int = Int(((attributeByte & 0x07) + ((attributeByte & 0x04) >> 3)) * 4)
                         var paper:Int = Int((((attributeByte >> 3) & 0x07) + ((attributeByte & 0x40) >> 3)) * 4)
