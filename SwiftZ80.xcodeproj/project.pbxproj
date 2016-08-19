@@ -170,15 +170,14 @@
 			isa = PBXGroup;
 			children = (
 				EDAD5B971D534BFD00B83148 /* MyPlayground.playground */,
-				990447FE1D5FDA4D004667A8 /* ROMS */,
 				9977DBFB1D4407C900EE72C3 /* Other */,
 				9977DBFA1D4407BD00EE72C3 /* Assets */,
+				990447FE1D5FDA4D004667A8 /* ROMS */,
+				EDC1F08A1D412C8F0026C2D2 /* Z80 Core */,
 				ED778B751D50F9E100727B31 /* Extensions/Operators */,
 				9977DBF91D4407AE00EE72C3 /* UI */,
-				EDC1F08A1D412C8F0026C2D2 /* Z80 Core */,
 				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
 				990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */,
-				EDFF5C231D6228120001EFDC /* Core Tests */,
 			);
 			path = SwiftZ80;
 			sourceTree = "<group>";
@@ -190,6 +189,7 @@
 				ED6B38031D43D81A00D24DA7 /* Z80Registers.swift */,
 				EDC1F08B1D412CB10026C2D2 /* SwiftZ80Core.swift */,
 				EDAD5B961D52657700B83148 /* OpCodes */,
+				EDFF5C231D6228120001EFDC /* Core Tests */,
 			);
 			name = "Z80 Core";
 			sourceTree = "<group>";

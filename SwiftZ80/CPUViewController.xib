@@ -467,49 +467,49 @@
                             </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="vJI-wn-GOw">
                                 <rect key="frame" x="69" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="tu3-dW-51k">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="tu3-dW-51k">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="xVN-M7-Yz2">
                                 <rect key="frame" x="90" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="GBb-OE-SeK">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="GBb-OE-SeK">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="SC3-T4-Wz3">
                                 <rect key="frame" x="132" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="7YC-gW-fkV">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="7YC-gW-fkV">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iEX-Bg-6h6">
                                 <rect key="frame" x="111" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="9qj-cH-WaH">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="9qj-cH-WaH">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="4Nd-uT-tR2">
                                 <rect key="frame" x="174" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="g08-Dx-hbw">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="g08-Dx-hbw">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="dgE-g1-edC">
                                 <rect key="frame" x="195" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="iae-Az-nTQ">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="iae-Az-nTQ">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Iyg-vJ-Klo">
                                 <rect key="frame" x="216" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="0Pg-L6-yfk">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="0Pg-L6-yfk">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
@@ -524,7 +524,7 @@
                             </textField>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Q2w-7J-rwv">
                                 <rect key="frame" x="153" y="17" width="18" height="20"/>
-                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" refusesFirstResponder="YES" inset="2" id="bf9-9i-4Mk">
+                                <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" controlSize="small" enabled="NO" refusesFirstResponder="YES" inset="2" id="bf9-9i-4Mk">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
                                 </buttonCell>
@@ -697,7 +697,7 @@
                 <constraint firstItem="u5M-vm-agb" firstAttribute="top" secondItem="JEk-1E-zCH" secondAttribute="top" id="Z8N-DL-YH5"/>
                 <constraint firstItem="u5M-vm-agb" firstAttribute="leading" secondItem="JEk-1E-zCH" secondAttribute="leading" id="w0o-Gr-eZb"/>
             </constraints>
-            <point key="canvasLocation" x="213.5" y="294"/>
+            <point key="canvasLocation" x="464.5" y="308"/>
         </customView>
     </objects>
 </document>

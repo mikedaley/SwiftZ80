@@ -47,6 +47,13 @@ class MemoryViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
 		
 		
     }
+    
+    func update(z80Core: SwiftZ80Core) {
+        let visibleRect = memoryTableView.visibleRect
+        let rowsInRect = memoryTableView.rowsInRect(visibleRect)
+        let colsInRect = memoryTableView.columnIndexesInRect(visibleRect)
+        memoryTableView.reloadDataForRowIndexes(NSIndexSet.init(indexesInRange: rowsInRect), columnIndexes: colsInRect)
+    }
 
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
         return 65535 / 32 + 1

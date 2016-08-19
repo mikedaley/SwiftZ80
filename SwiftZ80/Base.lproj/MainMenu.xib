@@ -19,6 +19,7 @@
                 <outlet property="graphicalMemoryController" destination="FCt-QO-oEy" id="vk8-U3-Zut"/>
                 <outlet property="memoryView" destination="m8G-4w-a52" id="QKd-FC-OGU"/>
                 <outlet property="memoryViewController" destination="72B-5T-Ayk" id="mN2-1y-UsD"/>
+                <outlet property="screenView" destination="xda-Y5-yxy" id="EEv-k9-uql"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -355,6 +356,18 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Machine" id="IWh-4i-mT1" userLabel="Machine">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Machine" id="kan-Nr-qcq" userLabel="Reset">
+                        <items>
+                            <menuItem title="Reset" keyEquivalent="R" id="oiX-eN-tjP" userLabel="Reset">
+                                <connections>
+                                    <action selector="machineReset:" target="Voe-Tx-rLC" id="Z7w-b1-SrT"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Format" id="jxT-CU-nIS">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Format" id="GEO-Iw-cKr">
@@ -679,7 +692,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="390" width="939" height="585"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="939" height="585"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -688,7 +701,7 @@
                         <rect key="frame" x="20" y="20" width="899" height="209"/>
                     </customView>
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="xda-Y5-yxy">
-                        <rect key="frame" x="329" y="237" width="590" height="328"/>
+                        <rect key="frame" x="329" y="237" width="346" height="312"/>
                     </customView>
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="U5H-Rr-cXL" userLabel="CPU View">
                         <rect key="frame" x="20" y="237" width="301" height="328"/>
@@ -700,9 +713,9 @@
                 </subviews>
                 <constraints>
                     <constraint firstItem="m8G-4w-a52" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="5jr-jY-DNr"/>
-                    <constraint firstItem="xda-Y5-yxy" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="WFd-9H-NNd"/>
+                    <constraint firstItem="xda-Y5-yxy" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="36" id="WFd-9H-NNd"/>
                     <constraint firstItem="m8G-4w-a52" firstAttribute="top" secondItem="U5H-Rr-cXL" secondAttribute="bottom" constant="8" id="fLN-KG-x6O"/>
-                    <constraint firstAttribute="trailing" secondItem="xda-Y5-yxy" secondAttribute="trailing" constant="20" id="fMp-n3-n8o"/>
+                    <constraint firstAttribute="trailing" secondItem="xda-Y5-yxy" secondAttribute="trailing" constant="264" id="fMp-n3-n8o"/>
                     <constraint firstItem="xda-Y5-yxy" firstAttribute="leading" secondItem="U5H-Rr-cXL" secondAttribute="trailing" constant="8" id="hvY-5V-YYj"/>
                     <constraint firstItem="U5H-Rr-cXL" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="koU-fs-UnT"/>
                     <constraint firstItem="U5H-Rr-cXL" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="qGP-BN-x9Q"/>
@@ -711,7 +724,7 @@
                     <constraint firstItem="m8G-4w-a52" firstAttribute="top" secondItem="xda-Y5-yxy" secondAttribute="bottom" constant="8" id="yj0-fi-2zg"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="128.5" y="323.5"/>
+            <point key="canvasLocation" x="152.5" y="290.5"/>
         </window>
     </objects>
 </document>
