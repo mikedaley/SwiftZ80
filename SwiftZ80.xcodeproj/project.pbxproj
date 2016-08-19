@@ -22,6 +22,9 @@
 		ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B38221D4A59BD00D24DA7 /* CPUViewController.swift */; };
 		ED6B38251D4A59BD00D24DA7 /* CPUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */; };
 		ED73AF391D64C5C5009DDBA3 /* tests.expected in Resources */ = {isa = PBXBuildFile; fileRef = ED73AF381D64C5C5009DDBA3 /* tests.expected */; };
+		ED73AF3E1D675D59009DDBA3 /* EmulatorDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */; };
+		ED73AF3F1D675D59009DDBA3 /* EmulatorDisplayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */; };
+		ED73AF421D67691A009DDBA3 /* ViewEventProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED73AF411D67691A009DDBA3 /* ViewEventProtocol.swift */; };
 		ED778B6A1D509D3400727B31 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B691D509D3400727B31 /* Operators.swift */; };
 		ED778B6C1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6B1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift */; };
 		ED778B6E1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6D1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift */; };
@@ -55,6 +58,9 @@
 		ED6B38221D4A59BD00D24DA7 /* CPUViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CPUViewController.swift; sourceTree = "<group>"; };
 		ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CPUViewController.xib; sourceTree = "<group>"; };
 		ED73AF381D64C5C5009DDBA3 /* tests.expected */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tests.expected; sourceTree = "<group>"; };
+		ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmulatorDisplayViewController.swift; sourceTree = "<group>"; };
+		ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EmulatorDisplayViewController.xib; sourceTree = "<group>"; };
+		ED73AF411D67691A009DDBA3 /* ViewEventProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewEventProtocol.swift; sourceTree = "<group>"; };
 		ED778B691D509D3400727B31 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
 		ED778B6B1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_Base-Ext.swift"; sourceTree = "<group>"; };
 		ED778B6D1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_CB-Ext.swift"; sourceTree = "<group>"; };
@@ -104,6 +110,8 @@
 				ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */,
 				ED56C7441D4B59AE00541BDF /* GraphicalMemoryController.swift */,
 				ED56C7451D4B59AE00541BDF /* GraphicalMemoryController.xib */,
+				ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */,
+				ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -122,6 +130,14 @@
 				EDC1F0841D412C7A0026C2D2 /* Info.plist */,
 			);
 			name = Other;
+			sourceTree = "<group>";
+		};
+		ED73AF401D6768F4009DDBA3 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				ED73AF411D67691A009DDBA3 /* ViewEventProtocol.swift */,
+			);
+			name = Protocols;
 			sourceTree = "<group>";
 		};
 		ED778B751D50F9E100727B31 /* Extensions/Operators */ = {
@@ -175,6 +191,7 @@
 				990447FE1D5FDA4D004667A8 /* ROMS */,
 				EDC1F08A1D412C8F0026C2D2 /* Z80 Core */,
 				ED778B751D50F9E100727B31 /* Extensions/Operators */,
+				ED73AF401D6768F4009DDBA3 /* Protocols */,
 				9977DBF91D4407AE00EE72C3 /* UI */,
 				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
 				990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */,
@@ -267,6 +284,7 @@
 				ED73AF391D64C5C5009DDBA3 /* tests.expected in Resources */,
 				EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */,
 				ED56C7471D4B59AE00541BDF /* GraphicalMemoryController.xib in Resources */,
+				ED73AF3F1D675D59009DDBA3 /* EmulatorDisplayViewController.xib in Resources */,
 				ED6B38251D4A59BD00D24DA7 /* CPUViewController.xib in Resources */,
 				EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */,
 				990448001D5FDA5E004667A8 /* 48.ROM in Resources */,
@@ -282,6 +300,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED4BF3931D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift in Sources */,
+				ED73AF421D67691A009DDBA3 /* ViewEventProtocol.swift in Sources */,
 				ED4BF3971D5250C4003D1BDE /* Byte-Extensions.swift in Sources */,
 				ED6B38041D43D81A00D24DA7 /* Z80Registers.swift in Sources */,
 				ED778B771D50F9F500727B31 /* Array-Extensions.swift in Sources */,
@@ -290,6 +309,7 @@
 				ED778B701D50B9B100727B31 /* SwiftZ80Core-ED-Ext.swift in Sources */,
 				EDAD5B991D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift in Sources */,
 				EDC1F08C1D412CB10026C2D2 /* SwiftZ80Core.swift in Sources */,
+				ED73AF3E1D675D59009DDBA3 /* EmulatorDisplayViewController.swift in Sources */,
 				ED778B721D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift in Sources */,
 				ED778B6A1D509D3400727B31 /* Operators.swift in Sources */,
 				ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */,

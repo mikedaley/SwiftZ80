@@ -363,6 +363,8 @@ class SwiftZ80Core
     
     var SZ35Table = [Byte](count: 256, repeatedValue: 0)
     var parityTable = [Byte](count: 256, repeatedValue: 0)
+	
+	var interruptRequested = false
     
 	/**
 	* Initializer
@@ -436,13 +438,50 @@ class SwiftZ80Core
      func execute() -> (Int) {
 		
 		let tStatesBefore = tStates
+		
+		if interruptRequested && IFF1 != 0 {
+		
+			if halted != 0x00 {
+				halted == 0x00
+				PC += 1
+			}
+			
+			IFF1 = 0
+			IFF2 = 0
+			interruptRequested = false
+			R = R & 0x80 | R + 1 & 0x7f
+			
+			switch IM {
+			case 0: fallthrough
+			case 1:
+				PUSH16(PCl, regH: PCh)
+				PC = 0x0038
+				tStates += 7
+				break
+				
+			case 2:
+				PUSH16(PCl, regH: PCh)
+				
+				let address: Word = Word(I << 8) | 0
+				PCl = internalReadAddress(address + 0, tStates: 3)
+				PCh = internalReadAddress(address + 1, tStates: 3)
+				tStates += 7
+				
+			default:
+				break
+			}
+		}
+
 		let opcode: Byte = internalReadAddress(PC, tStates: 4)
 		PC = PC &+ 1
-		R = R &+ 1
 		lookupBaseOpcode(opcode)
-		
+
 		return tStates - tStatesBefore
 	
+	}
+
+	func interrupt() {
+		interruptRequested = true
 	}
 	
 	func reset() {

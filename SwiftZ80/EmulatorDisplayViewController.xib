@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="GraphicalMemoryController" customModule="SwiftZ80" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="EmulatorDisplayViewController" customModule="SwiftZ80" customModuleProvider="target">
             <connections>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
@@ -15,7 +15,7 @@
         <customView id="Hz6-mo-xeY">
             <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-            <point key="canvasLocation" x="843" y="284"/>
+            <point key="canvasLocation" x="429" y="396"/>
         </customView>
     </objects>
 </document>
