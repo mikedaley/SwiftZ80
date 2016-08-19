@@ -8,7 +8,7 @@
 
 extension SwiftZ80Core {
     
-    mutating func lookupDDFDCBOpcode(opcode: Byte, address: Word) {
+    func lookupDDFDCBOpcode(opcode: Byte, address: Word) {
         
         let tempaddr: Word = address
         

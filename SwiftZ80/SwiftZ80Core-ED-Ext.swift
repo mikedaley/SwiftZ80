@@ -8,7 +8,7 @@
 
 extension SwiftZ80Core {
     
-    mutating func lookupEDOpcode(opcode: Byte) {
+    func lookupEDOpcode(opcode: Byte) {
         
         switch opcode {
         case 0x40:		/* IN B,(C) */

@@ -8,7 +8,7 @@
 
 extension SwiftZ80Core {
     
-    mutating func lookupDDFDIXOpcode(opcode: Byte) {
+    func lookupDDFDIXOpcode(opcode: Byte) {
         
         switch opcode {
             

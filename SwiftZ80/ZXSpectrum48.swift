@@ -177,7 +177,7 @@ class ZXSpectrum48 {
         
         var count = tStatesPerFrame
         
-        displayBuffer!.withUnsafeMutableBufferPointer { mutableDisplayBuffer -> Int in
+        displayBuffer!.withUnsafeMutableBufferPointer { mutableDisplayBuffer -> () in
             while count > 0 {
                 
                 if shouldReset {
@@ -190,7 +190,6 @@ class ZXSpectrum48 {
                 count -= self.step(&mutableDisplayBuffer)
             }
             
-            return 1
         }
         
         generateScreenImage()
@@ -309,15 +308,11 @@ class ZXSpectrum48 {
                     // Draw top or bottom border
                     let displayBufferIndex = y * pixelDisplayWidth + x
                     
-                    
-                
                     mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
                     mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
                     mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
                     mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-                
-                
-                    
+					
                 } else {
 
                     if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {

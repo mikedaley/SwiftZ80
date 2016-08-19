@@ -35,7 +35,7 @@ let FLAG_S: Byte	= 0x80
 * SwiftZ80Core
 * Structure that defines the properties, functions and opcode implementations needed to emulate the Z80 CPU
 */
-struct SwiftZ80Core
+class SwiftZ80Core
 {	
 	// Z80 registers
 	var R1: Z80Registers
@@ -401,7 +401,7 @@ struct SwiftZ80Core
         setupTables()
 	}
 	
-    mutating func setupTables() {
+    func setupTables() {
 
         for i: Int in 0...255 {
             
@@ -433,7 +433,7 @@ struct SwiftZ80Core
 	 * If a mult-byte opcode is identified then it will call into the next opcode level e.g. CB and
 	 * then ED etc. until it finds the opcode implementation needed
      */
-    mutating func execute() -> (Int) {
+     func execute() -> (Int) {
 		
 		let tStatesBefore = tStates
 		let opcode: Byte = internalReadAddress(PC, tStates: 4)
@@ -445,7 +445,7 @@ struct SwiftZ80Core
 	
 	}
 	
-	mutating func reset() {
+	func reset() {
 		R1 = Z80Registers()
 		R2 = Z80Registers()
 		PC = 0x00
@@ -469,7 +469,7 @@ struct SwiftZ80Core
 	* Update the cores tState count based on the tStates passed in. The tState value will be 4 for an opcode read and 3
 	* for a data read.
 	*/
-	mutating func internalReadAddress(address: Word, tStates: Int) -> (Byte) {
+	func internalReadAddress(address: Word, tStates: Int) -> (Byte) {
 		
 		// First of all call out to see if any contention needs to be added. This is managed by the emulator
 		externalContendRead(address, tStates: self.tStates)
@@ -485,7 +485,7 @@ struct SwiftZ80Core
 	/**
 	* Internal Write Address
 	*/
-	mutating func internalWriteAddress(address: Word, value: Byte) {
+	func internalWriteAddress(address: Word, value: Byte) {
 		
 		externalContendWriteNoMreq(address, tStates: self.tStates)
 		
@@ -498,7 +498,7 @@ struct SwiftZ80Core
 	/**
 	* Contend Read No Mreq
 	*/
-	mutating func contend_read_no_mreq(address: Word, tStates: Int) {
+	func contend_read_no_mreq(address: Word, tStates: Int) {
 
 		// Check for any contention based on the address and tStates passed in
 		externalContendReadNoMreq(address, tStates: tStates)
@@ -510,7 +510,7 @@ struct SwiftZ80Core
 	/**
 	* Contend Write No Mreq
 	*/
-	mutating func contend_write_no_mreq(address: Word, tStates: Int) {
+	func contend_write_no_mreq(address: Word, tStates: Int) {
 		externalContendWriteNoMreq(address, tStates: tStates)
 		self.tStates += tStates
 	}
@@ -518,7 +518,7 @@ struct SwiftZ80Core
 	/**
 	* Contend Read
 	*/
-	mutating func contend_read(address: Word, tStates: Int) {
+	func contend_read(address: Word, tStates: Int) {
 		externalContendRead(address, tStates: tStates)
 		self.tStates += tStates
 	}

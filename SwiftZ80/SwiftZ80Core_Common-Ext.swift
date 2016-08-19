@@ -15,7 +15,7 @@ extension SwiftZ80Core {
     /**
      * AND - AND the supplied value
      */
-    mutating func AND(value: Byte) {
+    func AND(value: Byte) {
         A &= value
         F = FLAG_H | SZ35Table[A] | parityTable[A]
     }
@@ -24,7 +24,7 @@ extension SwiftZ80Core {
      * ADC - The integer byte value is added to the contents of the accumulator including the value of the carry flag replacing the
      * accumulators contents with the new value
      */
-    mutating func ADC(value: Byte) {
+    func ADC(value: Byte) {
         
         let result: Int = Int(A) + Int(value) + Int(F & FLAG_C)
         let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result & 0xff) & 0x88) >> 1)
@@ -43,7 +43,7 @@ extension SwiftZ80Core {
     /**
      * ADC16
      */
-    mutating func ADC16(value: Word) {
+    func ADC16(value: Word) {
 
         let result: Int = Int(HL) + Int(value) + Int(F & FLAG_C)
         let r1: Byte = Byte((HL & 0x8800) >> 11) & 0xff
@@ -71,7 +71,7 @@ extension SwiftZ80Core {
 	* ADD - The integer byte value is added to the contents of the accumulator replacing the accumulators contents with
 	* the new value
 	*/
-	mutating func ADD(value: Byte) {
+	func ADD(value: Byte) {
 		
 		let result: Int = Int(A) + Int(value)
         
@@ -93,7 +93,7 @@ extension SwiftZ80Core {
 	* ADD16 - The integer word value is added to the contents of the accumulator replacing the accumulators contents with
 	* the new value
 	*/
-	mutating func ADD16(inout value1: Word, value2: Word) {
+	func ADD16(inout value1: Word, value2: Word) {
 		
 		let result: Int = Int(value1) + Int(value2)
         
@@ -123,7 +123,7 @@ extension SwiftZ80Core {
     /**
      * BIT - Sets the flags based on the supplied bit being set or not in the supplied value
      */
-    mutating func BIT(bit: Byte, value: Byte) {
+    func BIT(bit: Byte, value: Byte) {
         
         F = (F & FLAG_C) | FLAG_H | (value & ( FLAG_3 | FLAG_5 ))
         
@@ -140,7 +140,7 @@ extension SwiftZ80Core {
     /**
      * BIT_I - Sets the flags based on the supplied bit being set or not in the supplied value/address!!
      */
-    mutating func BIT_I(bit: Byte, value: Byte, address: Word) {
+    func BIT_I(bit: Byte, value: Byte, address: Word) {
 		
         F = ( F & FLAG_C ) | FLAG_H | ( Byte(( address >> 8 ) & 0xff) & ( FLAG_3 | FLAG_5 ) )
 
@@ -156,7 +156,7 @@ extension SwiftZ80Core {
     /**
      * CALL
      */
-    mutating func CALL() {
+    func CALL() {
         let tempL = internalReadAddress(PC, tStates: 3)
         PC = PC + 1
         let tempH = internalReadAddress(PC, tStates: 3)
@@ -170,7 +170,7 @@ extension SwiftZ80Core {
     /**
      * CP
      */
-    mutating func CP(value: Byte) {
+    func CP(value: Byte) {
         let result: Int = Int(A) - Int(value)
         let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result & 0xff) & 0x88) >> 1)
 
@@ -190,7 +190,7 @@ extension SwiftZ80Core {
     /**
      * DEC - Decrement the contents of a register
      */
-    mutating func DEC(inout value: Byte) {
+    func DEC(inout value: Byte) {
         
         var halfCarry: Byte = FLAG_H
         
@@ -213,7 +213,7 @@ extension SwiftZ80Core {
     /**
      * Z80_IN
      */
-    mutating func Z80_IN(inout register: Byte, port: Word) {
+    func Z80_IN(inout register: Byte, port: Word) {
         
         register = ioReadAddress(port)
         F = (F & FLAG_C) | SZ35Table[register] | parityTable[register]
@@ -223,7 +223,7 @@ extension SwiftZ80Core {
     /**
      * INC - Increment the contents of a register
      */
-    mutating func INC(inout value: Byte) {
+    func INC(inout value: Byte) {
         
         value = value &+ 1
         
@@ -243,7 +243,7 @@ extension SwiftZ80Core {
     /**
      * LD16_NNRR
      */
-    mutating func LD16_NNRR(regL: Byte, regH: Byte) {
+    func LD16_NNRR(regL: Byte, regH: Byte) {
 
         var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
         PC = PC + 1
@@ -257,7 +257,7 @@ extension SwiftZ80Core {
     /**
      * LD16_RRNN
      */
-    mutating func LD16_RRNN(inout regL: Byte, inout regH: Byte) {
+    func LD16_RRNN(inout regL: Byte, inout regH: Byte) {
         
         var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
         PC = PC + 1
@@ -271,7 +271,7 @@ extension SwiftZ80Core {
     /**
      * JP
      */
-    mutating func JP() {
+    func JP() {
         
         var temp: Word = PC
         PCl = internalReadAddress(temp, tStates: 3)
@@ -282,7 +282,7 @@ extension SwiftZ80Core {
     /**
      * JR
      */
-    mutating func JR() {
+    func JR() {
         
         let temp: Int8 = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
         contend_read_no_mreq(PC, tStates: 1)
@@ -304,7 +304,7 @@ extension SwiftZ80Core {
     /**
      * OR
      */
-    mutating func OR(value: Byte) {
+    func OR(value: Byte) {
         A |= value
         F = SZ35Table[A] | parityTable[A]
     }
@@ -312,7 +312,7 @@ extension SwiftZ80Core {
     /**
      * POP16
      */
-    mutating func POP16(inout regL: Byte, inout regH: Byte) {
+    func POP16(inout regL: Byte, inout regH: Byte) {
         regL = internalReadAddress(SP, tStates: 3)
 		SP = SP &+ 1
         regH = internalReadAddress(SP, tStates: 3)
@@ -322,7 +322,7 @@ extension SwiftZ80Core {
     /**
      * PUSH 16
      */
-    mutating func PUSH16(regL: Byte, regH: Byte) {
+    func PUSH16(regL: Byte, regH: Byte) {
 		SP = SP &- 1
         internalWriteAddress(SP, value: regH)
 		SP = SP &- 1
@@ -332,14 +332,14 @@ extension SwiftZ80Core {
     /**
      * RET
      */
-    mutating func RET() {
+    func RET() {
         POP16(&PCl, regH: &PCh)
     }
     
     /**
      * RL
      */
-    mutating func RL(inout value: Byte) {
+    func RL(inout value: Byte) {
         let temp: Byte = value
         value = (value << 1) | (F & FLAG_C)
         F = (temp >> 7) | SZ35Table[value] | parityTable[value]
@@ -348,7 +348,7 @@ extension SwiftZ80Core {
     /**
      * RLC
      */
-    mutating func RLC(inout value: Byte) {
+    func RLC(inout value: Byte) {
         value = (value << 1) | (value >> 7)
         F = (value & FLAG_C) | SZ35Table[value] | parityTable[value]
     }
@@ -356,7 +356,7 @@ extension SwiftZ80Core {
     /**
      * RR
      */
-    mutating func RR(inout value: Byte) {
+    func RR(inout value: Byte) {
         let temp: Byte = value
         value = (value >> 1) | (F << 7)
         F = (temp & FLAG_C) | SZ35Table[value] | parityTable[value]
@@ -365,7 +365,7 @@ extension SwiftZ80Core {
     /**
      * RRC
      */
-    mutating func RRC(inout value: Byte) {
+    func RRC(inout value: Byte) {
         F = value & FLAG_C
         value = value >> 1 | value << 7
         F |= SZ35Table[value] | parityTable[value]
@@ -374,7 +374,7 @@ extension SwiftZ80Core {
     /**
      * RST
      */
-    mutating func RST(value: Word) {
+    func RST(value: Word) {
         PUSH16(PCl, regH: PCh)
         PC = value
     }
@@ -382,7 +382,7 @@ extension SwiftZ80Core {
     /**
      * SBC
      */
-    mutating func SBC(value: Byte) {
+    func SBC(value: Byte) {
         let result: Int = Int(A) - Int(value) - Int(F & FLAG_C)
         let lookup: Byte = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((Byte(result & 0xff) & 0x88) >> 1)
         A = Byte(result & 0xff)
@@ -399,7 +399,7 @@ extension SwiftZ80Core {
     /**
      * SBC16
      */
-    mutating func SBC16(value: Word) {
+    func SBC16(value: Word) {
    
         let result: Int = Int(HL) - Int(value) - Int(F & FLAG_C)
         
@@ -426,7 +426,7 @@ extension SwiftZ80Core {
     /**
      * SLA
      */
-    mutating func SLA(inout value: Byte) {
+    func SLA(inout value: Byte) {
         F = value >> 7
         value <<= 1
         F |= SZ35Table[value] | parityTable[value]
@@ -435,7 +435,7 @@ extension SwiftZ80Core {
     /**
      * SLL
      */
-    mutating func SLL(inout value: Byte) {
+    func SLL(inout value: Byte) {
         F = value >> 7
         value = (value << 1) | 0x01
         F |= SZ35Table[value] | parityTable[value]
@@ -444,7 +444,7 @@ extension SwiftZ80Core {
     /**
      * SRA
      */
-    mutating func SRA(inout value: Byte) {
+    func SRA(inout value: Byte) {
         F = value & FLAG_C
         value = (value & 0x80) | value >> 1
         F |= SZ35Table[value] | parityTable[value]
@@ -453,7 +453,7 @@ extension SwiftZ80Core {
     /**
      * SRL
      */
-    mutating func SRL(inout value: Byte) {
+    func SRL(inout value: Byte) {
         F = value & FLAG_C
         value >>= 1
         F |= SZ35Table[value] | parityTable[value]
@@ -463,7 +463,7 @@ extension SwiftZ80Core {
 	* SUB - The integer in byte is subtracted from the contents of the accumulator replacing the accumulators contents with
 	* the new value
 	*/
-	mutating func SUB(value: Byte) {
+	func SUB(value: Byte) {
 		
 		// Use Int for the result as it needs to handle negative numbers. Word and Byte are unsigned so cannot
 		// be used
@@ -484,7 +484,7 @@ extension SwiftZ80Core {
     /**
      * XOR
      */
-    mutating func XOR(value: Byte) {
+    func XOR(value: Byte) {
         A ^= value
         F = SZ35Table[A] | parityTable[A]
     }
