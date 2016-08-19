@@ -28,8 +28,10 @@ class ZXSpectrum48 {
     // MARK: Memory and Z80 core properties
 
     var memory = [Byte](count: 0x10000, repeatedValue: 0x00)
+//	var memory: NSMutableData
+	
     var core: SwiftZ80Core?
-    
+	
     // MARK: General emulation properties
     
     var tStatesInCurrentFrame: Int = 0
@@ -80,10 +82,12 @@ class ZXSpectrum48 {
     
     private let colourSpace = CGColorSpaceCreateDeviceRGB()!
     private let bitmapInfo: CGBitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedLast.rawValue)
-    private var displayBuffer: [PixelData]?
-    
+//    private var displayBuffer: NSMutableData
+	private var displayBuffer: [PixelData]
+	
     // MARK: Pallette
-    
+//	private let pallette: NSMutableData
+	
     private let pallette: [UInt8] = [
         
         // Normal colours
@@ -106,13 +110,19 @@ class ZXSpectrum48 {
         255, 255,   0, 255,
         255, 255, 255, 255
     ]
-    
+	
     // MARK: Init
     
-    var appDelegate: AppDelegate?
+    var appDelegate: AppDelegate
 
     init() {
 
+//		memory = NSMutableData.init(capacity: 0x10000)!
+		
+//		for i in 0 ..< 0x10000 {
+//			memory.setv
+//		}
+		
         tStatesTopBorder = pixelTopBorderHeight * tStatesPerLine
         tStatesBottomBorder = pixelBottomBorderHeight * tStatesPerLine
         pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth
@@ -121,13 +131,21 @@ class ZXSpectrum48 {
         // Setup the buffer that will hold the emulated screen image
         pixelDisplayBufferLength = pixelDisplayWidth * pixelDisplayHeight
         let whitePixel = PixelData(r: 0xff, g: 0xff, b: 0xff, a: 0xff)
-        displayBuffer = [PixelData](count: pixelDisplayBufferLength, repeatedValue: whitePixel)
-        
+		
+//		displayBuffer = NSMutableData.init(length: pixelDisplayBufferLength * 4)!
+//		pallette = NSMutableData.init()
+//		pallette.appendBytes(colours, length: 64)
+		
+      displayBuffer = [PixelData](count: pixelDisplayBufferLength, repeatedValue: whitePixel)
+
+		appDelegate = NSApplication.sharedApplication().delegate as! AppDelegate
+		
         // Emulation timer
         emulationTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, emulationQueue)
         dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1/50 * Double(NSEC_PER_SEC)), 0)
         dispatch_source_set_event_handler(emulationTimer) {
-            self.runFrame()
+            [unowned self] in
+				self.runFrame()
         }
 
         core = SwiftZ80Core.init(memoryRead: readFromMemoryAddress,
@@ -160,14 +178,15 @@ class ZXSpectrum48 {
     
     func step() -> (Int) {
         
-        let cpuStates = self.execute()
+        let cpuStates = execute()
         
         updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates)
-        
+		
         tStatesInCurrentFrame += cpuStates
         
         if tStatesInCurrentFrame >= tStatesPerFrame {
             generateScreenImage()
+			
             tStatesInCurrentFrame -= tStatesPerFrame
             frameCounter += 1
         }
@@ -187,7 +206,7 @@ class ZXSpectrum48 {
                 loadROM()
             }
             
-            count -= self.step()
+            count -= step()
         }
     
     }
@@ -236,11 +255,11 @@ class ZXSpectrum48 {
     // MARK: Memory IO routines
     
     func readFromMemoryAddress(address: Word) -> Byte {
-        return memory[address]
+        return memory[Int(address)]
     }
     
     func writeToMemoryAddress(address: Word, value: Byte) {
-        memory[address] = value
+        memory[Int(address)] = value
     }
     
     func ioReadAddress(address: Word) -> Byte {
@@ -267,23 +286,28 @@ class ZXSpectrum48 {
     
     func updateScreenFromTstate(tState: Int, numberOfTstates: Int) {
         
-        for _ in 0 ..< (numberOfTstates << 1) {
+//        for _ in 0 ..< (numberOfTstates << 1) {
+		
+		var i = 0
+		
+		while i < (numberOfTstates << 1) {
             
             let x = pixelBeamXPos
             let y = pixelBeamYPos - pixelLinesVerticalBlank
-            
-            if y >= 0 && y < (pixelDisplayHeight + pixelBottomBorderHeight) && x < pixelDisplayWidth {
+			
+			let t = pixelDisplayHeight + pixelBottomBorderHeight
+            if y >= 0 && y < t && x < pixelDisplayWidth {
                 
                 if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
                     
                     // Draw top or bottom border
                     let displayBufferIndex = y * pixelDisplayWidth + x
                     
-                    displayBuffer![ displayBufferIndex ].r = pallette[ borderColour ]
-                    displayBuffer![ displayBufferIndex ].g = pallette[ borderColour + 1 ]
-                    displayBuffer![ displayBufferIndex ].b = pallette[ borderColour + 2 ]
-                    displayBuffer![ displayBufferIndex ].a = pallette[ borderColour + 3 ]
-                    
+                    displayBuffer[ displayBufferIndex ].r = pallette[ borderColour ]
+                    displayBuffer[ displayBufferIndex ].g = pallette[ borderColour + 1 ]
+                    displayBuffer[ displayBufferIndex ].b = pallette[ borderColour + 2 ]
+                    displayBuffer[ displayBufferIndex ].a = pallette[ borderColour + 3 ]
+					
                 } else {
 
                     if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {
@@ -291,44 +315,44 @@ class ZXSpectrum48 {
                         // Draw left and right border
                         let displayBufferIndex = y * pixelDisplayWidth + x
                         
-                        displayBuffer![ displayBufferIndex ].r = pallette[ borderColour ]
-                        displayBuffer![ displayBufferIndex ].g = pallette[ borderColour + 1 ]
-                        displayBuffer![ displayBufferIndex ].b = pallette[ borderColour + 2 ]
-                        displayBuffer![ displayBufferIndex ].a = pallette[ borderColour + 3 ]
-                    
+                        displayBuffer[ displayBufferIndex ].r = pallette[ borderColour ]
+                        displayBuffer[ displayBufferIndex ].g = pallette[ borderColour + 1 ]
+                        displayBuffer[ displayBufferIndex ].b = pallette[ borderColour + 2 ]
+                        displayBuffer[ displayBufferIndex ].a = pallette[ borderColour + 3 ]
+						
                     } else { // Must be on the screen so draw that
                         
-//                        let px = x - pixelLeftBorderWidth
-//                        let py = y - pixelTopBorderHeight
-//                        
-//                        let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
-//                        let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
-//                        
-//                        let pixelByte = Int(memory[pixelAddress])
-//                        let attributeByte = memory[attributeAddress]
-//                        
-//                        var ink = ((attributeByte & 0x07) + ((attributeByte & 0x04) >> 3)) * 4
-//                        var paper = (((attributeByte >> 3) & 0x07) + ((attributeByte & 0x40) >> 3)) * 4
-//                        
-//                        if (frameCounter & 16) != 0 && (attributeByte & 0x80) != 0 {
-//                            let t = ink;
-//                            ink = paper;
-//                            paper = t;
-//                        }
-//                        
-//                        let displayBufferIndex = y * pixelDisplayWidth + x
-//                        
-//                        if pixelByte & (0x80 >> (px & 7)) != 0 {
-//                            displayBuffer![ displayBufferIndex ].r = pallette[ink];
-//                            displayBuffer![ displayBufferIndex ].g = pallette[ink + 1];
-//                            displayBuffer![ displayBufferIndex ].b = pallette[ink + 2];
-//                            displayBuffer![ displayBufferIndex ].a = pallette[ink + 3];
-//                        } else {
-//                            displayBuffer![ displayBufferIndex ].r = pallette[paper];
-//                            displayBuffer![ displayBufferIndex ].g = pallette[paper + 1];
-//                            displayBuffer![ displayBufferIndex ].b = pallette[paper + 2];
-//                            displayBuffer![ displayBufferIndex ].a = pallette[paper + 3];
-//                        }
+                        let px = x - pixelLeftBorderWidth
+                        let py = y - pixelTopBorderHeight
+                        
+						let pixelAddress: Int = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
+						let attributeAddress: Int = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
+                        
+                        let pixelByte = Int(memory[pixelAddress])
+                        let attributeByte = Int(memory[attributeAddress])
+                        
+                        var ink = ((attributeByte & 0x07) + ((attributeByte & 0x04) >> 3)) * 4
+                        var paper = (((attributeByte >> 3) & 0x07) + ((attributeByte & 0x40) >> 3)) * 4
+                        
+                        if (frameCounter & 16) != 0 && (attributeByte & 0x80) != 0 {
+                            let t = ink;
+                            ink = paper;
+                            paper = t;
+                        }
+                        
+                        let displayBufferIndex = y * pixelDisplayWidth + x
+                        
+                        if pixelByte & (0x80 >> (px & 7)) != 0 {
+                            displayBuffer[ displayBufferIndex ].r = pallette[ink];
+                            displayBuffer[ displayBufferIndex ].g = pallette[ink + 1 ];
+                            displayBuffer[ displayBufferIndex ].b = pallette[ink + 2 ];
+                            displayBuffer[ displayBufferIndex ].a = pallette[ink + 3 ];
+                        } else {
+                            displayBuffer[ displayBufferIndex ].r = pallette[paper];
+                            displayBuffer[ displayBufferIndex ].g = pallette[paper + 1 ];
+                            displayBuffer[ displayBufferIndex ].b = pallette[paper + 2 ];
+                            displayBuffer[ displayBufferIndex ].a = pallette[paper + 3 ];
+                        }
                     }
                     
                 }
@@ -346,13 +370,14 @@ class ZXSpectrum48 {
                     pixelBeamYPos -= pixelDisplayHeight + pixelLinesVerticalBlank
                 }
             }
-            
+			
+			i += 1
         }
     }
     
     func generateScreenImage() {
         
-        let providerData = NSData(bytes: &displayBuffer!, length: displayBuffer!.count * sizeof(PixelData))
+        let providerData = NSData(bytes: &displayBuffer, length: displayBuffer.count * sizeof(PixelData))
         let dataProviderRef = CGDataProviderCreateWithCFData(providerData)
 
         imageRef = CGImageCreate(

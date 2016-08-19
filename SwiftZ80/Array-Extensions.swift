@@ -26,7 +26,8 @@ extension Array {
 extension Array {
 	subscript(i: Byte) -> Element {
 		get {
-			return self[Int(i)]
+			let index = Int(i)
+			return self[index]
 		}
 		set (newValue) {
 			self[Int(i)] = newValue
