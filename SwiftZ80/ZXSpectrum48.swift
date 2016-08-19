@@ -84,28 +84,28 @@ class ZXSpectrum48 {
     
     // MARK: Pallette
     
-    private let pallette: [UInt8] = [
-        
-        // Normal colours
-        0,   0,   0, 255,   // Blue
-        0,   0, 224, 255,   // Red
-        224,   0,   0, 255, // Magenta
-        224,   0, 224, 255, // Green
-        0, 224,   0, 255,   // Cyan
-        0, 224, 224, 255,   // Yellow
-        224, 224,   0, 255, // White
-        224, 224, 224, 255, // Black
-        
-        // Bright colours
-        0,   0,   0, 255,
-        0,   0, 255, 255,
-        255,   0,   0, 255,
-        255,   0, 255, 255,
-        0, 255,   0, 255,
-        0, 255, 255, 255,
-        255, 255,   0, 255,
-        255, 255, 255, 255
-    ]
+//    private let pallette: [UInt8] = [
+//        
+//        // Normal colours
+//        0,   0,   0, 255,   // Blue
+//        0,   0, 224, 255,   // Red
+//        224,   0,   0, 255, // Magenta
+//        224,   0, 224, 255, // Green
+//        0, 224,   0, 255,   // Cyan
+//        0, 224, 224, 255,   // Yellow
+//        224, 224,   0, 255, // White
+//        224, 224, 224, 255, // Black
+//        
+//        // Bright colours
+//        0,   0,   0, 255,
+//        0,   0, 255, 255,
+//        255,   0,   0, 255,
+//        255,   0, 255, 255,
+//        0, 255,   0, 255,
+//        0, 255, 255, 255,
+//        255, 255,   0, 255,
+//        255, 255, 255, 255
+//    ]
     
     // MARK: Init
     
@@ -158,16 +158,15 @@ class ZXSpectrum48 {
         return core!.tStates - currentTStates
     }
     
-    func step() -> (Int) {
+    func step(inout mutableDisplayBuffer:UnsafeMutableBufferPointer<PixelData>) -> (Int) {
         
         let cpuStates = self.execute()
         
-        updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates)
+        updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer)
         
         tStatesInCurrentFrame += cpuStates
         
         if tStatesInCurrentFrame >= tStatesPerFrame {
-            generateScreenImage()
             tStatesInCurrentFrame -= tStatesPerFrame
             frameCounter += 1
         }
@@ -178,17 +177,23 @@ class ZXSpectrum48 {
         
         var count = tStatesPerFrame
         
-        while count > 0 {
-            
-            if shouldReset {
-                shouldReset = false
-                count == 0
-                core!.reset()
-                loadROM()
+        displayBuffer!.withUnsafeMutableBufferPointer { mutableDisplayBuffer -> Int in
+            while count > 0 {
+                
+                if shouldReset {
+                    shouldReset = false
+                    count == 0
+                    core!.reset()
+                    loadROM()
+                }
+                
+                count -= self.step(&mutableDisplayBuffer)
             }
             
-            count -= self.step()
+            return 1
         }
+        
+        generateScreenImage()
     
     }
     
@@ -265,7 +270,32 @@ class ZXSpectrum48 {
     
     // MARK: Screen routines
     
-    func updateScreenFromTstate(tState: Int, numberOfTstates: Int) {
+    func updateScreenFromTstate(tState: Int, numberOfTstates: Int, inout mutableDisplayBuffer: UnsafeMutableBufferPointer<PixelData>) {
+        
+        let pall : [UInt8] = [
+            
+            // Normal colours
+            0,   0,   0, 255,   // Blue
+            0,   0, 224, 255,   // Red
+            224,   0,   0, 255, // Magenta
+            224,   0, 224, 255, // Green
+            0, 224,   0, 255,   // Cyan
+            0, 224, 224, 255,   // Yellow
+            224, 224,   0, 255, // White
+            224, 224, 224, 255, // Black
+            
+            // Bright colours
+            0,   0,   0, 255,
+            0,   0, 255, 255,
+            255,   0,   0, 255,
+            255,   0, 255, 255,
+            0, 255,   0, 255,
+            0, 255, 255, 255,
+            255, 255,   0, 255,
+            255, 255, 255, 255
+        ]
+        
+        
         
         for _ in 0 ..< (numberOfTstates << 1) {
             
@@ -279,10 +309,14 @@ class ZXSpectrum48 {
                     // Draw top or bottom border
                     let displayBufferIndex = y * pixelDisplayWidth + x
                     
-                    displayBuffer![ displayBufferIndex ].r = pallette[ borderColour ]
-                    displayBuffer![ displayBufferIndex ].g = pallette[ borderColour + 1 ]
-                    displayBuffer![ displayBufferIndex ].b = pallette[ borderColour + 2 ]
-                    displayBuffer![ displayBufferIndex ].a = pallette[ borderColour + 3 ]
+                    
+                
+                    mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+                    mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+                    mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+                    mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+                
+                
                     
                 } else {
 
@@ -290,45 +324,54 @@ class ZXSpectrum48 {
                         
                         // Draw left and right border
                         let displayBufferIndex = y * pixelDisplayWidth + x
-                        
-                        displayBuffer![ displayBufferIndex ].r = pallette[ borderColour ]
-                        displayBuffer![ displayBufferIndex ].g = pallette[ borderColour + 1 ]
-                        displayBuffer![ displayBufferIndex ].b = pallette[ borderColour + 2 ]
-                        displayBuffer![ displayBufferIndex ].a = pallette[ borderColour + 3 ]
+                    
+                        mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+                        mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+                        mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+                        mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+
                     
                     } else { // Must be on the screen so draw that
                         
-//                        let px = x - pixelLeftBorderWidth
-//                        let py = y - pixelTopBorderHeight
-//                        
-//                        let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
-//                        let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
-//                        
-//                        let pixelByte = Int(memory[pixelAddress])
-//                        let attributeByte = memory[attributeAddress]
-//                        
-//                        var ink = ((attributeByte & 0x07) + ((attributeByte & 0x04) >> 3)) * 4
-//                        var paper = (((attributeByte >> 3) & 0x07) + ((attributeByte & 0x40) >> 3)) * 4
-//                        
-//                        if (frameCounter & 16) != 0 && (attributeByte & 0x80) != 0 {
-//                            let t = ink;
-//                            ink = paper;
-//                            paper = t;
-//                        }
-//                        
-//                        let displayBufferIndex = y * pixelDisplayWidth + x
-//                        
-//                        if pixelByte & (0x80 >> (px & 7)) != 0 {
-//                            displayBuffer![ displayBufferIndex ].r = pallette[ink];
-//                            displayBuffer![ displayBufferIndex ].g = pallette[ink + 1];
-//                            displayBuffer![ displayBufferIndex ].b = pallette[ink + 2];
-//                            displayBuffer![ displayBufferIndex ].a = pallette[ink + 3];
-//                        } else {
-//                            displayBuffer![ displayBufferIndex ].r = pallette[paper];
-//                            displayBuffer![ displayBufferIndex ].g = pallette[paper + 1];
-//                            displayBuffer![ displayBufferIndex ].b = pallette[paper + 2];
-//                            displayBuffer![ displayBufferIndex ].a = pallette[paper + 3];
-//                        }
+                        let px = x - pixelLeftBorderWidth
+                        let py = y - pixelTopBorderHeight
+                        
+                        let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
+                        let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
+                        
+                        let pixelByte = Int(memory[pixelAddress])
+                        let attributeByte = memory[attributeAddress]
+                        
+                        var ink:Int = Int(((attributeByte & 0x07) + ((attributeByte & 0x04) >> 3)) * 4)
+                        var paper:Int = Int((((attributeByte >> 3) & 0x07) + ((attributeByte & 0x40) >> 3)) * 4)
+                        
+                        if (frameCounter & 16) != 0 && (attributeByte & 0x80) != 0 {
+                            let t = ink;
+                            ink = paper;
+                            paper = t;
+                        }
+                        
+                        let displayBufferIndex = y * pixelDisplayWidth + x
+                        
+                        if pixelByte & (0x80 >> (px & 7)) != 0 {
+                            
+                            
+                            mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
+                            mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
+                            mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
+                            mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+
+                            
+                        } else {
+                            
+                            
+                            
+                            mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
+                            mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
+                            mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
+                            mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
+
+                        }
                     }
                     
                 }
@@ -348,6 +391,9 @@ class ZXSpectrum48 {
             }
             
         }
+            
+
+
     }
     
     func generateScreenImage() {
