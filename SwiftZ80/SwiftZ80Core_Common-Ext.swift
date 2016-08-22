@@ -157,10 +157,10 @@ extension SwiftZ80Core {
      * CALL
      */
     func CALL() {
-        let tempL = internalReadAddress(PC, tStates: 3)
+        let tempL = coreMemoryRead(PC, tStates: 3)
         PC = PC + 1
-        let tempH = internalReadAddress(PC, tStates: 3)
-        contend_read_no_mreq(PC, tStates: 1)
+        let tempH = coreMemoryRead(PC, tStates: 3)
+        coreMemoryContention(PC, tStates: 1)
         PC = PC + 1
 		PUSH16(PCl, regH: PCh)
         PCl = tempL
@@ -215,7 +215,7 @@ extension SwiftZ80Core {
      */
     func Z80_IN(inout register: Byte, port: Word) {
         
-        register = ioReadAddress(port)
+        register = externalIORead(port)
         F = (F & FLAG_C) | SZ35Table[register] | parityTable[register]
         
     }
@@ -245,13 +245,13 @@ extension SwiftZ80Core {
      */
     func LD16_NNRR(regL: Byte, regH: Byte) {
 
-        var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
+        var temp: Word = Word(coreMemoryRead(PC, tStates: 3)) & 0xffff
         PC = PC + 1
-        temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
+        temp |= (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) << 8
         PC = PC + 1
-        internalWriteAddress(temp, value: regL)
+        coreMemoryWrite(temp, value: regL)
         temp = temp + 1
-        internalWriteAddress(temp, value: regH)
+        coreMemoryWrite(temp, value: regH)
     }
 
     /**
@@ -259,13 +259,13 @@ extension SwiftZ80Core {
      */
     func LD16_RRNN(inout regL: Byte, inout regH: Byte) {
         
-        var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
+        var temp: Word = Word(coreMemoryRead(PC, tStates: 3)) & 0xffff
         PC = PC + 1
-        temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
+        temp |= (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) << 8
         PC = PC + 1
-        regL = internalReadAddress(temp, tStates: 3)
+        regL = coreMemoryRead(temp, tStates: 3)
         temp = temp + 1
-        regH = internalReadAddress(temp, tStates: 3)
+        regH = coreMemoryRead(temp, tStates: 3)
     }
 
     /**
@@ -274,9 +274,9 @@ extension SwiftZ80Core {
     func JP() {
         
         var temp: Word = PC
-        PCl = internalReadAddress(temp, tStates: 3)
+        PCl = coreMemoryRead(temp, tStates: 3)
         temp = temp + 1
-        PCh = internalReadAddress(temp, tStates: 3)
+        PCh = coreMemoryRead(temp, tStates: 3)
     }
 
     /**
@@ -284,12 +284,12 @@ extension SwiftZ80Core {
      */
     func JR() {
         
-        let temp: Int8 = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
-        contend_read_no_mreq(PC, tStates: 1)
-        contend_read_no_mreq(PC, tStates: 1)
-        contend_read_no_mreq(PC, tStates: 1)
-        contend_read_no_mreq(PC, tStates: 1)
-        contend_read_no_mreq(PC, tStates: 1)
+        let temp: Int8 = Int8(bitPattern: coreMemoryRead(PC, tStates: 3))
+        coreMemoryContention(PC, tStates: 1)
+        coreMemoryContention(PC, tStates: 1)
+        coreMemoryContention(PC, tStates: 1)
+        coreMemoryContention(PC, tStates: 1)
+        coreMemoryContention(PC, tStates: 1)
         
         var signedPC = Int16(bitPattern: PC)
 		
@@ -310,9 +310,9 @@ extension SwiftZ80Core {
      * POP16
      */
     func POP16(inout regL: Byte, inout regH: Byte) {
-        regL = internalReadAddress(SP, tStates: 3)
+        regL = coreMemoryRead(SP, tStates: 3)
 		SP = SP &+ 1
-        regH = internalReadAddress(SP, tStates: 3)
+        regH = coreMemoryRead(SP, tStates: 3)
 		SP = SP &+ 1
     }
 
@@ -321,9 +321,9 @@ extension SwiftZ80Core {
      */
     func PUSH16(regL: Byte, regH: Byte) {
 		SP = SP &- 1
-        internalWriteAddress(SP, value: regH)
+        coreMemoryWrite(SP, value: regH)
 		SP = SP &- 1
-        internalWriteAddress(SP, value: regL)
+        coreMemoryWrite(SP, value: regL)
     }
 
     /**

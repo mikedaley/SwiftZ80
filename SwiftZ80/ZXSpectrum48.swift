@@ -166,21 +166,25 @@ class ZXSpectrum48: ViewEventProtocol {
 		displayBuffer = [PixelData](count: pixelDisplayBufferLength, repeatedValue: PixelData(r: 0xfe, g: 0xfe, b: 0xfe, a: 0xff))
 		
 		emulationTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, emulationQueue)
-		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1/50 * Double(NSEC_PER_SEC)), 0)
+		
+		let FPS = 250.0
+		
+		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1 / FPS * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(emulationTimer) {
 			self.runFrame()
 		}
 		
 		core = SwiftZ80Core.init(memoryRead: readFromMemoryAddress,
 		                         memoryWrite: writeToMemoryAddress,
-		                         ioRead: ioReadAddress,
-		                         ioWrite: ioWriteAddress,
+		                         ioRead: externalIORead,
+		                         ioWrite: externalIOWrite,
 		                         contentionReadNoMREQ: contentionReadNoMREQAddress,
 		                         contentionWriteNoMREQ: contentionWriteNoMREQAddress,
 		                         contentionRead: contentionReadAddress)
 		
-		
-		reset()
+		loadROM()
+		let path = NSBundle.mainBundle().pathForResource("test", ofType: "sna")
+		loadSnapShot(path!)
 	
 	}
 	
@@ -257,11 +261,8 @@ class ZXSpectrum48: ViewEventProtocol {
     // MARK: ROM loading
     
     func loadROM() {
-        let path = NSBundle.mainBundle().pathForResource("elite", ofType: "sna")
-        
-        loadSnapShot(path!)
-        return
-        
+        let path = NSBundle.mainBundle().pathForResource("48", ofType: "ROM")
+		
         let data = NSData.init(contentsOfFile: path!)
         let count = data!.length / sizeof(Byte)
         var fileBytes = [Byte](count: count, repeatedValue: 0x00)
@@ -272,7 +273,7 @@ class ZXSpectrum48: ViewEventProtocol {
             memory[i] = fileBytes[i]
         }
     }
-    
+	
     // MARK: Snapshot loading
     
     func loadSnapShot(path: String) {
@@ -286,7 +287,7 @@ class ZXSpectrum48: ViewEventProtocol {
         if data?.length == 49179 {
             
             var snaAddr = 27
-            for i in 16384..<(48 * 1024) {
+            for i in 16384 ..< (48 * 1024) + 16384 {
                 memory[i] = fileBytes[snaAddr]
                 snaAddr += 1
             }
@@ -310,18 +311,19 @@ class ZXSpectrum48: ViewEventProtocol {
             core.IYh = fileBytes[16]
             core.IXl = fileBytes[17]
             core.IXh = fileBytes[18]
-            core.IFF2 = fileBytes[19]
-            core.IFF1 = fileBytes[19]
+            core.IFF2 = (fileBytes[19] >> 2) & 0x01
+            core.IFF1 = (fileBytes[19] >> 2) & 0x01
             core.R = fileBytes[20]
-            core.A = fileBytes[21]
-            core.F = fileBytes[22]
+            core.F = fileBytes[21]
+            core.A = fileBytes[22]
             core.SPl = fileBytes[23]
             core.SPh = fileBytes[24]
             core.IM = fileBytes[25]
-            borderColour = Int(fileBytes[26])
+            borderColour = Int(fileBytes[26]) & 0x07
             
             core.PCl = memory[Int(core.SP)]
             core.PCh = memory[Int(core.SP + 1)]
+			core.SP = core.SP &+ 2
         }
         
     }
@@ -338,7 +340,7 @@ class ZXSpectrum48: ViewEventProtocol {
         }
     }
     
-    func ioReadAddress(address: Word) -> Byte {
+    func externalIORead(address: Word) -> Byte {
 		
 		if address & 0xff == 0xfe {
 			for i in 0 ..< 8 {
@@ -352,7 +354,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		return 0xff
     }
     
-    func ioWriteAddress(address: Word, value: Byte) {
+    func externalIOWrite(address: Word, value: Byte) {
 		if address & 255 == 0xfe {
 			borderColour = (Int(value) & 7) << 2
 			beeperOn = (value & 0x10) != 0 ? true : false
@@ -522,7 +524,7 @@ class ZXSpectrum48: ViewEventProtocol {
     // MARK - ViewEventProtocol functions
 	
 	func keyDown(theEvent: NSEvent) {
-		print(theEvent.keyCode)
+
 		switch theEvent.keyCode {
 
 		case 51: // Backspace
@@ -559,7 +561,6 @@ class ZXSpectrum48: ViewEventProtocol {
 					var val: Int = keyboardMap[entry]
 					val = val & newValue
 					keyboardMap[keyboardLookup[i].mapEntry] = val
-                    print("DOWN: mapentry: \(keyboardLookup[i].mapEntry) - value: \(val)")
 					break;
 				}
 			}
@@ -605,7 +606,6 @@ class ZXSpectrum48: ViewEventProtocol {
 					var val: Int = keyboardMap[Int(entry)]
 					val = val | newValue
 					keyboardMap[keyboardLookup[i].mapEntry] = val
-                    print("UP: mapentry: \(keyboardLookup[i].mapEntry) - value: \(val)")
 					break;
 				}
 			}

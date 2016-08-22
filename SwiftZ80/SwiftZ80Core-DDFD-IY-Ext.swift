@@ -13,37 +13,37 @@ extension SwiftZ80Core {
         switch opcode {
 
 		case 0x09:		/* ADD IY,BC */
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
 			ADD16(&IY, value2: BC)
 			break
 		case 0x19:		/* ADD IY,DE */
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
 			ADD16(&IY,value2: DE)
 			break
 		case 0x21:		/* LD IY,nnnn */
-			IYl = internalReadAddress(PC, tStates: 3)
-			PC += 1
-			IYh = internalReadAddress(PC, tStates: 3)
-			PC += 1
+			IYl = coreMemoryRead(PC, tStates: 3)
+			PC = PC &+ 1
+			IYh = coreMemoryRead(PC, tStates: 3)
+			PC = PC &+ 1
 			break
 		case 0x22:		/* LD (nnnn),IY */
 			LD16_NNRR(IYl,regH: IYh)
 			break
 		case 0x23:		/* INC IY */
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
 			IY += 1
 			break
 		case 0x24:		/* INC IYh */
@@ -53,25 +53,25 @@ extension SwiftZ80Core {
 			DEC(&IYh)
 			break
 		case 0x26:		/* LD IYh,nn */
-			IYh = internalReadAddress(PC, tStates: 3)
-			PC += 1
+			IYh = coreMemoryRead(PC, tStates: 3)
+			PC = PC &+ 1
 			break
 		case 0x29:		/* ADD IY,IY */
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
 			ADD16(&IY,value2: IY)
 			break
 		case 0x2a:		/* LD IY,(nnnn) */
 			LD16_RRNN(&IYl,regH: &IYh)
 			break
 		case 0x2b:		/* DEC IY */
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
 			IY = IY &- 1
 			break
 		case 0x2c:		/* INC IYl */
@@ -81,82 +81,82 @@ extension SwiftZ80Core {
 			DEC(&IYl)
 			break
 		case 0x2e:		/* LD IYl,nn */
-			IYl = internalReadAddress(PC, tStates: 3)
-			PC += 1
+			IYl = coreMemoryRead(PC, tStates: 3)
+			PC = PC &+ 1
 			break
 		case 0x34:		/* INC (IY+dd) */
 			var offset: Int8
 			var byteTemp: Byte
 			var wordTemp: Word
 			
-			offset = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
+			offset = Int8(bitPattern: coreMemoryRead(PC, tStates: 3))
 			
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
 			
 			wordTemp = Word(signedAddress)
 			
-			byteTemp = internalReadAddress(wordTemp, tStates: 3)
+			byteTemp = coreMemoryRead(wordTemp, tStates: 3)
 			
-			contend_read_no_mreq(wordTemp, tStates:1)
+			coreMemoryContention(wordTemp, tStates:1)
 			
 			INC(&byteTemp)
 			
-			internalWriteAddress(wordTemp, value: byteTemp)
+			coreMemoryWrite(wordTemp, value: byteTemp)
 			break
 		case 0x35:		/* DEC (IY+dd) */
 			var offset: Int8
 			var byteTemp: Byte
 			var wordTemp: Word
 			
-			offset = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			offset = Int8(bitPattern: coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
 			
 			wordTemp = Word(signedAddress)
 			
-			byteTemp = internalReadAddress(wordTemp, tStates: 3)
-			contend_read_no_mreq(wordTemp, tStates:1)
+			byteTemp = coreMemoryRead(wordTemp, tStates: 3)
+			coreMemoryContention(wordTemp, tStates:1)
 			DEC(&byteTemp)
-			internalWriteAddress(wordTemp,value: byteTemp)
+			coreMemoryWrite(wordTemp,value: byteTemp)
 			break
 		case 0x36:		/* LD (IY+dd),nn */
 			var offset: Int8
 			var value: Byte
-			offset = Int8(bitPattern: internalReadAddress(PC, tStates: 3))
-			PC += 1
-			value = internalReadAddress(PC, tStates: 3)
-			contend_read_no_mreq(PC, tStates: 1)
-			contend_read_no_mreq(PC, tStates: 1)
-			PC += 1
+			offset = Int8(bitPattern: coreMemoryRead(PC, tStates: 3))
+			PC = PC &+ 1
+			value = coreMemoryRead(PC, tStates: 3)
+			coreMemoryContention(PC, tStates: 1)
+			coreMemoryContention(PC, tStates: 1)
+			PC = PC &+ 1
 			
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
 			
-			internalWriteAddress(Word(signedAddress), value: value)
+			coreMemoryWrite(Word(signedAddress), value: value)
 			break
 		case 0x39:		/* ADD IY,SP */
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
-			contend_read_no_mreq(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
+			coreMemoryContention(IR, tStates:1)
 			ADD16(&IY,value2: SP)
 			break
 		case 0x44:		/* LD B,IYh */
@@ -166,16 +166,16 @@ extension SwiftZ80Core {
 			B = IYl
 			break
 		case 0x46:		/* LD B,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			B = internalReadAddress(Word(signedAddress) & 0xffff, tStates: 3)
+			B = coreMemoryRead(Word(signedAddress) & 0xffff, tStates: 3)
 			break
 		case 0x4c:		/* LD C,IYh */
 			C = IYh
@@ -184,16 +184,16 @@ extension SwiftZ80Core {
 			C = IYl
 			break
 		case 0x4e:		/* LD C,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			C = internalReadAddress(Word(signedAddress), tStates: 3)
+			C = coreMemoryRead(Word(signedAddress), tStates: 3)
 			break
 		case 0x54:		/* LD D,IYh */
 			D = IYh
@@ -202,16 +202,16 @@ extension SwiftZ80Core {
 			D = IYl
 			break
 		case 0x56:		/* LD D,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			D = internalReadAddress(Word(signedAddress), tStates: 3)
+			D = coreMemoryRead(Word(signedAddress), tStates: 3)
 			break
 		case 0x5c:		/* LD E,IYh */
 			E = IYh
@@ -220,16 +220,16 @@ extension SwiftZ80Core {
 			E = IYl
 			break
 		case 0x5e:		/* LD E,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			E = internalReadAddress(Word(signedAddress), tStates: 3)
+			E = coreMemoryRead(Word(signedAddress), tStates: 3)
 			break
 		case 0x60:		/* LD IYh,B */
 			IYh = B
@@ -249,16 +249,16 @@ extension SwiftZ80Core {
 			IYh = IYl
 			break
 		case 0x66:		/* LD H,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			H = internalReadAddress(Word(signedAddress), tStates: 3)
+			H = coreMemoryRead(Word(signedAddress), tStates: 3)
 			break
 		case 0x67:		/* LD IYh,A */
 			IYh = A
@@ -281,103 +281,103 @@ extension SwiftZ80Core {
 		case 0x6d:		/* LD IYl,IYl */
 			break
 		case 0x6e:		/* LD L,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			L = internalReadAddress(Word(signedAddress), tStates: 3)
+			L = coreMemoryRead(Word(signedAddress), tStates: 3)
 			break
 		case 0x6f:		/* LD IYl,A */
 			IYl = A
 			break
 		case 0x70:		/* LD (IY+dd),B */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			internalWriteAddress(Word(signedAddress), value: B)
+			coreMemoryWrite(Word(signedAddress), value: B)
 			break
 		case 0x71:		/* LD (IY+dd),C */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			internalWriteAddress(Word(signedAddress), value: C)
+			coreMemoryWrite(Word(signedAddress), value: C)
 			break
 		case 0x72:		/* LD (IY+dd),D */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			internalWriteAddress(Word(signedAddress), value: D)
+			coreMemoryWrite(Word(signedAddress), value: D)
 			break
 		case 0x73:		/* LD (IY+dd),E */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			internalWriteAddress(Word(signedAddress), value: E)
+			coreMemoryWrite(Word(signedAddress), value: E)
 			break
 		case 0x74:		/* LD (IY+dd),H */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			internalWriteAddress(Word(signedAddress), value: H)
+			coreMemoryWrite(Word(signedAddress), value: H)
 			break
 		case 0x75:		/* LD (IY+dd),L */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			internalWriteAddress(Word(signedAddress), value: L)
+			coreMemoryWrite(Word(signedAddress), value: L)
 			break
 		case 0x77:		/* LD (IY+dd),A */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			internalWriteAddress(Word(signedAddress), value: A)
+			coreMemoryWrite(Word(signedAddress), value: A)
 			break
 		case 0x7c:		/* LD A,IYh */
 			A = IYh
@@ -386,16 +386,16 @@ extension SwiftZ80Core {
 			A = IYl
 			break
 		case 0x7e:		/* LD A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			A = internalReadAddress(Word(signedAddress), tStates: 3)
+			A = coreMemoryRead(Word(signedAddress), tStates: 3)
 			break
 		case 0x84:		/* ADD A,IYh */
 			ADD(IYh)
@@ -404,16 +404,16 @@ extension SwiftZ80Core {
 			ADD(IYl)
 			break
 		case 0x86:		/* ADD A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			ADD(byteTemp)
 			break
 		case 0x8c:		/* ADC A,IYh */
@@ -423,16 +423,16 @@ extension SwiftZ80Core {
 			ADC(IYl)
 			break
 		case 0x8e:		/* ADC A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			ADC(byteTemp)
 			break
 		case 0x94:		/* SUB A,IYh */
@@ -442,16 +442,16 @@ extension SwiftZ80Core {
 			SUB(IYl)
 			break
 		case 0x96:		/* SUB A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			SUB(byteTemp)
 			break
 		case 0x9c:		/* SBC A,IYh */
@@ -461,16 +461,16 @@ extension SwiftZ80Core {
 			SBC(IYl)
 			break
 		case 0x9e:		/* SBC A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			SBC(byteTemp)
 			break
 		case 0xa4:		/* AND A,IYh */
@@ -480,16 +480,16 @@ extension SwiftZ80Core {
 			AND(IYl)
 			break
 		case 0xa6:		/* AND A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			AND(byteTemp)
 			break
 		case 0xac:		/* XOR A,IYh */
@@ -499,16 +499,16 @@ extension SwiftZ80Core {
 			XOR(IYl)
 			break
 		case 0xae:		/* XOR A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			XOR(byteTemp)
 			break
 		case 0xb4:		/* OR A,IYh */
@@ -518,16 +518,16 @@ extension SwiftZ80Core {
 			OR(IYl)
 			break
 		case 0xb6:		/* OR A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			OR(byteTemp)
 			break
 		case 0xbc:		/* CP A,IYh */
@@ -537,28 +537,28 @@ extension SwiftZ80Core {
 			CP(IYl)
 			break
 		case 0xbe:		/* CP A,(IY+dd) */
-			let offset: Int8 = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			contend_read_no_mreq(PC, tStates:1)
-			PC += 1
+			let offset: Int8 = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			coreMemoryContention(PC, tStates:1)
+			PC = PC &+ 1
 			let signedIY = Int(IY)
 			let signedAddress: Int = Int(signedIY) + Int(offset)
-			let byteTemp = internalReadAddress(Word(signedAddress), tStates: 3)
+			let byteTemp = coreMemoryRead(Word(signedAddress), tStates: 3)
 			CP(byteTemp)
 			break
 		case 0xcb:		/* shift DDFDCB */
 			var opcode3: Byte
-			let add = Int8(bitPattern:internalReadAddress(PC, tStates: 3))
+			let offset = Int8(bitPattern:coreMemoryRead(PC, tStates: 3))
 			let signedIY = Int(IY)
-			let tempAddr = Word(Int(signedIY) + Int(add))
-			PC += 1
-			opcode3 = internalReadAddress(PC, tStates: 3)
-			contend_read_no_mreq(PC, tStates: 1)
-			contend_read_no_mreq(PC, tStates: 1)
-			PC += 1
+			let tempAddr = Word(Int(signedIY) + Int(offset))
+			PC = PC &+ 1
+			opcode3 = coreMemoryRead(PC, tStates: 3)
+			coreMemoryContention(PC, tStates: 1)
+			coreMemoryContention(PC, tStates: 1)
+			PC = PC &+ 1
 			lookupDDFDCBOpcode(opcode3, address: tempAddr)
 			break
 		case 0xe1:		/* POP IY */
@@ -567,31 +567,31 @@ extension SwiftZ80Core {
 		case 0xe3:		/* EX (SP),IY */
 			var byteTempL: Byte
 			var byteTempH: Byte
-			byteTempL = internalReadAddress(SP, tStates: 3)
-			byteTempH = internalReadAddress(SP + 1, tStates: 3)
-			contend_read_no_mreq(SP + 1, tStates: 1)
-			internalWriteAddress(SP + 1, value: IYh)
-			internalWriteAddress(SP, value: IYl)
-			contend_read_no_mreq(SP, tStates: 1)
-			contend_read_no_mreq(SP, tStates: 1)
+			byteTempL = coreMemoryRead(SP, tStates: 3)
+			byteTempH = coreMemoryRead(SP + 1, tStates: 3)
+			coreMemoryContention(SP + 1, tStates: 1)
+			coreMemoryWrite(SP + 1, value: IYh)
+			coreMemoryWrite(SP, value: IYl)
+			coreMemoryContention(SP, tStates: 1)
+			coreMemoryContention(SP, tStates: 1)
 			IYl = byteTempL
 			IYh = byteTempH
 			break
 		case 0xe5:		/* PUSH IY */
-			contend_read_no_mreq(IR, tStates: 1)
+			coreMemoryContention(IR, tStates: 1)
 			PUSH16(IYl,regH: IYh)
 			break
 		case 0xe9:		/* JP IY */
 			PC=IY		/* NB: NOT INDIRECT! */
 			break
 		case 0xf9:		/* LD SP,IY */
-			contend_read_no_mreq(IR, tStates: 1)
-			contend_read_no_mreq(IR, tStates: 1)
+			coreMemoryContention(IR, tStates: 1)
+			coreMemoryContention(IR, tStates: 1)
 			SP = IY
 			break
 		default:		/* Instruction did not involve H or L, so backtrack
 			one instruction and parse again */
-			//            PC -= 1
+			//            PC = PC &- 1
 			//            R -= 1
 			//            var opcode: Byte = opcode2
 			//            lookupBaseOpcode(opcode)

@@ -15,17 +15,17 @@ extension SwiftZ80Core {
         case 0x00:		/* NOP */
             break
         case 0x01:		/* LD BC,nnnn */
-            C = internalReadAddress(PC, tStates: 3)
-            PC += 1
-            B = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            C = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
+            B = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x02:		/* LD (BC),A */
-            internalWriteAddress(BC,value: A)
+            coreMemoryWrite(BC,value: A)
             break
         case 0x03:		/* INC BC */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             BC = BC &+ 1
             break
         case 0x04:		/* INC B */
@@ -35,8 +35,8 @@ extension SwiftZ80Core {
             DEC(&B)
             break
         case 0x06:		/* LD B,nn */
-            B = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            B = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x07:		/* RLCA */
             A = (A << 1) | (A >> 7)
@@ -61,21 +61,21 @@ extension SwiftZ80Core {
 
             break
         case 0x09:		/* ADD HL,BC */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             ADD16(&HL,value2: BC)
             break
         case 0x0a:		/* LD A,(BC) */
-            A = internalReadAddress(BC, tStates: 3)
+            A = coreMemoryRead(BC, tStates: 3)
             break
         case 0x0b:		/* DEC BC */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             BC = BC &- 1
             break
         case 0x0c:		/* INC C */
@@ -85,8 +85,8 @@ extension SwiftZ80Core {
             DEC(&C)
             break
         case 0x0e:		/* LD C,nn */
-            C = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            C = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x0f:		/* RRCA */
             F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & FLAG_C)
@@ -94,27 +94,27 @@ extension SwiftZ80Core {
             F |= (A & (FLAG_3 | FLAG_5))
             break
         case 0x10:		/* DJNZ offset */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             B = B &- 1
             if B != 00 {
                 JR()
             } else {
-                contend_read(PC, tStates: 3)
-				PC += 1
+                coreMemoryContention(PC, tStates: 3)
+				PC = PC &+ 1
             }
             break
         case 0x11:		/* LD DE,nnnn */
-            E = internalReadAddress(PC, tStates: 3)
-            PC += 1
-            D = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            E = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
+            D = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x12:		/* LD (DE),A */
-            internalWriteAddress(DE,value: A)
+            coreMemoryWrite(DE,value: A)
             break
         case 0x13:		/* INC DE */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             DE += 1
             break
         case 0x14:		/* INC D */
@@ -124,8 +124,8 @@ extension SwiftZ80Core {
             DEC(&D)
             break
         case 0x16:		/* LD D,nn */
-            D = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            D = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x17:		/* RLA */
             let temp: Byte = A
@@ -137,21 +137,21 @@ extension SwiftZ80Core {
             JR()
             break
         case 0x19:		/* ADD HL,DE */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             ADD16(&HL,value2: DE)
             break
         case 0x1a:		/* LD A,(DE) */
-            A = internalReadAddress(DE, tStates: 3)
+            A = coreMemoryRead(DE, tStates: 3)
             break
         case 0x1b:		/* DEC DE */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             DE = DE &- 1
             break
         case 0x1c:		/* INC E */
@@ -161,8 +161,8 @@ extension SwiftZ80Core {
             DEC(&E)
             break
         case 0x1e:		/* LD E,nn */
-            E = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            E = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x1f:		/* RRA */
             let temp: Byte = A
@@ -174,22 +174,22 @@ extension SwiftZ80Core {
             if F & FLAG_Z == 0  {
                 JR()
             } else {
-                contend_read(PC, tStates: 3)
-                PC += 1
+                coreMemoryContention(PC, tStates: 3)
+                PC = PC &+ 1
             }
             break
         case 0x21:		/* LD HL,nnnn */
-            L = internalReadAddress(PC, tStates: 3)
-            PC += 1
-            H = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            L = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
+            H = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x22:		/* LD (nnnn),HL */
             LD16_NNRR(L, regH: H)
             break
         case 0x23:		/* INC HL */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             HL = HL &+ 1
             break
         case 0x24:		/* INC H */
@@ -199,8 +199,8 @@ extension SwiftZ80Core {
             DEC(&H)
             break
         case 0x26:		/* LD H,nn */
-            H = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            H = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x27:		/* DAA */
             var add: Byte = 0
@@ -225,26 +225,26 @@ extension SwiftZ80Core {
             if F & FLAG_Z == FLAG_Z {
                 JR()
             } else {
-				contend_read(PC, tStates: 3)
-				PC += 1
+				coreMemoryContention(PC, tStates: 3)
+				PC = PC &+ 1
             }
             break
         case 0x29:		/* ADD HL,HL */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             ADD16(&HL,value2: HL)
             break
         case 0x2a:		/* LD HL,(nnnn) */
             LD16_RRNN(&L,regH: &H)
             break
         case 0x2b:		/* DEC HL */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             HL = HL &- 1
             break
         case 0x2c:		/* INC L */
@@ -254,8 +254,8 @@ extension SwiftZ80Core {
             DEC(&L)
             break
         case 0x2e:		/* LD L,nn */
-            L = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            L = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x2f:		/* CPL */
             A ^= 0xff
@@ -266,44 +266,44 @@ extension SwiftZ80Core {
             if F & FLAG_C == 0x00 {
                 JR()
             } else {
-                contend_read(PC, tStates: 3)
-                PC += 1
+                coreMemoryContention(PC, tStates: 3)
+                PC = PC &+ 1
             }
             break
         case 0x31:		/* LD SP,nnnn */
-            SPl = internalReadAddress(PC, tStates: 3)
-            PC += 1
-            SPh = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            SPl = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
+            SPh = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x32:		/* LD (nnnn),A */
-            var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
-            PC += 1
-            temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
-            PC += 1
-            internalWriteAddress(temp,value: A)
+            var temp: Word = Word(coreMemoryRead(PC, tStates: 3)) & 0xffff
+            PC = PC &+ 1
+            temp |= (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) << 8
+            PC = PC &+ 1
+            coreMemoryWrite(temp,value: A)
             break
         case 0x33:		/* INC SP */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             SP = SP + 1
             break
         case 0x34:		/* INC (HL) */
-            var temp: Byte = internalReadAddress(HL, tStates: 3)
-            contend_read_no_mreq(HL, tStates: 1)
+            var temp: Byte = coreMemoryRead(HL, tStates: 3)
+            coreMemoryContention(HL, tStates: 1)
             INC(&temp)
-            internalWriteAddress(HL, value:temp)
+            coreMemoryWrite(HL, value:temp)
             break
         case 0x35:		/* DEC (HL) */
-            var temp: Byte = internalReadAddress(HL, tStates: 3)
-            contend_read_no_mreq(HL, tStates: 1)
+            var temp: Byte = coreMemoryRead(HL, tStates: 3)
+            coreMemoryContention(HL, tStates: 1)
             DEC(&temp)
-            internalWriteAddress(HL, value:temp)
+            coreMemoryWrite(HL, value:temp)
             break
         case 0x36:		/* LD (HL),nn */
-            let value: Byte = internalReadAddress(PC, tStates: 3)
-            internalWriteAddress(HL, value: value)
-            PC += 1
+            let value: Byte = coreMemoryRead(PC, tStates: 3)
+            coreMemoryWrite(HL, value: value)
+            PC = PC &+ 1
             break
         case 0x37:		/* SCF */
             F = (F & (FLAG_P | FLAG_Z | FLAG_S)) |
@@ -313,30 +313,30 @@ extension SwiftZ80Core {
             if F & FLAG_C == FLAG_C {
                 JR()
             } else {
-                contend_read(PC, tStates: 3)
-                PC += 1
+                coreMemoryContention(PC, tStates: 3)
+                PC = PC &+ 1
             }
             break
         case 0x39:		/* ADD HL,SP */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             ADD16(&HL,value2: SP)
             break
         case 0x3a:		/* LD A,(nnnn) */
-            var temp: Word = Word(internalReadAddress(PC, tStates: 3)) & 0xffff
-            PC += 1
-            temp |= (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) << 8
-			PC += 1
-            A = internalReadAddress(temp, tStates: 3)
+            var temp: Word = Word(coreMemoryRead(PC, tStates: 3)) & 0xffff
+            PC = PC &+ 1
+            temp |= (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) << 8
+			PC = PC &+ 1
+            A = coreMemoryRead(temp, tStates: 3)
             break
         case 0x3b:		/* DEC SP */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             SP = SP &- 1
             break
         case 0x3c:		/* INC A */
@@ -346,8 +346,8 @@ extension SwiftZ80Core {
             DEC(&A)
             break
         case 0x3e:		/* LD A,nn */
-            A = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            A = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             break
         case 0x3f:		/* CCF */
             
@@ -377,7 +377,7 @@ extension SwiftZ80Core {
             B = L
             break
         case 0x46:		/* LD B,(HL) */
-            B = internalReadAddress(HL, tStates: 3)
+            B = coreMemoryRead(HL, tStates: 3)
             break
         case 0x47:		/* LD B,A */
             B = A
@@ -400,7 +400,7 @@ extension SwiftZ80Core {
             C = L
             break
         case 0x4e:		/* LD C,(HL) */
-            C = internalReadAddress(HL, tStates: 3)
+            C = coreMemoryRead(HL, tStates: 3)
             break
         case 0x4f:		/* LD C,A */
             C = A
@@ -423,7 +423,7 @@ extension SwiftZ80Core {
             D = L
             break
         case 0x56:		/* LD D,(HL) */
-            D = internalReadAddress(HL, tStates: 3)
+            D = coreMemoryRead(HL, tStates: 3)
             break
         case 0x57:		/* LD D,A */
             D = A
@@ -446,7 +446,7 @@ extension SwiftZ80Core {
             E = L
             break
         case 0x5e:		/* LD E,(HL) */
-            E = internalReadAddress(HL, tStates: 3)
+            E = coreMemoryRead(HL, tStates: 3)
             break
         case 0x5f:		/* LD E,A */
             E = A
@@ -469,7 +469,7 @@ extension SwiftZ80Core {
             H = L
             break
         case 0x66:		/* LD H,(HL) */
-            H = internalReadAddress(HL, tStates: 3)
+            H = coreMemoryRead(HL, tStates: 3)
             break
         case 0x67:		/* LD H,A */
             H = A
@@ -492,35 +492,35 @@ extension SwiftZ80Core {
         case 0x6d:		/* LD L,L */
             break
         case 0x6e:		/* LD L,(HL) */
-            L = internalReadAddress(HL, tStates: 3)
+            L = coreMemoryRead(HL, tStates: 3)
             break
         case 0x6f:		/* LD L,A */
             L = A
             break
         case 0x70:		/* LD (HL),B */
-            internalWriteAddress(HL,value: B)
+            coreMemoryWrite(HL,value: B)
             break
         case 0x71:		/* LD (HL),C */
-            internalWriteAddress(HL,value: C)
+            coreMemoryWrite(HL,value: C)
             break
         case 0x72:		/* LD (HL),D */
-            internalWriteAddress(HL,value: D)
+            coreMemoryWrite(HL,value: D)
             break
         case 0x73:		/* LD (HL),E */
-            internalWriteAddress(HL,value: E)
+            coreMemoryWrite(HL,value: E)
             break
         case 0x74:		/* LD (HL),H */
-            internalWriteAddress(HL,value: H)
+            coreMemoryWrite(HL,value: H)
             break
         case 0x75:		/* LD (HL),L */
-            internalWriteAddress(HL,value: L)
+            coreMemoryWrite(HL,value: L)
             break
         case 0x76:		/* HALT */
             halted = true
             PC = PC - 1
             break
         case 0x77:		/* LD (HL),A */
-            internalWriteAddress(HL,value: A)
+            coreMemoryWrite(HL,value: A)
             break
         case 0x78:		/* LD A,B */
             A = B
@@ -541,7 +541,7 @@ extension SwiftZ80Core {
             A = L
             break
         case 0x7e:		/* LD A,(HL) */
-            A = internalReadAddress(HL, tStates: 3)
+            A = coreMemoryRead(HL, tStates: 3)
             break
         case 0x7f:		/* LD A,A */
             break
@@ -564,7 +564,7 @@ extension SwiftZ80Core {
             ADD(L)
             break
         case 0x86:		/* ADD A,(HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             ADD(temp)
             break
         case 0x87:		/* ADD A,A */
@@ -589,7 +589,7 @@ extension SwiftZ80Core {
             ADC(L)
             break
         case 0x8e:		/* ADC A,(HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             ADC(temp)
             break
         case 0x8f:		/* ADC A,A */
@@ -614,7 +614,7 @@ extension SwiftZ80Core {
             SUB(L)
             break
         case 0x96:		/* SUB A,(HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             SUB(temp)
             break
         case 0x97:		/* SUB A,A */
@@ -639,7 +639,7 @@ extension SwiftZ80Core {
             SBC(L)
             break
         case 0x9e:		/* SBC A,(HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             SBC(temp)
             break
         case 0x9f:		/* SBC A,A */
@@ -664,7 +664,7 @@ extension SwiftZ80Core {
             AND(L)
             break
         case 0xa6:		/* AND A,(HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             AND(temp)
             break
         case 0xa7:		/* AND A,A */
@@ -689,7 +689,7 @@ extension SwiftZ80Core {
             XOR(L)
             break
         case 0xae:		/* XOR A,(HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             XOR(temp)
             break
         case 0xaf:		/* XOR A,A */
@@ -714,7 +714,7 @@ extension SwiftZ80Core {
             OR(L)
             break
         case 0xb6:		/* OR A,(HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             OR(temp)
             break
         case 0xb7:		/* OR A,A */
@@ -739,14 +739,14 @@ extension SwiftZ80Core {
             CP(L)
             break
         case 0xbe:		/* CP (HL) */
-            let temp: Byte = internalReadAddress(HL, tStates: 3)
+            let temp: Byte = coreMemoryRead(HL, tStates: 3)
             CP(temp)
             break
         case 0xbf:		/* CP A */
             CP(A)
             break
         case 0xc0:		/* RET NZ */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             
 //            if(PC==0x056c || PC == 0x0112) {
 //                if(tape_load_trap() == 0) break
@@ -763,8 +763,8 @@ extension SwiftZ80Core {
             if F & FLAG_Z == 0x00 {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
@@ -775,26 +775,26 @@ extension SwiftZ80Core {
             if F & FLAG_Z != FLAG_Z {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xc5:		/* PUSH BC */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             PUSH16(C,regH: B)
             break
         case 0xc6:		/* ADD A,nn */
-            let temp: Byte = internalReadAddress(PC, tStates: 3)
-			PC += 1
+            let temp: Byte = coreMemoryRead(PC, tStates: 3)
+			PC = PC &+ 1
             ADD(temp)
             break
         case 0xc7:		/* RST 00 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x00)
             break
         case 0xc8:		/* RET Z */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             if F & FLAG_Z == FLAG_Z {
                 RET()
             }
@@ -806,24 +806,24 @@ extension SwiftZ80Core {
             if F & FLAG_Z == FLAG_Z {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xcb:		/* shift CB */
             var opcode2: Byte
-            opcode2 = internalReadAddress(PC, tStates: 4)
-            PC += 1
-            R = R &+ 1
+            opcode2 = coreMemoryRead(PC, tStates: 4)
+            PC = PC &+ 1
+			R = (R & 0x80) | ((R &+ 1) & 0x7f)
             lookupCBOpcode(opcode2)
             break
         case 0xcc:		/* CALL Z,nnnn */
             if F & FLAG_Z == FLAG_Z {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
@@ -831,16 +831,16 @@ extension SwiftZ80Core {
             CALL()
             break
         case 0xce:		/* ADC A,nn */
-            let temp: Byte = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            let temp: Byte = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             ADC(temp)
             break
         case 0xcf:		/* RST 8 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x08)
             break
         case 0xd0:		/* RET NC */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             if F & FLAG_C != FLAG_C {
                 RET()
             }
@@ -852,40 +852,40 @@ extension SwiftZ80Core {
             if F & FLAG_C != FLAG_C {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates:3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates:3)
                 PC += 2
             }
             break
         case 0xd3:		/* OUT (nn),A */
-            let temp: Word = (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
-            PC += 1
-            ioWriteAddress(temp, value: A)
+            let temp: Word = (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
+            PC = PC &+ 1
+            externalIOWrite(temp, value: A)
             break
         case 0xd4:		/* CALL NC,nnnn */
             if F & FLAG_C != FLAG_C {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xd5:		/* PUSH DE */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             PUSH16(E, regH:D)
             break
         case 0xd6:		/* SUB nn */
-            let temp: Byte = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            let temp: Byte = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             SUB(temp)
             break
         case 0xd7:		/* RST 10 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x10)
             break
         case 0xd8:		/* RET C */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             if F & FLAG_C == FLAG_C {
                 RET()
             }
@@ -905,43 +905,43 @@ extension SwiftZ80Core {
             if F & FLAG_C == FLAG_C {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xdb:		/* IN A,(nn) */
-            let temp: Word = (Word(internalReadAddress(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
-            PC += 1
-            A = ioReadAddress(temp)
+            let temp: Word = (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
+            PC = PC &+ 1
+            A = externalIORead(temp)
             break
         case 0xdc:		/* CALL C,nnnn */
             if F & FLAG_C == FLAG_C {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xdd:		/* shift DD */
             var opcode2: Byte
-			opcode2 = internalReadAddress(PC, tStates: 4)
-            PC += 1
-            R = R &+ 1
+			opcode2 = coreMemoryRead(PC, tStates: 4)
+            PC = PC &+ 1
+			R = (R & 0x80) | ((R &+ 1) & 0x7f)
             lookupDDFDIXOpcode(opcode2)
             break
         case 0xde:		/* SBC A,nn */
-            let temp: Byte = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            let temp: Byte = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             SBC(temp)
             break
         case 0xdf:		/* RST 18 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x18)
             break
         case 0xe0:		/* RET PO */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             if F & FLAG_P != FLAG_P {
                 RET()
             }
@@ -953,19 +953,19 @@ extension SwiftZ80Core {
             if F & FLAG_P != FLAG_P {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xe3:		/* EX (SP),HL */
-            let tempL: Byte = internalReadAddress(SP, tStates: 3)
-            let tempH: Byte = internalReadAddress(SP + 1, tStates: 3)
-            contend_read_no_mreq(SP + 1, tStates: 1)
-            internalWriteAddress(SP + 1, value: H)
-            internalWriteAddress(SP, value: L )
-            contend_write_no_mreq(SP, tStates: 1)
-            contend_write_no_mreq(SP, tStates: 1)
+            let tempL: Byte = coreMemoryRead(SP, tStates: 3)
+            let tempH: Byte = coreMemoryRead(SP + 1, tStates: 3)
+            coreMemoryContention(SP + 1, tStates: 1)
+            coreMemoryWrite(SP + 1, value: H)
+            coreMemoryWrite(SP, value: L )
+            coreMemoryContention(SP, tStates: 1)
+            coreMemoryContention(SP, tStates: 1)
             L = tempL
             H = tempH
             break
@@ -973,26 +973,26 @@ extension SwiftZ80Core {
             if  F & FLAG_P != FLAG_P {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xe5:		/* PUSH HL */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             PUSH16(L, regH:H)
             break
         case 0xe6:		/* AND nn */
-                let temp = internalReadAddress(PC, tStates: 3)
-                PC += 1
+                let temp = coreMemoryRead(PC, tStates: 3)
+                PC = PC &+ 1
                 AND(temp)
             break
         case 0xe7:		/* RST 20 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x20)
             break
         case 0xe8:		/* RET PE */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             if F & FLAG_P == FLAG_P {
                 RET()
             }
@@ -1004,8 +1004,8 @@ extension SwiftZ80Core {
             if F & FLAG_P == FLAG_P {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
@@ -1018,29 +1018,29 @@ extension SwiftZ80Core {
             if F & FLAG_P == FLAG_P {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xed:		/* shift ED */
             var opcode2: Byte
-            opcode2 = internalReadAddress(PC, tStates: 4)
-            PC += 1
-            R = R &+ 1
+            opcode2 = coreMemoryRead(PC, tStates: 4)
+            PC = PC &+ 1
+			R = (R & 0x80) | ((R &+ 1) & 0x7f)
             lookupEDOpcode(opcode2)
             break
         case 0xee:		/* XOR A,nn */
-            let temp = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            let temp = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             XOR(temp)
             break
         case 0xef:		/* RST 28 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x28)
             break
         case 0xf0:		/* RET P */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             if F & FLAG_S != FLAG_S {
                 RET()
             }
@@ -1052,8 +1052,8 @@ extension SwiftZ80Core {
             if F & FLAG_S != FLAG_S {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
@@ -1065,41 +1065,41 @@ extension SwiftZ80Core {
             if F & FLAG_S != FLAG_S {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xf5:		/* PUSH AF */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             PUSH16(F, regH:A)
             break
         case 0xf6:		/* OR nn */
-            let temp = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            let temp = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             OR(temp)
             break
         case 0xf7:		/* RST 30 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x30)
             break
         case 0xf8:		/* RET M */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             if F & FLAG_S == FLAG_S {
                 RET()
             }
             break
         case 0xf9:		/* LD SP,HL */
-            contend_read_no_mreq(IR, tStates: 1)
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             SP = HL
             break
         case 0xfa:		/* JP M,nnnn */
             if F & FLAG_S == FLAG_S {
                 JP()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
@@ -1112,25 +1112,25 @@ extension SwiftZ80Core {
             if F & FLAG_S == FLAG_S {
                 CALL()
             } else {
-                contend_read(PC, tStates: 3)
-                contend_read(PC + 1, tStates: 3)
+                coreMemoryContention(PC, tStates: 3)
+                coreMemoryContention(PC + 1, tStates: 3)
                 PC += 2
             }
             break
         case 0xfd:		/* shift FD */
             var opcode2: Byte
-            opcode2 = internalReadAddress(PC, tStates: 4)
-            PC += 1
-            R = R &+ 1
+            opcode2 = coreMemoryRead(PC, tStates: 4)
+            PC = PC &+ 1
+			R = (R & 0x80) | ((R &+ 1) & 0x7f)
 			lookupDDFDIYOpcode(opcode2)
             break
         case 0xfe:		/* CP nn */
-            let temp = internalReadAddress(PC, tStates: 3)
-            PC += 1
+            let temp = coreMemoryRead(PC, tStates: 3)
+            PC = PC &+ 1
             CP(temp)
             break
         case 0xff:		/* RST 38 */
-            contend_read_no_mreq(IR, tStates: 1)
+            coreMemoryContention(IR, tStates: 1)
             RST(0x38)
             break
             

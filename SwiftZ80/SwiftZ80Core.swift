@@ -228,10 +228,10 @@ class SwiftZ80Core
 	}
 	var C_: Byte {
 		get {
-			return R2.B
+			return R2.C
 		}
 		set {
-			R2.B = newValue
+			R2.C = newValue
 		}
 	}
 	var DE_: Word {
@@ -325,31 +325,28 @@ class SwiftZ80Core
 	var I: Byte
 	var IR: Word {
 		get {
-			return ((Word(I) << 8) | (Word(R7 & 0x80)) | (Word(R & 0x7f)))
+			return ((Word(I) << 8) + (Word(R & 0x7f)))
 		}
 	}
-	var R7: Byte {
-		get {
-			return R & 0x80
-		}
-	}
+	
+	// Interrupts
 	var IFF1: Byte
 	var IFF2: Byte
 	var IM: Byte
-	
+	var interruptRequested = false
+	var eiHandled = false
+
 	// General core properties
 	var halted = false
 	var tStates: Int = 0
 	
-	// References to functions that manage memory access
-	var memoryReadAddress: (Word) -> (Byte)
-	var memoryWriteAddress: (Word, value: Byte) -> ()
+	var MEMPTR: Word = 0
 	
-	// References to functions that manage io access
-	var ioReadAddress: (Word) -> (Byte)
-	var ioWriteAddress: (Word, value: Byte) -> ()
-	
-	// References to functions that manage any contention rules
+	// References to external functions for memory, IO and contention handling in the emulator
+	var externalMemoryRead: (Word) -> (Byte)
+	var externalMemoryWrite: (Word, value: Byte) -> ()
+	var externalIORead: (Word) -> (Byte)
+	var externalIOWrite: (Word, value: Byte) -> ()
 	var externalContendReadNoMreq: (Word, tStates: Int) -> ()
 	var externalContendWriteNoMreq: (Word, tStates: Int) -> ()
 	var externalContendRead: (Word, tStates: Int) -> ()
@@ -364,27 +361,18 @@ class SwiftZ80Core
     var SZ35Table = [Byte](count: 256, repeatedValue: 0)
     var parityTable = [Byte](count: 256, repeatedValue: 0)
 	
-	var interruptRequested = false
-    var eiHandled = false
-    
 	/**
 	* Initializer
 	* Takes references to the functions that the core is to use when accessing memory, io and contention.
 	* This allows how memory is mapped and stored to be managed outside of the core making the core more
 	* general purpose.
 	*/
-	init(memoryRead: (address: Word) -> (Byte),
-	     memoryWrite: (address: Word, value: Byte) -> (),
-	     ioRead: (address: Word) -> (Byte),
-	     ioWrite: (address: Word, value: Byte) -> (),
-	     contentionReadNoMREQ: (address: Word, tStates: Int) -> (),
-	     contentionWriteNoMREQ: (address: Word, tStates: Int) -> (),
-	     contentionRead: (address: Word, tStates: Int) -> ()) {
+	init(memoryRead: (address: Word) -> (Byte), memoryWrite: (address: Word, value: Byte) -> (), ioRead: (address: Word) -> (Byte), ioWrite: (address: Word, value: Byte) -> (), contentionReadNoMREQ: (address: Word, tStates: Int) -> (), contentionWriteNoMREQ: (address: Word, tStates: Int) -> (), contentionRead: (address: Word, tStates: Int) -> ()) {
 		
-		self.memoryReadAddress = memoryRead
-		self.memoryWriteAddress = memoryWrite
-		self.ioReadAddress = ioRead
-		self.ioWriteAddress = ioWrite
+		self.externalMemoryRead = memoryRead
+		self.externalMemoryWrite = memoryWrite
+		self.externalIORead = ioRead
+		self.externalIOWrite = ioWrite
 		self.externalContendReadNoMreq = contentionReadNoMREQ
 		self.externalContendWriteNoMreq = contentionWriteNoMREQ
 		self.externalContendRead = contentionRead
@@ -405,7 +393,10 @@ class SwiftZ80Core
         setupTables()
     }
 	
-    func setupTables() {
+	/**
+	* Setup the sign, zero, 3, 5 flag table along with the parity table
+	*/
+	func setupTables() {
 
         for i: Int in 0...255 {
             
@@ -445,13 +436,15 @@ class SwiftZ80Core
 		
 			if halted == true {
 				halted = false
-				PC += 1
+				PC = PC &+ 1
 			}
 			
 			IFF1 = 0
 			IFF2 = 0
 			interruptRequested = false
-			R = (R & 0x80) | ((R + 1) & 0x7f)
+			
+			// Increment R leaving the MSB alone
+			R = (R & 0x80) | ((R &+ 1) & 0x7f)
 			
 			switch IM {
                 
@@ -465,8 +458,8 @@ class SwiftZ80Core
 			case 2:
 				PUSH16(PCl, regH: PCh)
                 let address: Word = Word(I) << 8 | 0
-				PCl = internalReadAddress(address + 0, tStates: 3)
-				PCh = internalReadAddress(address + 1, tStates: 3)
+				PCl = coreMemoryRead(address, tStates: 3)
+				PCh = coreMemoryRead(address + 1, tStates: 3)
 				tStates += 7
 				
 			default:
@@ -477,10 +470,9 @@ class SwiftZ80Core
 
         eiHandled = false
         
-//        print(PC.toHexString)
-		let opcode: Byte = internalReadAddress(PC, tStates: 4)
+		let opcode: Byte = coreMemoryRead(PC, tStates: 4)
 		PC = PC &+ 1
-//        R = R &+ 1
+		R = (R & 0x80) | ((R &+ 1) & 0x7f)
 		lookupBaseOpcode(opcode)
         
 		return tStates - tStatesBefore
@@ -508,14 +500,12 @@ class SwiftZ80Core
 
 	// MARK: Internal memory and contention functions
 	// These are called by the core so that the internal tstate count can be adjusted based on memory reads, writes and contention.
-	//
 	
 	/**
-	* Internal Read Address
 	* Update the cores tState count based on the tStates passed in. The tState value will be 4 for an opcode read and 3
-	* for a data read.
+	* for a data read. Once 
 	*/
-	func internalReadAddress(address: Word, tStates: Int) -> (Byte) {
+	func coreMemoryRead(address: Word, tStates: Int) -> (Byte) {
 		
 		// First of all call out to see if any contention needs to be added. This is managed by the emulator
 		externalContendRead(address, tStates: self.tStates)
@@ -524,27 +514,27 @@ class SwiftZ80Core
 		self.tStates += tStates
 		
 		// Return the byte returned from calling the external memory read
-		return memoryReadAddress(address)
+		return externalMemoryRead(address)
 		
 	}
 
 	/**
-	* Internal Write Address
+	* Core memory read
 	*/
-	func internalWriteAddress(address: Word, value: Byte) {
+	func coreMemoryWrite(address: Word, value: Byte) {
 		
 		externalContendWriteNoMreq(address, tStates: self.tStates)
 		
 		// Writing data to memory always uses 3 tStates
 		self.tStates += 3
 		
-		memoryWriteAddress(address, value: value)
+		externalMemoryWrite(address, value: value)
 	}
 	
 	/**
-	* Contend Read No Mreq
+	* Core memory contention 
 	*/
-	func contend_read_no_mreq(address: Word, tStates: Int) {
+	func coreMemoryContention(address: Word, tStates: Int) {
 
 		// Check for any contention based on the address and tStates passed in
 		externalContendReadNoMreq(address, tStates: tStates)
@@ -554,19 +544,17 @@ class SwiftZ80Core
 	}
 
 	/**
-	* Contend Write No Mreq
+	* Core IO Read
 	*/
-	func contend_write_no_mreq(address: Word, tStates: Int) {
-		externalContendWriteNoMreq(address, tStates: tStates)
-		self.tStates += tStates
+	func coreIORead(address: Word) -> (Byte) {
+		return externalIORead(address)
 	}
 
 	/**
-	* Contend Read
+	* Core IO Read
 	*/
-	func contend_read(address: Word, tStates: Int) {
-		externalContendRead(address, tStates: tStates)
-		self.tStates += tStates
+	func coreIOWrite(address: Word, value: Byte) {
+		externalIOWrite(address, value: value)
 	}
-
+	
 }

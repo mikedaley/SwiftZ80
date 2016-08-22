@@ -21,8 +21,8 @@ class SwiftZ80CoreTest {
 		
 		core = SwiftZ80Core.init(memoryRead: readFromMemoryAddress,
 		                         memoryWrite: writeToMemoryAddress,
-		                         ioRead: ioReadAddress,
-		                         ioWrite: ioWriteAddress,
+		                         ioRead: externalIORead,
+		                         ioWrite: externalIOWrite,
 		                         contentionReadNoMREQ: contentionReadNoMREQAddress,
 		                         contentionWriteNoMREQ: contentionWriteNoMREQAddress,
 		                         contentionRead: contentionReadAddress)
@@ -43,7 +43,7 @@ class SwiftZ80CoreTest {
 		memory[address] = value
 	}
 	
-	func ioReadAddress(address: Word) -> Byte {
+	func externalIORead(address: Word) -> Byte {
 		
 		if address & 0xc000 == 0x4000 {
             outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
@@ -73,7 +73,7 @@ class SwiftZ80CoreTest {
 		return Byte(address >> 8)
 	}
 	
-	func ioWriteAddress(address: Word, value: Byte) {
+	func externalIOWrite(address: Word, value: Byte) {
 		
 		if address & 0xc000 == 0x4000 {
             outputString = outputString.stringByAppendingFormat("%5d PC %04x\n", core!.tStates, address)
