@@ -516,7 +516,7 @@ extension SwiftZ80Core {
             internalWriteAddress(HL,value: L)
             break
         case 0x76:		/* HALT */
-            halted = 0x01
+            halted = true
             PC = PC - 1
             break
         case 0x77:		/* LD (HL),A */
@@ -1106,8 +1106,7 @@ extension SwiftZ80Core {
         case 0xfb:		/* EI */
             IFF1 = 1
             IFF2 = 1
-//            z80.interrupts_enabled_at = tstates
-//            event_add(tstates + 1, z80_interrupt_event)
+            eiHandled = true
             break
         case 0xfc:		/* CALL M,nnnn */
             if F & FLAG_S == FLAG_S {

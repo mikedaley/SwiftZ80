@@ -222,7 +222,14 @@ class SwiftZ80CoreTest {
 		let im: String = scanner!.read()!
 		core!.IM = Byte(Int(strtoul(im, nil, 16)))
 		let halted: String = scanner!.read()!
-		core!.halted = Byte(Int(strtoul(halted, nil, 16)))
+        
+        if halted == "1" {
+            core!.halted = true
+        } else {
+            core!.halted = false
+        }
+        
+//		core!.halted = Byte(Int(strtoul(halted, nil, 16)))
 
 		let tstates: String = scanner!.read()!
 		let end_tstates = Int(tstates)!

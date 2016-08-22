@@ -137,8 +137,9 @@ class ZXSpectrum48: ViewEventProtocol {
 		KeyboardEntry(keyCode: 40, mapEntry: 6, mapBit: 2),
 		KeyboardEntry(keyCode: 38, mapEntry: 6, mapBit: 3),
 		KeyboardEntry(keyCode: 4, mapEntry: 6, mapBit: 4),
-		
+
 		KeyboardEntry(keyCode: 49, mapEntry: 7, mapBit: 0),
+		KeyboardEntry(keyCode: 46, mapEntry: 7, mapBit: 2),
 		KeyboardEntry(keyCode: 45, mapEntry: 7, mapBit: 3),
 		KeyboardEntry(keyCode: 11, mapEntry: 7, mapBit: 4)
 		
@@ -238,7 +239,6 @@ class ZXSpectrum48: ViewEventProtocol {
                 }
             }
         }
-		
 		core.interrupt()
 		
 		// A frame has been finished so generate the screen image from the buffer that has been updated and
@@ -257,7 +257,7 @@ class ZXSpectrum48: ViewEventProtocol {
     // MARK: ROM loading
     
     func loadROM() {
-        let path = NSBundle.mainBundle().pathForResource("manic", ofType: "sna")
+        let path = NSBundle.mainBundle().pathForResource("elite", ofType: "sna")
         
         loadSnapShot(path!)
         return
@@ -344,9 +344,7 @@ class ZXSpectrum48: ViewEventProtocol {
 			for i in 0 ..< 8 {
 				let addr: Word = Word(address) & Word(0x100 << i)
 				if addr == 0 {
-//                    print(Byte(keyboardMap[i] & 0xff))
-//					return Byte(keyboardMap[i] & 0xff)
-                    return 0xff
+					return Byte(keyboardMap[i] & 0xff)
 				}
 			}
 		}
@@ -524,7 +522,7 @@ class ZXSpectrum48: ViewEventProtocol {
     // MARK - ViewEventProtocol functions
 	
 	func keyDown(theEvent: NSEvent) {
-		
+		print(theEvent.keyCode)
 		switch theEvent.keyCode {
 
 		case 51: // Backspace
@@ -616,7 +614,28 @@ class ZXSpectrum48: ViewEventProtocol {
 	}
 	
 	func flagsChanged(theEvent: NSEvent) {
-
+        
+        switch (theEvent.keyCode) {
+            
+        case 56: fallthrough// Left Shift
+        case 60: // Right Shift
+            if theEvent.modifierFlags.contains(.ShiftKeyMask) {
+                keyboardMap[0] &= ~0x01;
+            } else {
+                keyboardMap[0] |= 0x01;
+            }
+            break;
+        
+        case 59: // Control
+            if theEvent.modifierFlags.contains(.ControlKeyMask) {
+                keyboardMap[7] &= ~0x02;
+            } else {
+                keyboardMap[7] |= 0x02;
+            }
+            
+        default:
+            break;
+        }
 	}
     
     

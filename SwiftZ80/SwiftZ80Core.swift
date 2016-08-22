@@ -338,7 +338,7 @@ class SwiftZ80Core
 	var IM: Byte
 	
 	// General core properties
-	var halted: Byte = 0
+	var halted = false
 	var tStates: Int = 0
 	
 	// References to functions that manage memory access
@@ -365,6 +365,7 @@ class SwiftZ80Core
     var parityTable = [Byte](count: 256, repeatedValue: 0)
 	
 	var interruptRequested = false
+    var eiHandled = false
     
 	/**
 	* Initializer
@@ -398,7 +399,7 @@ class SwiftZ80Core
         IFF1 = 0x00
         IFF2 = 0x00
         IM = 0x00
-        halted = 0x00
+        halted = false
         tStates = 0x00
         
         setupTables()
@@ -440,10 +441,10 @@ class SwiftZ80Core
 		
 		let tStatesBefore = tStates
 		
-		if interruptRequested && IFF1 != 0 {
+		if interruptRequested && eiHandled == false && IFF1 != 0 {
 		
-			if halted != 0x00 {
-				halted == 0x00
+			if halted == true {
+				halted = false
 				PC += 1
 			}
 			
@@ -453,6 +454,7 @@ class SwiftZ80Core
 			R = (R & 0x80) | ((R + 1) & 0x7f)
 			
 			switch IM {
+                
 			case 0: fallthrough
 			case 1:
 				PUSH16(PCl, regH: PCh)
@@ -462,20 +464,25 @@ class SwiftZ80Core
 				
 			case 2:
 				PUSH16(PCl, regH: PCh)
-				
                 let address: Word = Word(I) << 8 | 0
 				PCl = internalReadAddress(address + 0, tStates: 3)
 				PCh = internalReadAddress(address + 1, tStates: 3)
 				tStates += 7
 				
 			default:
+                print("Unknown interrupt type")
 				break
 			}
 		}
 
+        eiHandled = false
+        
+//        print(PC.toHexString)
 		let opcode: Byte = internalReadAddress(PC, tStates: 4)
 		PC = PC &+ 1
+//        R = R &+ 1
 		lookupBaseOpcode(opcode)
+        
 		return tStates - tStatesBefore
 	
 	}
@@ -495,7 +502,7 @@ class SwiftZ80Core
         IFF1 = 0x00
         IFF2 = 0x00
         IM = 0x00
-        halted = 0x00
+        halted = false
         tStates = 0x00
 	}
 
