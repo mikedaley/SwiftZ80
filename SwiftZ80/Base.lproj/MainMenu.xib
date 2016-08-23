@@ -357,11 +357,16 @@
                 </menuItem>
                 <menuItem title="Machine" id="IWh-4i-mT1" userLabel="Machine">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Machine" id="kan-Nr-qcq" userLabel="Reset">
+                    <menu key="submenu" title="Machine" id="kan-Nr-qcq" userLabel="Machine">
                         <items>
-                            <menuItem title="Reset" keyEquivalent="R" id="oiX-eN-tjP" userLabel="Reset">
+                            <menuItem title="Reset" keyEquivalent="R" id="G9O-cv-OSx" userLabel="Reset">
                                 <connections>
-                                    <action selector="machineReset:" target="Voe-Tx-rLC" id="Z7w-b1-SrT"/>
+                                    <action selector="machineReset:" target="Voe-Tx-rLC" id="iaN-44-rHc"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Toggle Linear/Nearest Filter" keyEquivalent="L" id="oiX-eN-tjP" userLabel="Linear Screen">
+                                <connections>
+                                    <action selector="screenMagnificationFilter:" target="Voe-Tx-rLC" id="xJD-kp-l7V"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -690,13 +695,14 @@
         <window title="SwiftZ80" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="335" y="390" width="939" height="585"/>
+            <rect key="contentRect" x="335" y="390" width="320" height="256"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <value key="minSize" type="size" width="320" height="256"/>
             <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="939" height="585"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="256"/>
                 <autoresizingMask key="autoresizingMask"/>
             </view>
-            <point key="canvasLocation" x="-84.5" y="83.5"/>
+            <point key="canvasLocation" x="-648" y="-91"/>
         </window>
     </objects>
 </document>

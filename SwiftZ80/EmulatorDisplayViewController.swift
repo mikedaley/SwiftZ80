@@ -8,17 +8,25 @@
 //
 
 import Cocoa
+import SpriteKit
 
 class EmulatorDisplayViewController: NSViewController {
 	
 	var delegate: ViewEventProtocol?
+	var scene: SKScene!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
 		
 		view.wantsLayer = true
-		view.layer?.magnificationFilter = kCAFilterLinear
+//
+//		let skView = view as! SKView
+//		
+//		let scene = SpriteKitScene(size: CGSize(width: 256, height: 192))
+//		scene.scaleMode = .AspectFit
+//		skView.presentScene(scene)
+		
     }
 	
 	override func keyUp(theEvent: NSEvent) {

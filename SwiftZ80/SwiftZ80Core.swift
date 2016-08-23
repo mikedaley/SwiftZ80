@@ -347,9 +347,7 @@ class SwiftZ80Core
 	var externalMemoryWrite: (Word, value: Byte) -> ()
 	var externalIORead: (Word) -> (Byte)
 	var externalIOWrite: (Word, value: Byte) -> ()
-	var externalContendReadNoMreq: (Word, tStates: Int) -> ()
-	var externalContendWriteNoMreq: (Word, tStates: Int) -> ()
-	var externalContendRead: (Word, tStates: Int) -> ()
+	var externalMemoryContention: (Word, tStates: Int) -> ()
 	
 	// Flag tables
 	let halfcarryAddTable: [Byte] = [0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H]
@@ -367,15 +365,13 @@ class SwiftZ80Core
 	* This allows how memory is mapped and stored to be managed outside of the core making the core more
 	* general purpose.
 	*/
-	init(memoryRead: (address: Word) -> (Byte), memoryWrite: (address: Word, value: Byte) -> (), ioRead: (address: Word) -> (Byte), ioWrite: (address: Word, value: Byte) -> (), contentionReadNoMREQ: (address: Word, tStates: Int) -> (), contentionWriteNoMREQ: (address: Word, tStates: Int) -> (), contentionRead: (address: Word, tStates: Int) -> ()) {
+	init(memoryRead: (address: Word) -> (Byte), memoryWrite: (address: Word, value: Byte) -> (), ioRead: (address: Word) -> (Byte), ioWrite: (address: Word, value: Byte) -> (), memoryContention: (address: Word, tStates: Int) -> ()) {
 		
 		self.externalMemoryRead = memoryRead
 		self.externalMemoryWrite = memoryWrite
 		self.externalIORead = ioRead
 		self.externalIOWrite = ioWrite
-		self.externalContendReadNoMreq = contentionReadNoMREQ
-		self.externalContendWriteNoMreq = contentionWriteNoMREQ
-		self.externalContendRead = contentionRead
+		self.externalMemoryContention = memoryContention
 		
         R1 = Z80Registers()
         R2 = Z80Registers()
@@ -508,7 +504,7 @@ class SwiftZ80Core
 	func coreMemoryRead(address: Word, tStates: Int) -> (Byte) {
 		
 		// First of all call out to see if any contention needs to be added. This is managed by the emulator
-		externalContendRead(address, tStates: self.tStates)
+		externalMemoryContention(address, tStates: tStates)
 		
 		// Now increase the cores tState count based on the tStates passed in
 		self.tStates += tStates
@@ -523,11 +519,9 @@ class SwiftZ80Core
 	*/
 	func coreMemoryWrite(address: Word, value: Byte) {
 		
-		externalContendWriteNoMreq(address, tStates: self.tStates)
-		
 		// Writing data to memory always uses 3 tStates
+		externalMemoryContention(address, tStates: 3)
 		self.tStates += 3
-		
 		externalMemoryWrite(address, value: value)
 	}
 	
@@ -536,8 +530,7 @@ class SwiftZ80Core
 	*/
 	func coreMemoryContention(address: Word, tStates: Int) {
 
-		// Check for any contention based on the address and tStates passed in
-		externalContendReadNoMreq(address, tStates: tStates)
+		externalMemoryContention(address, tStates: tStates)
 		
 		// ...then update the cores tState count based on the tStates passed in
 		self.tStates += tStates

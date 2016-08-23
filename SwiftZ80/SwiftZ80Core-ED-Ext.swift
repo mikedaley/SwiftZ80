@@ -139,7 +139,7 @@ extension SwiftZ80Core {
             break
         case 0x5f:		/* LD A,R */
             coreMemoryContention(IR, tStates: 1)
-            A = R
+            A = (R & 0x7f)
             F = (F & FLAG_C) | SZ35Table[A] | (IFF2 != 0x00 ? FLAG_V : 0)
             break
         case 0x60:		/* IN H,(C) */

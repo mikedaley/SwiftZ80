@@ -93,6 +93,10 @@ class ZXSpectrum48: ViewEventProtocol {
 	
 	var beeperOn: Bool = false
 	
+	// MARK: Contention
+	
+	let contentionValue = [5, 4, 3, 2, 1, 0, 0, 6]
+	
 	// MARK: Keyboard
 	
 	var keyboardLookup: [KeyboardEntry] = [
@@ -146,7 +150,14 @@ class ZXSpectrum48: ViewEventProtocol {
 	]
 	
 	var keyboardMap: [Int] = [Int](count: 8, repeatedValue: 0xff)
-    
+	
+	// MARK: Audio
+	
+	let audioCore = AudioCore(sampleRate: 44100, framesPerSecond: 50)
+	var audioStepTStates: Int = 79
+	var audioTStates = 0
+	var audioValue = 0
+	
     // MARK: Init
 
     var appDelegate: AppDelegate
@@ -167,23 +178,20 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		emulationTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, emulationQueue)
 		
-		let FPS = 250.0
+		let FPS = 50.08
 		
 		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1 / FPS * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(emulationTimer) {
 			self.runFrame()
 		}
 		
-		core = SwiftZ80Core.init(memoryRead: readFromMemoryAddress,
-		                         memoryWrite: writeToMemoryAddress,
-		                         ioRead: externalIORead,
-		                         ioWrite: externalIOWrite,
-		                         contentionReadNoMREQ: contentionReadNoMREQAddress,
-		                         contentionWriteNoMREQ: contentionWriteNoMREQAddress,
-		                         contentionRead: contentionReadAddress)
-		
+		core = SwiftZ80Core.init(memoryRead: memoryRead,
+		                         memoryWrite: memoryWrite,
+		                         ioRead: ioRead,
+		                         ioWrite: ioWrite,
+		                         memoryContention: memoryContention)
 		loadROM()
-		let path = NSBundle.mainBundle().pathForResource("test", ofType: "sna")
+		let path = NSBundle.mainBundle().pathForResource("shock", ofType: "sna")
 		loadSnapShot(path!)
 	
 	}
@@ -199,19 +207,47 @@ class ZXSpectrum48: ViewEventProtocol {
     func stopExecution() {
         dispatch_suspend(emulationTimer)
     }
-    
-    func execute() -> (Int) {
-        let currentTStates = core.tStates
-        core.execute()
-        return core.tStates - currentTStates
-    }
-    
+	
+	func runFrame() {
+		
+		var count = tStatesPerFrame
+		
+		displayBuffer!.withUnsafeMutableBufferPointer { mutableDisplayBuffer -> () in
+			
+			memory.withUnsafeBufferPointer { memoryBuffer -> () in
+				
+				while count > 0 {
+					
+					if shouldReset {
+						shouldReset = false
+						count == 0
+						core.reset()
+						loadROM()
+					}
+					
+					count -= self.step(&mutableDisplayBuffer, memoryBuffer: memoryBuffer)
+				}
+			}
+		}
+		
+		core.interrupt()
+		
+		// A frame has been finished so generate the screen image from the buffer that has been updated and
+		// then use that image to update the emulation view
+		generateScreenImage()
+		dispatch_async(dispatch_get_main_queue()) {
+			self.emulationDisplayView.layer?.contents = self.imageRef
+		}
+		
+	}
+
     func step(inout mutableDisplayBuffer:UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) -> (Int) {
-        
+		
         let cpuStates = self.execute()
-        
-        updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
-        
+		
+		updateAudioWithTStates(cpuStates)
+		updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
+		
         tStatesInCurrentFrame += cpuStates
         
         if tStatesInCurrentFrame >= tStatesPerFrame {
@@ -220,41 +256,15 @@ class ZXSpectrum48: ViewEventProtocol {
         }
         return cpuStates
     }
-    
-    func runFrame() {
-        
-        var count = tStatesPerFrame
-        
-        displayBuffer!.withUnsafeMutableBufferPointer { mutableDisplayBuffer -> () in
-            
-            
-            memory.withUnsafeBufferPointer { memoryBuffer -> () in
-            
-                while count > 0 {
-                    
-                    if shouldReset {
-                        shouldReset = false
-                        count == 0
-                        core.reset()
-                        loadROM()
-                    }
-                    
-                    count -= self.step(&mutableDisplayBuffer, memoryBuffer: memoryBuffer)
-                }
-            }
-        }
-		core.interrupt()
-		
-		// A frame has been finished so generate the screen image from the buffer that has been updated and
-		// then use that image to update the emulation view
-        generateScreenImage()
-		dispatch_async(dispatch_get_main_queue()) { 
-			self.emulationDisplayView.layer?.contents = self.imageRef
-		}
-    
-    }
-    
+
+	func execute() -> (Int) {
+		let currentTStates = core.tStates
+		core.execute()
+		return core.tStates - currentTStates
+	}
+	
     func reset() {
+		keyboardMap = [Int](count: 8, repeatedValue: 0xff)
         shouldReset = true
     }
     
@@ -330,18 +340,31 @@ class ZXSpectrum48: ViewEventProtocol {
     
     // MARK: Memory IO routines
     
-    func readFromMemoryAddress(address: Word) -> Byte {
-        return memory[Int(address)]
+    func memoryRead(address: Word) -> Byte {
+		
+		return memory[Int(address)]
     }
     
-    func writeToMemoryAddress(address: Word, value: Byte) {
-        if address >= 16384 {
+    func memoryWrite(address: Word, value: Byte) {
+		
+		if address >= 16384 {
             memory[Int(address)] = value
         }
     }
     
-    func externalIORead(address: Word) -> Byte {
+    func ioRead(address: Word) -> Byte {
 		
+		if address >= 16384 && address <= 32767 {
+			
+			let line = tStatesInCurrentFrame / tStatesPerLine
+			
+			if line >= pixelLinesVerticalBlank + pixelTopBorderHeight && line < pixelLinesVerticalBlank + pixelTopBorderHeight + pixelScreenHeight {
+				let xState = (tStatesInCurrentFrame + 1) - (line * tStatesPerLine)
+				if xState < tStatesScreenWidth {
+					core!.tStates += contentionValue[tStatesInCurrentFrame & 0x07]
+				}
+			}
+		}
 		if address & 0xff == 0xfe {
 			for i in 0 ..< 8 {
 				let addr: Word = Word(address) & Word(0x100 << i)
@@ -354,25 +377,62 @@ class ZXSpectrum48: ViewEventProtocol {
 		return 0xff
     }
     
-    func externalIOWrite(address: Word, value: Byte) {
+    func ioWrite(address: Word, value: Byte) {
+		
+		if address >= 16384 && address <= 32767 {
+			
+			let line = tStatesInCurrentFrame / tStatesPerLine
+			
+			if line >= pixelLinesVerticalBlank + pixelTopBorderHeight && line < pixelLinesVerticalBlank + pixelTopBorderHeight + pixelScreenHeight {
+				let xState = (tStatesInCurrentFrame + 1) - (line * tStatesPerLine)
+				if xState < tStatesScreenWidth {
+					core!.tStates += contentionValue[tStatesInCurrentFrame & 0x07]
+				}
+			}
+		}
 		if address & 255 == 0xfe {
-			borderColour = (Int(value) & 7) << 2
+			borderColour = (Int(value) & 0x07) << 2
 			beeperOn = (value & 0x10) != 0 ? true : false
 		}
     }
     
-    func contentionReadNoMREQAddress(address: Word, tStates: Int) {
-
-    }
-    
-    func contentionWriteNoMREQAddress(address: Word, tStates: Int) {
-
-    }
-    
-    func contentionReadAddress(address: Word, tStates: Int) {
-
-    }
-    
+    func memoryContention(address: Word, tStates: Int) {
+		
+		if address >= 16384 && address <= 32767 {
+			
+			let line = tStatesInCurrentFrame / tStatesPerLine
+			
+			if line >= pixelLinesVerticalBlank + pixelTopBorderHeight && line < pixelLinesVerticalBlank + pixelTopBorderHeight + pixelScreenHeight {
+				let xState = (tStatesInCurrentFrame + 1) - (line * tStatesPerLine)
+				if xState < tStatesScreenWidth {
+					core!.tStates += contentionValue[tStatesInCurrentFrame & 0x07]
+				}
+			}
+		}
+		core!.tStates += tStates
+	}
+	
+	// MARK: Audio routines
+	
+	func updateAudioWithTStates(numberOfTstates: Int) {
+		
+		var numTStates = numberOfTstates
+		
+		while audioTStates + numTStates > audioStepTStates {
+			let tStates = audioStepTStates - audioTStates
+			audioValue += beeperOn ? (8192 * tStates) : 0
+			audioCore.updateBeeperWithValue(Float(audioValue) / Float(audioStepTStates))
+			numTStates = (audioTStates + numTStates) - audioStepTStates
+			audioValue = 0
+			audioTStates = 0
+		}
+		
+		audioValue += beeperOn ? (8192 * numTStates) : 0
+		audioTStates += numTStates
+		
+	}
+	
+	
     // MARK: Screen routines
     
     func updateScreenFromTstate(tState: Int, numberOfTstates: Int, inout mutableDisplayBuffer: UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) {
@@ -614,7 +674,7 @@ class ZXSpectrum48: ViewEventProtocol {
 	}
 	
 	func flagsChanged(theEvent: NSEvent) {
-        
+		
         switch (theEvent.keyCode) {
             
         case 56: fallthrough// Left Shift

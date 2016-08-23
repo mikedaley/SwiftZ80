@@ -21,12 +21,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	var machine: ZXSpectrum48!
 	
     var runCoreTests = false
+	
     var coreTests: SwiftZ80CoreTest = SwiftZ80CoreTest()
     
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
 		
         window.contentView?.wantsLayer = true
+		
+		window.aspectRatio = CGSize(width: 4, height: 3)
+		
 		machine = ZXSpectrum48(view: emulationDisplayViewController.view)
+		
 		setupView()
         
         if runCoreTests {
@@ -38,9 +43,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
 	func applicationWillTerminate(aNotification: NSNotification) {
-		
+		// NOTHING TO SEE HERE :)
 	}
 
+	func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication) -> Bool {
+		return true
+	}
+	
 	// MARK: User interface
 	
     func setupView() {
@@ -62,6 +71,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         machine.reset()
     }
 	
+	@IBAction func screenMagnificationFilter(sender: AnyObject) {
+		
+		if emulationDisplayViewController.view.layer?.magnificationFilter == kCAFilterNearest {
+			emulationDisplayViewController.view.layer?.magnificationFilter = kCAFilterLinear
+		} else {
+			emulationDisplayViewController.view.layer?.magnificationFilter = kCAFilterNearest
+		}
+		
+	}
 	
 
 }

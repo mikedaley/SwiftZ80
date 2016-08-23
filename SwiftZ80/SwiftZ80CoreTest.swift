@@ -23,9 +23,7 @@ class SwiftZ80CoreTest {
 		                         memoryWrite: writeToMemoryAddress,
 		                         ioRead: externalIORead,
 		                         ioWrite: externalIOWrite,
-		                         contentionReadNoMREQ: contentionReadNoMREQAddress,
-		                         contentionWriteNoMREQ: contentionWriteNoMREQAddress,
-		                         contentionRead: contentionReadAddress)
+		                         memoryContention: contentionReadNoMREQAddress)
 		
 	}
 	
@@ -131,7 +129,7 @@ class SwiftZ80CoreTest {
             outputString = ""
 		}
 
-        let resultsPath = "/Users/mdaley/Desktop/results.txt"
+        let resultsPath = "/Users/mikedaley/Desktop/results.txt"
         
         do {
             try fileString.writeToFile(resultsPath, atomically: true, encoding: NSUTF8StringEncoding)
@@ -269,7 +267,12 @@ class SwiftZ80CoreTest {
 	func dumpZ80() {
         outputString = outputString.stringByAppendingFormat("%04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x %04x\n",core!.AF, core!.BC, core!.DE, core!.HL, core!.AF_, core!.BC_, core!.DE_, core!.HL_, core!.IX, core!.IY, core!.SP, core!.PC)
 
-        outputString = outputString.stringByAppendingFormat("%02x %02x %d %d %d %d %d\n",core!.I, core!.R, core!.IFF1, core!.IFF2, core!.IM, core!.halted, core!.tStates)
+		var h: Byte = 0
+		if core!.halted {
+			h = 1
+		}
+		
+        outputString = outputString.stringByAppendingFormat("%02x %02x %d %d %d %d %d\n",core!.I, core!.R, core!.IFF1, core!.IFF2, core!.IM, h, core!.tStates)
 	}
 	
 	func dumpMemory() {

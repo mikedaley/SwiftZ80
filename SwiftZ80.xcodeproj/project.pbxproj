@@ -39,6 +39,9 @@
 		ED73AF3E1D675D59009DDBA3 /* EmulatorDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */; };
 		ED73AF3F1D675D59009DDBA3 /* EmulatorDisplayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */; };
 		ED73AF421D67691A009DDBA3 /* ViewEventProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED73AF411D67691A009DDBA3 /* ViewEventProtocol.swift */; };
+		ED73AF481D6B6710009DDBA3 /* SpriteKitScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED73AF471D6B6710009DDBA3 /* SpriteKitScene.swift */; };
+		ED73AF681D6B6C44009DDBA3 /* AudioCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED73AF671D6B6C44009DDBA3 /* AudioCore.swift */; };
+		ED73AF6A1D6B6CB6009DDBA3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED73AF691D6B6CB6009DDBA3 /* AVFoundation.framework */; };
 		ED778B6A1D509D3400727B31 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B691D509D3400727B31 /* Operators.swift */; };
 		ED778B6C1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6B1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift */; };
 		ED778B6E1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B6D1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift */; };
@@ -89,6 +92,9 @@
 		ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmulatorDisplayViewController.swift; sourceTree = "<group>"; };
 		ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EmulatorDisplayViewController.xib; sourceTree = "<group>"; };
 		ED73AF411D67691A009DDBA3 /* ViewEventProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewEventProtocol.swift; sourceTree = "<group>"; };
+		ED73AF471D6B6710009DDBA3 /* SpriteKitScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpriteKitScene.swift; sourceTree = "<group>"; };
+		ED73AF671D6B6C44009DDBA3 /* AudioCore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioCore.swift; sourceTree = "<group>"; };
+		ED73AF691D6B6CB6009DDBA3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		ED778B691D509D3400727B31 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
 		ED778B6B1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_Base-Ext.swift"; sourceTree = "<group>"; };
 		ED778B6D1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_CB-Ext.swift"; sourceTree = "<group>"; };
@@ -114,6 +120,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED73AF6A1D6B6CB6009DDBA3 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +152,7 @@
 		990448071D6798D5004667A8 /* Machines */ = {
 			isa = PBXGroup;
 			children = (
+				ED73AF661D6B6C1E009DDBA3 /* Audio Core */,
 				990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */,
 			);
 			name = Machines;
@@ -162,6 +170,7 @@
 				ED56C7451D4B59AE00541BDF /* GraphicalMemoryController.xib */,
 				ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */,
 				ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */,
+				ED73AF471D6B6710009DDBA3 /* SpriteKitScene.swift */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -188,6 +197,14 @@
 				ED73AF411D67691A009DDBA3 /* ViewEventProtocol.swift */,
 			);
 			name = Protocols;
+			sourceTree = "<group>";
+		};
+		ED73AF661D6B6C1E009DDBA3 /* Audio Core */ = {
+			isa = PBXGroup;
+			children = (
+				ED73AF671D6B6C44009DDBA3 /* AudioCore.swift */,
+			);
+			name = "Audio Core";
 			sourceTree = "<group>";
 		};
 		ED778B751D50F9E100727B31 /* Extensions/Operators */ = {
@@ -219,6 +236,7 @@
 		EDC1F0711D412C7A0026C2D2 = {
 			isa = PBXGroup;
 			children = (
+				ED73AF691D6B6CB6009DDBA3 /* AVFoundation.framework */,
 				EDC1F07C1D412C7A0026C2D2 /* SwiftZ80 */,
 				EDC1F07B1D412C7A0026C2D2 /* Products */,
 			);
@@ -370,11 +388,13 @@
 				ED778B771D50F9F500727B31 /* Array-Extensions.swift in Sources */,
 				ED778B6E1D50B9A500727B31 /* SwiftZ80Core_CB-Ext.swift in Sources */,
 				990447FD1D5FCC6A004667A8 /* ZXSpectrum48.swift in Sources */,
+				ED73AF481D6B6710009DDBA3 /* SpriteKitScene.swift in Sources */,
 				ED778B701D50B9B100727B31 /* SwiftZ80Core-ED-Ext.swift in Sources */,
 				EDAD5B991D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift in Sources */,
 				EDC1F08C1D412CB10026C2D2 /* SwiftZ80Core.swift in Sources */,
 				ED73AF3E1D675D59009DDBA3 /* EmulatorDisplayViewController.swift in Sources */,
 				ED778B721D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift in Sources */,
+				ED73AF681D6B6C44009DDBA3 /* AudioCore.swift in Sources */,
 				ED778B6A1D509D3400727B31 /* Operators.swift in Sources */,
 				ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */,
 				ED4BF39A1D5251CB003D1BDE /* Word-Extensions.swift in Sources */,
