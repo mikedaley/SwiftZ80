@@ -30,7 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		
 		window.aspectRatio = CGSize(width: 4, height: 3)
 		
-		machine = ZXSpectrum48(view: emulationDisplayViewController.view)
+		machine = ZXSpectrum48(emulationScreenView: emulationDisplayViewController.view)
 		
 		setupView()
         
@@ -48,6 +48,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 	func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication) -> Bool {
 		return true
+	}
+	
+	func application(sender: NSApplication, openFiles filenames: [String]) {
+		machine.loadSnapShot(filenames[0])
 	}
 	
 	// MARK: User interface

@@ -26,6 +26,7 @@
 		990448231D67B8B3004667A8 /* wham.sna in Resources */ = {isa = PBXBuildFile; fileRef = 990448171D67B8B3004667A8 /* wham.sna */; };
 		9977DC021D4416B900EE72C3 /* MemoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9977DC001D4416B900EE72C3 /* MemoryViewController.swift */; };
 		9977DC031D4416B900EE72C3 /* MemoryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9977DC011D4416B900EE72C3 /* MemoryViewController.xib */; };
+		ED4745CA1D6C5C4700EE9D7B /* zexall.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED4745C91D6C5C4700EE9D7B /* zexall.sna */; };
 		ED4BF3931D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */; };
 		ED4BF3951D524E2D003D1BDE /* String-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3941D524E2D003D1BDE /* String-Extensions.swift */; };
 		ED4BF3971D5250C4003D1BDE /* Byte-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3961D5250C4003D1BDE /* Byte-Extensions.swift */; };
@@ -79,6 +80,7 @@
 		990448171D67B8B3004667A8 /* wham.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = wham.sna; sourceTree = "<group>"; };
 		9977DC001D4416B900EE72C3 /* MemoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryViewController.swift; sourceTree = "<group>"; };
 		9977DC011D4416B900EE72C3 /* MemoryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MemoryViewController.xib; sourceTree = "<group>"; };
+		ED4745C91D6C5C4700EE9D7B /* zexall.sna */ = {isa = PBXFileReference; lastKnownFileType = file; name = zexall.sna; path = ../../../../Downloads/zexall.sna; sourceTree = "<group>"; };
 		ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwifZ80Core_Debug-Ext.swift"; sourceTree = "<group>"; };
 		ED4BF3941D524E2D003D1BDE /* String-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String-Extensions.swift"; sourceTree = "<group>"; };
 		ED4BF3961D5250C4003D1BDE /* Byte-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Byte-Extensions.swift"; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 		990447FE1D5FDA4D004667A8 /* ROMS */ = {
 			isa = PBXGroup;
 			children = (
+				ED4745C91D6C5C4700EE9D7B /* zexall.sna */,
 				9904480C1D67B8B3004667A8 /* agentx.sna */,
 				9904480D1D67B8B3004667A8 /* aquaplane.sna */,
 				9904480E1D67B8B3004667A8 /* DIZZY.SNA */,
@@ -152,7 +155,6 @@
 		990448071D6798D5004667A8 /* Machines */ = {
 			isa = PBXGroup;
 			children = (
-				ED73AF661D6B6C1E009DDBA3 /* Audio Core */,
 				990447FC1D5FCC6A004667A8 /* ZXSpectrum48.swift */,
 			);
 			name = Machines;
@@ -261,6 +263,7 @@
 				ED778B751D50F9E100727B31 /* Extensions/Operators */,
 				ED73AF401D6768F4009DDBA3 /* Protocols */,
 				9977DBF91D4407AE00EE72C3 /* UI */,
+				ED73AF661D6B6C1E009DDBA3 /* Audio Core */,
 				990448071D6798D5004667A8 /* Machines */,
 				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
 			);
@@ -366,6 +369,7 @@
 				990448201D67B8B3004667A8 /* shock.sna in Resources */,
 				9904481F1D67B8B3004667A8 /* RiverRaidTechDemo.sna in Resources */,
 				990448181D67B8B3004667A8 /* agentx.sna in Resources */,
+				ED4745CA1D6C5C4700EE9D7B /* zexall.sna in Resources */,
 				990448211D67B8B3004667A8 /* sound.wav in Resources */,
 				990448191D67B8B3004667A8 /* aquaplane.sna in Resources */,
 				990448091D67B614004667A8 /* test.sna in Resources */,

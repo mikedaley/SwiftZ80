@@ -475,7 +475,7 @@ class SwiftZ80Core
 	
 	}
 
-	func interrupt() {
+	func requestInterrupt() {
 		interruptRequested = true
 	}
 	
@@ -532,7 +532,6 @@ class SwiftZ80Core
 
 		externalMemoryContention(address, tStates: tStates)
 		
-		// ...then update the cores tState count based on the tStates passed in
 		self.tStates += tStates
 	}
 

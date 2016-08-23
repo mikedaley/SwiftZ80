@@ -23,7 +23,7 @@ class AudioCore {
 	
 	init(sampleRate: Double, framesPerSecond: Double) {
 	
-		frameCapacity = sampleRate / framesPerSecond
+		frameCapacity = (sampleRate / framesPerSecond) - 1
 		
 		audioEngine = AVAudioEngine()
 		playerNode = AVAudioPlayerNode()
@@ -31,7 +31,7 @@ class AudioCore {
 		mixerNode.outputVolume = 0.1
 		
 		let audioFormat = AVAudioFormat.init(commonFormat: AVAudioCommonFormat.PCMFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)
-		totalBuffers = 16
+		totalBuffers = 64
 		
 		for _ in 0 ..< totalBuffers {
 			let buffer = AVAudioPCMBuffer.init(PCMFormat: audioFormat, frameCapacity: UInt32(frameCapacity))

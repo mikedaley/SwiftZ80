@@ -94,8 +94,7 @@ class ZXSpectrum48: ViewEventProtocol {
 	var beeperOn: Bool = false
 	
 	// MARK: Contention
-	
-	let contentionValue = [5, 4, 3, 2, 1, 0, 0, 6]
+	var contentionTable = [Int](count:69889, repeatedValue: 0)
 	
 	// MARK: Keyboard
 	
@@ -162,10 +161,9 @@ class ZXSpectrum48: ViewEventProtocol {
 
     var appDelegate: AppDelegate
 
-	init(view: NSView) {
-        
-	
-		emulationDisplayView = view
+	init(emulationScreenView: NSView) {
+		
+		emulationDisplayView = emulationScreenView
 		appDelegate = NSApplication.sharedApplication().delegate as! AppDelegate
 		
 		tStatesTopBorder = pixelTopBorderHeight * tStatesPerLine
@@ -178,7 +176,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		emulationTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, emulationQueue)
 		
-		let FPS = 50.08
+		let FPS = 50.0
 		
 		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1 / FPS * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(emulationTimer) {
@@ -190,8 +188,10 @@ class ZXSpectrum48: ViewEventProtocol {
 		                         ioRead: ioRead,
 		                         ioWrite: ioWrite,
 		                         memoryContention: memoryContention)
+		
+		buildContentionTable()
 		loadROM()
-		let path = NSBundle.mainBundle().pathForResource("shock", ofType: "sna")
+		let path = NSBundle.mainBundle().pathForResource("RiverRaidTechDemo", ofType: "sna")
 		loadSnapShot(path!)
 	
 	}
@@ -230,7 +230,7 @@ class ZXSpectrum48: ViewEventProtocol {
 			}
 		}
 		
-		core.interrupt()
+		core.requestInterrupt()
 		
 		// A frame has been finished so generate the screen image from the buffer that has been updated and
 		// then use that image to update the emulation view
@@ -254,6 +254,7 @@ class ZXSpectrum48: ViewEventProtocol {
             tStatesInCurrentFrame -= tStatesPerFrame
             frameCounter += 1
         }
+		
         return cpuStates
     }
 
@@ -268,103 +269,31 @@ class ZXSpectrum48: ViewEventProtocol {
         shouldReset = true
     }
     
-    // MARK: ROM loading
-    
-    func loadROM() {
-        let path = NSBundle.mainBundle().pathForResource("48", ofType: "ROM")
-		
-        let data = NSData.init(contentsOfFile: path!)
-        let count = data!.length / sizeof(Byte)
-        var fileBytes = [Byte](count: count, repeatedValue: 0x00)
-        
-        data!.getBytes(&fileBytes, length: count * sizeof(Byte))
-        
-        for i in 0..<data!.length {
-            memory[i] = fileBytes[i]
-        }
-    }
-	
-    // MARK: Snapshot loading
-    
-    func loadSnapShot(path: String) {
-        
-        let data = NSData.init(contentsOfFile: path)
-        let count = data!.length / sizeof(Byte)
-        var fileBytes = [Byte](count: count, repeatedValue: 0x00)
-        
-        data!.getBytes(&fileBytes, length: count * sizeof(Byte))
-        
-        if data?.length == 49179 {
-            
-            var snaAddr = 27
-            for i in 16384 ..< (48 * 1024) + 16384 {
-                memory[i] = fileBytes[snaAddr]
-                snaAddr += 1
-            }
-            
-            core.I = fileBytes[0]
-            core.L_ = fileBytes[1]
-            core.H_ = fileBytes[2]
-            core.E_ = fileBytes[3]
-            core.D_ = fileBytes[4]
-            core.C_ = fileBytes[5]
-            core.B_ = fileBytes[6]
-            core.F_ = fileBytes[7]
-            core.A_ = fileBytes[8]
-            core.L = fileBytes[9]
-            core.H = fileBytes[10]
-            core.E = fileBytes[11]
-            core.D = fileBytes[12]
-            core.C = fileBytes[13]
-            core.B = fileBytes[14]
-            core.IYl = fileBytes[15]
-            core.IYh = fileBytes[16]
-            core.IXl = fileBytes[17]
-            core.IXh = fileBytes[18]
-            core.IFF2 = (fileBytes[19] >> 2) & 0x01
-            core.IFF1 = (fileBytes[19] >> 2) & 0x01
-            core.R = fileBytes[20]
-            core.F = fileBytes[21]
-            core.A = fileBytes[22]
-            core.SPl = fileBytes[23]
-            core.SPh = fileBytes[24]
-            core.IM = fileBytes[25]
-            borderColour = Int(fileBytes[26]) & 0x07
-            
-            core.PCl = memory[Int(core.SP)]
-            core.PCh = memory[Int(core.SP + 1)]
-			core.SP = core.SP &+ 2
-        }
-        
-    }
-    
     // MARK: Memory IO routines
     
     func memoryRead(address: Word) -> Byte {
 		
-		return memory[Int(address)]
+		var returnValue: Byte = 0
+		
+		memory.withUnsafeBufferPointer { memoryBuffer -> () in
+			returnValue = memoryBuffer[Int(address)]
+		}
+	
+		return returnValue
     }
     
     func memoryWrite(address: Word, value: Byte) {
 		
 		if address >= 16384 {
-            memory[Int(address)] = value
+			
+			memory.withUnsafeMutableBufferPointer { mutableMemoryBuffer -> () in
+				mutableMemoryBuffer[Int(address)] = value
+			}
         }
     }
     
     func ioRead(address: Word) -> Byte {
 		
-		if address >= 16384 && address <= 32767 {
-			
-			let line = tStatesInCurrentFrame / tStatesPerLine
-			
-			if line >= pixelLinesVerticalBlank + pixelTopBorderHeight && line < pixelLinesVerticalBlank + pixelTopBorderHeight + pixelScreenHeight {
-				let xState = (tStatesInCurrentFrame + 1) - (line * tStatesPerLine)
-				if xState < tStatesScreenWidth {
-					core!.tStates += contentionValue[tStatesInCurrentFrame & 0x07]
-				}
-			}
-		}
 		if address & 0xff == 0xfe {
 			for i in 0 ..< 8 {
 				let addr: Word = Word(address) & Word(0x100 << i)
@@ -379,17 +308,6 @@ class ZXSpectrum48: ViewEventProtocol {
     
     func ioWrite(address: Word, value: Byte) {
 		
-		if address >= 16384 && address <= 32767 {
-			
-			let line = tStatesInCurrentFrame / tStatesPerLine
-			
-			if line >= pixelLinesVerticalBlank + pixelTopBorderHeight && line < pixelLinesVerticalBlank + pixelTopBorderHeight + pixelScreenHeight {
-				let xState = (tStatesInCurrentFrame + 1) - (line * tStatesPerLine)
-				if xState < tStatesScreenWidth {
-					core!.tStates += contentionValue[tStatesInCurrentFrame & 0x07]
-				}
-			}
-		}
 		if address & 255 == 0xfe {
 			borderColour = (Int(value) & 0x07) << 2
 			beeperOn = (value & 0x10) != 0 ? true : false
@@ -398,19 +316,50 @@ class ZXSpectrum48: ViewEventProtocol {
     
     func memoryContention(address: Word, tStates: Int) {
 		
-		if address >= 16384 && address <= 32767 {
-			
-			let line = tStatesInCurrentFrame / tStatesPerLine
-			
-			if line >= pixelLinesVerticalBlank + pixelTopBorderHeight && line < pixelLinesVerticalBlank + pixelTopBorderHeight + pixelScreenHeight {
-				let xState = (tStatesInCurrentFrame + 1) - (line * tStatesPerLine)
-				if xState < tStatesScreenWidth {
-					core!.tStates += contentionValue[tStatesInCurrentFrame & 0x07]
-				}
-			}
-		}
-		core!.tStates += tStates
+// 		core.tStates += contentionTable[tStatesInCurrentFrame]
+		
 	}
+	
+	// MARK: Contention table
+	
+	func buildContentionTable() {
+		
+		for i in 0 ..< tStatesPerFrame {
+			contentionTable[i] = contentionDelayForTstate(i)
+		}
+	}
+	
+	func contentionDelayForTstate(tStates: Int) -> (Int) {
+		
+		let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
+
+		var line = 0
+		var tStatesThroughLine = 0
+		
+		line = tStates / tStatesPerLine
+		
+		tStatesThroughLine = tStates - 14335 + tStatesLeftBorderWidth
+		
+		tStatesThroughLine %= tStatesPerLine
+		
+		// No contention in upper or lower borders
+		if line < pixelTopBorderHeight || line >= pixelTopBorderHeight + pixelScreenHeight {
+			return 0
+		}
+		
+		// No contention in left border
+		if tStatesThroughLine < tStatesLeftBorderWidth {
+			return 0
+		}
+		
+		// No contention in right border
+		if tStatesThroughLine >= tStatesLeftBorderWidth + tStatesScreenWidth {
+			return 0
+		}
+		
+		return contentionValue[ tStatesThroughLine % 8 ]
+	}
+	
 	
 	// MARK: Audio routines
 	
@@ -431,7 +380,6 @@ class ZXSpectrum48: ViewEventProtocol {
 		audioTStates += numTStates
 		
 	}
-	
 	
     // MARK: Screen routines
     
@@ -697,9 +645,82 @@ class ZXSpectrum48: ViewEventProtocol {
             break;
         }
 	}
-    
-    
-    
-    
-    
+	
+	// MARK: ROM loading
+	
+	func loadROM() {
+		let path = NSBundle.mainBundle().pathForResource("48", ofType: "ROM")
+		
+		let data = NSData.init(contentsOfFile: path!)
+		let count = data!.length / sizeof(Byte)
+		var fileBytes = [Byte](count: count, repeatedValue: 0x00)
+		
+		data!.getBytes(&fileBytes, length: count * sizeof(Byte))
+		
+		for i in 0..<data!.length {
+			memory[i] = fileBytes[i]
+		}
+	}
+	
+	// MARK: Snapshot loading
+	
+	func loadSnapShot(path: String) {
+		
+		let data = NSData.init(contentsOfFile: path)
+		let count = data!.length / sizeof(Byte)
+		var fileBytes = [Byte](count: count, repeatedValue: 0x00)
+		
+		data!.getBytes(&fileBytes, length: count * sizeof(Byte))
+		
+		if data?.length == 49179 {
+			
+			var snaAddr = 27
+			for i in 16384 ..< (48 * 1024) + 16384 {
+				memory[i] = fileBytes[snaAddr]
+				snaAddr += 1
+			}
+			
+			core.I = fileBytes[0]
+			core.L_ = fileBytes[1]
+			core.H_ = fileBytes[2]
+			core.E_ = fileBytes[3]
+			core.D_ = fileBytes[4]
+			core.C_ = fileBytes[5]
+			core.B_ = fileBytes[6]
+			core.F_ = fileBytes[7]
+			core.A_ = fileBytes[8]
+			core.L = fileBytes[9]
+			core.H = fileBytes[10]
+			core.E = fileBytes[11]
+			core.D = fileBytes[12]
+			core.C = fileBytes[13]
+			core.B = fileBytes[14]
+			core.IYl = fileBytes[15]
+			core.IYh = fileBytes[16]
+			core.IXl = fileBytes[17]
+			core.IXh = fileBytes[18]
+			core.IFF2 = (fileBytes[19] >> 2) & 0x01
+			core.IFF1 = (fileBytes[19] >> 2) & 0x01
+			core.R = fileBytes[20]
+			core.F = fileBytes[21]
+			core.A = fileBytes[22]
+			core.SPl = fileBytes[23]
+			core.SPh = fileBytes[24]
+			core.IM = fileBytes[25]
+			borderColour = Int(fileBytes[26]) & 0x07
+			
+			core.PCl = memory[Int(core.SP)]
+			core.PCh = memory[Int(core.SP + 1)]
+			core.SP = core.SP &+ 2
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 }
