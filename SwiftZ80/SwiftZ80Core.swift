@@ -290,7 +290,7 @@ class SwiftZ80Core
 			return Byte(PC >> 8)
 		}
         set {
-            PC = (Word(newValue) << 8) + (PC & 0xff)
+            PC = (Word(newValue) << 8) | (PC & 0xff)
         }
 	}
     var PCl: Byte {
@@ -298,7 +298,7 @@ class SwiftZ80Core
 			return Byte(PC & 0xff)
 		}
         set {
-            PC = (PC & 0xff00) + Word(newValue)
+            PC = (PC & 0xff00) | Word(newValue)
         }
 	}
 	
@@ -308,7 +308,7 @@ class SwiftZ80Core
 			return Byte(SP >> 8)
 		}
         set {
-            SP = (Word(newValue) << 8) + (SP & 0xff)
+            SP = (Word(newValue) << 8) | (SP & 0xff)
         }
 	}
 	var SPl: Byte {
@@ -316,7 +316,7 @@ class SwiftZ80Core
 			return Byte(SP & 0xff)
 		}
         set {
-            SP = (SP & 0xff00) + Word(newValue)
+            SP = (SP & 0xff00) | Word(newValue)
         }
 	}
 	
@@ -325,7 +325,7 @@ class SwiftZ80Core
 	var I: Byte
 	var IR: Word {
 		get {
-			return ((Word(I) << 8) + (Word(R & 0x7f)))
+			return (Word(I) << 8) | (Word(R))
 		}
 	}
 	
@@ -503,15 +503,9 @@ class SwiftZ80Core
 	*/
 	func coreMemoryRead(address: Word, tStates: Int) -> (Byte) {
 		
-		// First of all call out to see if any contention needs to be added. This is managed by the emulator
 		externalMemoryContention(address, tStates: tStates)
-		
-		// Now increase the cores tState count based on the tStates passed in
 		self.tStates += tStates
-		
-		// Return the byte returned from calling the external memory read
 		return externalMemoryRead(address)
-		
 	}
 
 	/**
@@ -531,7 +525,6 @@ class SwiftZ80Core
 	func coreMemoryContention(address: Word, tStates: Int) {
 
 		externalMemoryContention(address, tStates: tStates)
-		
 		self.tStates += tStates
 	}
 

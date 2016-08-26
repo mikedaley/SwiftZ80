@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
+        <customObject id="-2" userLabel="File's Owner" customClass="SwiftZ80Application" customModule="SwiftZ80" customModuleProvider="target">
             <connections>
                 <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Uq"/>
             </connections>
@@ -359,14 +359,35 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Machine" id="kan-Nr-qcq" userLabel="Machine">
                         <items>
-                            <menuItem title="Reset" keyEquivalent="R" id="G9O-cv-OSx" userLabel="Reset">
+                            <menuItem title="Reset" keyEquivalent="r" id="G9O-cv-OSx" userLabel="Reset">
                                 <connections>
                                     <action selector="machineReset:" target="Voe-Tx-rLC" id="iaN-44-rHc"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Toggle Linear/Nearest Filter" keyEquivalent="L" id="oiX-eN-tjP" userLabel="Linear Screen">
+                            <menuItem title="Toggle Linear/Nearest Filter" keyEquivalent="l" id="oiX-eN-tjP" userLabel="Linear Screen">
                                 <connections>
                                     <action selector="screenMagnificationFilter:" target="Voe-Tx-rLC" id="xJD-kp-l7V"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="ec8-KQ-M9G"/>
+                            <menuItem title="Size x 1" tag="2" keyEquivalent="1" id="efg-e6-ycb" userLabel="Size x 1">
+                                <connections>
+                                    <action selector="animateWindowSize:" target="-1" id="pU8-4c-JEJ"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Size x 2" tag="4" keyEquivalent="2" id="hq9-NW-aG3" userLabel="Size x 2">
+                                <connections>
+                                    <action selector="animateWindowSize:" target="-1" id="3nn-h4-Nbc"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Size x 3" tag="6" keyEquivalent="3" id="E9x-Sf-Uok" userLabel="Size x 3">
+                                <connections>
+                                    <action selector="animateWindowSize:" target="-1" id="sKH-rP-Pa2"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Size x 4" tag="8" keyEquivalent="4" id="Yl9-lV-wEA" userLabel="Size x 4">
+                                <connections>
+                                    <action selector="animateWindowSize:" target="-1" id="Iur-qO-3r0"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -692,17 +713,22 @@
                 </menuItem>
             </items>
         </menu>
-        <window title="SwiftZ80" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
+        <window title="SwiftZ80" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="335" y="390" width="320" height="256"/>
+            <rect key="contentRect" x="298" y="837" width="648" height="530"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
-            <value key="minSize" type="size" width="320" height="256"/>
+            <value key="minSize" type="size" width="320" height="312"/>
             <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="256"/>
+                <rect key="frame" x="0.0" y="0.0" width="648" height="530"/>
                 <autoresizingMask key="autoresizingMask"/>
             </view>
-            <point key="canvasLocation" x="-648" y="-91"/>
+            <point key="canvasLocation" x="-1263" y="190"/>
         </window>
+        <menuItem title="Size x 3" tag="4" keyEquivalent="2" id="xTH-H2-zfo" userLabel="Size x 3">
+            <connections>
+                <action selector="animateWindowSize:" target="-1" id="gbJ-Vh-yQf"/>
+            </connections>
+        </menuItem>
     </objects>
 </document>

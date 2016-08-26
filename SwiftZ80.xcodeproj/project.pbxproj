@@ -51,6 +51,7 @@
 		ED778B741D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B731D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift */; };
 		ED778B771D50F9F500727B31 /* Array-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B761D50F9F500727B31 /* Array-Extensions.swift */; };
 		EDAD5B991D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD5B981D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift */; };
+		EDB32B211D70727F0045775E /* SwiftZ80Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB32B201D70727F0045775E /* SwiftZ80Application.swift */; };
 		EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */; };
 		EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */; };
 		EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDC1F0811D412C7A0026C2D2 /* MainMenu.xib */; };
@@ -106,6 +107,7 @@
 		ED778B761D50F9F500727B31 /* Array-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array-Extensions.swift"; sourceTree = "<group>"; };
 		EDAD5B971D534BFD00B83148 /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
 		EDAD5B981D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_Common-Ext.swift"; sourceTree = "<group>"; };
+		EDB32B201D70727F0045775E /* SwiftZ80Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80Application.swift; sourceTree = "<group>"; };
 		EDC1F07A1D412C7A0026C2D2 /* SwiftZ80.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftZ80.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDC1F07F1D412C7A0026C2D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -170,8 +172,8 @@
 				ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */,
 				ED56C7441D4B59AE00541BDF /* GraphicalMemoryController.swift */,
 				ED56C7451D4B59AE00541BDF /* GraphicalMemoryController.xib */,
-				ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */,
 				ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */,
+				ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */,
 				ED73AF471D6B6710009DDBA3 /* SpriteKitScene.swift */,
 			);
 			name = UI;
@@ -235,11 +237,20 @@
 			name = OpCodes;
 			sourceTree = "<group>";
 		};
+		EDB32B1F1D70724F0045775E /* NSApplication */ = {
+			isa = PBXGroup;
+			children = (
+				EDB32B201D70727F0045775E /* SwiftZ80Application.swift */,
+			);
+			name = NSApplication;
+			sourceTree = "<group>";
+		};
 		EDC1F0711D412C7A0026C2D2 = {
 			isa = PBXGroup;
 			children = (
 				ED73AF691D6B6CB6009DDBA3 /* AVFoundation.framework */,
 				EDC1F07C1D412C7A0026C2D2 /* SwiftZ80 */,
+				EDB32B1F1D70724F0045775E /* NSApplication */,
 				EDC1F07B1D412C7A0026C2D2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -406,6 +417,7 @@
 				ED4BF3951D524E2D003D1BDE /* String-Extensions.swift in Sources */,
 				ED778B6C1D50B74F00727B31 /* SwiftZ80Core_Base-Ext.swift in Sources */,
 				EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */,
+				EDB32B211D70727F0045775E /* SwiftZ80Application.swift in Sources */,
 				ED56C7461D4B59AE00541BDF /* GraphicalMemoryController.swift in Sources */,
 				990448061D650C12004667A8 /* SwiftZ80Core-DDFD-IY-Ext.swift in Sources */,
 				ED778B741D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift in Sources */,

@@ -15,7 +15,7 @@
         <customView id="Hz6-mo-xeY">
             <rect key="frame" x="0.0" y="0.0" width="320" height="256"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-            <point key="canvasLocation" x="429" y="396"/>
+            <point key="canvasLocation" x="-204" y="379"/>
         </customView>
     </objects>
 </document>

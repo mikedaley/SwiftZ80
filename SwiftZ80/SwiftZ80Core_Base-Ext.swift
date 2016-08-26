@@ -765,7 +765,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xc3:		/* JP nnnn */
@@ -777,7 +777,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xc5:		/* PUSH BC */
@@ -808,7 +808,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xcb:		/* shift CB */
@@ -824,7 +824,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xcd:		/* CALL nnnn */
@@ -854,13 +854,13 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates:3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xd3:		/* OUT (nn),A */
             let temp: Word = (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
             PC = PC &+ 1
-            externalIOWrite(temp, value: A)
+            coreIOWrite(temp, value: A)
             break
         case 0xd4:		/* CALL NC,nnnn */
             if F & FLAG_C != FLAG_C {
@@ -868,7 +868,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xd5:		/* PUSH DE */
@@ -907,13 +907,13 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xdb:		/* IN A,(nn) */
             let temp: Word = (Word(coreMemoryRead(PC, tStates: 3)) & 0xffff) + ((Word(A) & 0xffff) << 8)
             PC = PC &+ 1
-            A = externalIORead(temp)
+            A = coreIORead(temp)
             break
         case 0xdc:		/* CALL C,nnnn */
             if F & FLAG_C == FLAG_C {
@@ -921,7 +921,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xdd:		/* shift DD */
@@ -955,7 +955,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xe3:		/* EX (SP),HL */
@@ -975,7 +975,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xe5:		/* PUSH HL */
@@ -1006,7 +1006,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xeb:		/* EX DE,HL */
@@ -1020,7 +1020,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xed:		/* shift ED */
@@ -1054,7 +1054,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xf3:		/* DI */
@@ -1067,7 +1067,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xf5:		/* PUSH AF */
@@ -1100,7 +1100,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xfb:		/* EI */
@@ -1114,7 +1114,7 @@ extension SwiftZ80Core {
             } else {
                 coreMemoryContention(PC, tStates: 3)
                 coreMemoryContention(PC + 1, tStates: 3)
-                PC += 2
+                PC = PC &+ 2
             }
             break
         case 0xfd:		/* shift FD */

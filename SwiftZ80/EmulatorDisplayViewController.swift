@@ -20,7 +20,9 @@ class EmulatorDisplayViewController: NSViewController {
         // Do view setup here.
 		
 		view.wantsLayer = true
-//
+		view.layer?.magnificationFilter = kCAFilterNearest
+		
+
 //		let skView = view as! SKView
 //		
 //		let scene = SpriteKitScene(size: CGSize(width: 256, height: 192))

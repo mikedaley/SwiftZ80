@@ -21,7 +21,7 @@ struct Z80Registers {
 			return Byte(AF >> 8)
 		}
 		set {
-			AF = (Word(newValue) << 8) + (AF & 0xff)
+			AF = (Word(newValue) << 8) | (AF & 0xff)
 		}
 	}
 	var F: Byte {
@@ -29,7 +29,7 @@ struct Z80Registers {
 			return Byte(AF & 0xff)
 		}
 		set {
-			AF = (AF & 0xff00) + Word(newValue)
+			AF = (AF & 0xff00) | Word(newValue)
 		}
 	}
 
@@ -40,7 +40,7 @@ struct Z80Registers {
 			return Byte(BC >> 8)
 		}
 		set {
-			BC = (Word(newValue) << 8) + (BC & 0xff)
+			BC = (Word(newValue) << 8) | (BC & 0xff)
 		}
 	}
 	var C: Byte {
@@ -48,7 +48,7 @@ struct Z80Registers {
 			return Byte(BC & 0xff)
 		}
 		set {
-			BC = (BC & 0xff00) + Word(newValue)
+			BC = (BC & 0xff00) | Word(newValue)
 		}
 	}
 
@@ -59,7 +59,7 @@ struct Z80Registers {
 			return Byte(DE >> 8)
 		}
 		set {
-			DE = (Word(newValue) << 8) + (DE & 0xff)
+			DE = (Word(newValue) << 8) | (DE & 0xff)
 		}
 	}
 	var E: Byte {
@@ -67,7 +67,7 @@ struct Z80Registers {
 			return Byte(DE & 0xff)
 		}
 		set {
-			DE = (DE & 0xff00) + Word(newValue)
+			DE = (DE & 0xff00) | Word(newValue)
 		}
 	}
 	
@@ -78,7 +78,7 @@ struct Z80Registers {
 			return Byte(HL >> 8)
 		}
 		set {
-			HL = (Word(newValue) << 8) + (HL & 0xff)
+			HL = (Word(newValue) << 8) | (HL & 0xff)
 		}
 	}
 	var L: Byte {
@@ -86,7 +86,7 @@ struct Z80Registers {
 			return Byte(HL & 0xff)
 		}
 		set {
-			HL = (HL & 0xff00) + Word(newValue)
+			HL = (HL & 0xff00) | Word(newValue)
 		}
 	}
 	
@@ -97,7 +97,7 @@ struct Z80Registers {
 			return Byte(IX >> 8)
 		}
 		set {
-			IX = (Word(newValue) << 8) + (IX & 0xff)
+			IX = (Word(newValue) << 8) | (IX & 0xff)
 		}
 	}
 	var IXl: Byte {
@@ -105,7 +105,7 @@ struct Z80Registers {
 			return Byte(IX & 0xff)
 		}
 		set {
-			IX = (IX & 0xff00) + Word(newValue)
+			IX = (IX & 0xff00) | Word(newValue)
 		}
 	}
 	
@@ -116,7 +116,7 @@ struct Z80Registers {
 			return Byte(IY >> 8)
 		}
 		set {
-			IY = (Word(newValue) << 8) + (IY & 0xff)
+			IY = (Word(newValue) << 8) | (IY & 0xff)
 		}
 	}
 	var IYl: Byte {
@@ -124,7 +124,7 @@ struct Z80Registers {
 			return Byte(IY & 0xff)
 		}
 		set {
-			IY = (IY & 0xff00) + Word(newValue)
+			IY = (IY & 0xff00) | Word(newValue)
 		}
 	}
 }

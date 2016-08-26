@@ -15,7 +15,7 @@ extension SwiftZ80Core {
             Z80_IN(&B, port: BC)
             break
         case 0x41:		/* OUT (C),B */
-            externalIOWrite(BC, value: B)
+            coreIOWrite(BC, value: B)
             break
         case 0x42:		/* SBC HL,BC */
             coreMemoryContention(IR, tStates: 1)
@@ -67,7 +67,7 @@ extension SwiftZ80Core {
             Z80_IN(&C, port: BC)
             break
         case 0x49:		/* OUT (C),C */
-            externalIOWrite(BC, value: C)
+            coreIOWrite(BC, value: C)
             break
         case 0x4a:		/* ADC HL,BC */
             coreMemoryContention(IR, tStates: 1)
@@ -90,7 +90,7 @@ extension SwiftZ80Core {
             Z80_IN(&D, port: BC)
             break
         case 0x51:		/* OUT (C),D */
-            externalIOWrite(BC, value: D)
+            coreIOWrite(BC, value: D)
             break
         case 0x52:		/* SBC HL,DE */
             coreMemoryContention(IR, tStates: 1)
@@ -118,7 +118,7 @@ extension SwiftZ80Core {
             Z80_IN(&E, port: BC)
             break
         case 0x59:		/* OUT (C),E */
-            externalIOWrite(BC, value: E)
+            coreIOWrite(BC, value: E)
             break
         case 0x5a:		/* ADC HL,DE */
             coreMemoryContention(IR, tStates: 1)
@@ -146,7 +146,7 @@ extension SwiftZ80Core {
             Z80_IN(&H, port: BC)
             break
         case 0x61:		/* OUT (C),H */
-            externalIOWrite(BC, value: H)
+            coreIOWrite(BC, value: H)
             break
         case 0x62:		/* SBC HL,HL */
             coreMemoryContention(IR, tStates: 1)
@@ -175,7 +175,7 @@ extension SwiftZ80Core {
             Z80_IN(&L, port: BC)
             break
         case 0x69:		/* OUT (C),L */
-            externalIOWrite(BC, value: L)
+            coreIOWrite(BC, value: L)
             break
         case 0x6a:		/* ADC HL,HL */
             coreMemoryContention(IR, tStates: 1)
@@ -205,7 +205,7 @@ extension SwiftZ80Core {
 			Z80_IN(&temp, port: BC)
 			break
         case 0x71:		/* OUT (C),0 */
-            externalIOWrite(BC, value: 0)
+            coreIOWrite(BC, value: 0)
             break
         case 0x72:		/* SBC HL,SP */
             coreMemoryContention(IR, tStates: 1)
@@ -224,7 +224,7 @@ extension SwiftZ80Core {
             Z80_IN(&A, port: BC)
             break
         case 0x79:		/* OUT (C),A */
-            externalIOWrite(BC, value: A)
+            coreIOWrite(BC, value: A)
             break
         case 0x7a:		/* ADC HL,SP */
             coreMemoryContention(IR, tStates: 1)
@@ -273,7 +273,7 @@ extension SwiftZ80Core {
             var temp1: Byte
 			
             coreMemoryContention(IR, tStates: 1)
-            temp1 = externalIORead(BC)
+            temp1 = coreIORead(BC)
             coreMemoryWrite(HL, value: temp1)
             
             B = B &- 1
@@ -291,7 +291,7 @@ extension SwiftZ80Core {
 			coreMemoryContention(IR, tStates: 1)
             temp1 = coreMemoryRead(HL, tStates: 3)
             B = B &- 1	/* This does happen first, despite what the specs say */
-            externalIOWrite(BC, value: temp1)
+            coreIOWrite(BC, value: temp1)
             
             HL = HL &+ 1
 
@@ -335,7 +335,7 @@ extension SwiftZ80Core {
             var temp1: Byte
 
 			coreMemoryContention(IR, tStates: 1)
-            temp1 = externalIORead(BC)
+            temp1 = coreIORead(BC)
             coreMemoryWrite(HL, value: temp1)
             
             B = B &- 1
@@ -354,7 +354,7 @@ extension SwiftZ80Core {
             coreMemoryContention(IR, tStates: 1)
             temp1 = coreMemoryRead(HL, tStates: 3)
             B = B &- 1	/* This does happen first, despite what the specs say */
-            externalIOWrite(BC, value: temp1)
+            coreIOWrite(BC, value: temp1)
             
             HL = HL &- 1
 			
@@ -421,7 +421,7 @@ extension SwiftZ80Core {
             var temp2: Byte
             
             coreMemoryContention(IR, tStates: 1)
-            temp1 = externalIORead(BC)
+            temp1 = coreIORead(BC)
             coreMemoryWrite(HL, value: temp1)
             
             B = B &- 1
@@ -445,7 +445,7 @@ extension SwiftZ80Core {
             coreMemoryContention(IR, tStates: 1)
             temp1 = coreMemoryRead(HL, tStates: 3)
             B = B &- 1	/* This does happen first, despite what the specs say */
-            externalIOWrite(BC, value: temp1)
+            coreIOWrite(BC, value: temp1)
             
             HL = HL &+ 1
             temp2 = temp1 &+ L
@@ -514,7 +514,7 @@ extension SwiftZ80Core {
             var temp2: Byte
             
             coreMemoryContention(IR, tStates: 1)
-            temp1 = externalIORead(BC)
+            temp1 = coreIORead(BC)
             coreMemoryWrite(HL, value: temp1)
             
             B = B &- 1
@@ -539,7 +539,7 @@ extension SwiftZ80Core {
             coreMemoryContention(IR, tStates: 1)
             temp1 = coreMemoryRead(HL, tStates: 3)
             B  = B &- 1	/* This does happen first, despite what the specs say */
-            externalIOWrite(BC, value : temp1)
+            coreIOWrite(BC, value : temp1)
             
             HL = HL &- 1
             temp2 = temp1 &+ L

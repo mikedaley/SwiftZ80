@@ -215,7 +215,7 @@ extension SwiftZ80Core {
      */
     func Z80_IN(inout register: Byte, port: Word) {
         
-        register = externalIORead(port)
+        register = coreIORead(port)
         F = (F & FLAG_C) | SZ35Table[register] | parityTable[register]
         
     }

@@ -23,12 +23,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var runCoreTests = false
 	
     var coreTests: SwiftZ80CoreTest = SwiftZ80CoreTest()
+	
+	var windowWidthConstraint: NSLayoutConstraint!
+	var windowHeightConstraint: NSLayoutConstraint!
     
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
 		
         window.contentView?.wantsLayer = true
-		
-		window.aspectRatio = CGSize(width: 4, height: 3)
+		window.aspectRatio = CGSize(width: 4.0, height: 3.8)
 		
 		machine = ZXSpectrum48(emulationScreenView: emulationDisplayViewController.view)
 		
@@ -54,20 +56,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		machine.loadSnapShot(filenames[0])
 	}
 	
+
 	// MARK: User interface
 	
     func setupView() {
+		
 		window.contentView?.addSubview(emulationDisplayViewController.view)
+		
 		emulationDisplayViewController.view.translatesAutoresizingMaskIntoConstraints = false
         var constraints = [NSLayoutConstraint]()
         let views = ["emulationDisplayView" : emulationDisplayViewController.view]
+		
+		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 1.0, constant: 640.0)
+		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 1.0, constant: 608.0)
+		
+		window.contentView!.addConstraint(windowWidthConstraint)
+		window.contentView!.addConstraint(windowHeightConstraint)
+		
         let vertEmulationViewConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[emulationDisplayView]|", options: [], metrics: nil, views: views)
         constraints += vertEmulationViewConstraints
-        let horizEmulationViewConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[emulationDisplayView]|", options: [], metrics: nil, views: views)
-        constraints += horizEmulationViewConstraints
-        window.contentView!.addConstraints(constraints)
+		
+		let horizEmulationViewConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[emulationDisplayView]|", options: [], metrics: nil, views: views)
+		constraints += horizEmulationViewConstraints
+		
+		window.contentView!.addConstraints(constraints)
 		
 		window.makeFirstResponder(emulationDisplayViewController.view)
+		
 		emulationDisplayViewController.delegate = machine
 	}
 	
@@ -82,6 +97,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		} else {
 			emulationDisplayViewController.view.layer?.magnificationFilter = kCAFilterNearest
 		}
+		
+	}
+	
+	@IBAction func animateWindowSize(sender: AnyObject) {
+
+		NSAnimationContext.runAnimationGroup({ (context: NSAnimationContext) in
+			
+			context.duration = 0.2
+			context.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+			
+			self.windowWidthConstraint.animator().constant = 320 * CGFloat(sender.tag) / 2.0
+			self.windowHeightConstraint.animator().constant = 304 * CGFloat(sender.tag) / 2.0
+			
+			}, completionHandler: nil)
 		
 	}
 	

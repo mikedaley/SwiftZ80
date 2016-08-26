@@ -38,7 +38,6 @@ class ZXSpectrum48: ViewEventProtocol {
 	
     // MARK: General emulation properties
     
-    var tStatesInCurrentFrame: Int = 0
     var shouldReset: Bool = false
 
     //MARK : Screen details
@@ -46,9 +45,9 @@ class ZXSpectrum48: ViewEventProtocol {
     let pixelLeftBorderWidth = 32
     let pixelScreenWidth = 256
     let pixelRightBorderWidth = 32
-    let pixelTopBorderHeight = 32			//56
+    let pixelTopBorderHeight = 56			//56
     let pixelScreenHeight = 192
-    let pixelBottomBorderHeight:Int = 32	//56
+    let pixelBottomBorderHeight:Int = 56	//56
     let pixelLinesVerticalBlank = 8
     
     let tStatesPerFrame = 69888
@@ -56,11 +55,11 @@ class ZXSpectrum48: ViewEventProtocol {
     
     let tStatesLeftBorderWidth = 16
     let tStatesScreenWidth = 128
-    let tStatesScreenHeight = 43008
+    let tStatesScreenHeight = 192 * 224
     let tStatesRightBorderWidth = 32
     let tStatesHorizontalFlyback = 48
     
-    var tStatesVerticalBlank = 1792
+    var tStatesVerticalBlank = 0
     var tStatesTopBorder: Int
     var tStatesBottomBorder: Int
     
@@ -69,6 +68,9 @@ class ZXSpectrum48: ViewEventProtocol {
     
     var pixelBeamXPos: Int = 0
     var pixelBeamYPos: Int = 0
+	
+	let pixelVBeamStart = 8 + (56 - 32)
+	let pixelVBeamStop = 8 + 56 + 192 + 32
 
     var borderColour: Int = (7 & 0x07) << 2
     var imageRef: CGImageRef?
@@ -153,9 +155,11 @@ class ZXSpectrum48: ViewEventProtocol {
 	// MARK: Audio
 	
 	let audioCore = AudioCore(sampleRate: 44100, framesPerSecond: 50)
-	var audioStepTStates: Int = 79
+	var audioStepTStates: Int = (69888 * 50) / 44100
 	var audioTStates = 0
 	var audioValue = 0
+	var tweak = 0
+	var cpuStatesTweak = 0
 	
     // MARK: Init
 
@@ -166,6 +170,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		emulationDisplayView = emulationScreenView
 		appDelegate = NSApplication.sharedApplication().delegate as! AppDelegate
 		
+		tStatesVerticalBlank = pixelLinesVerticalBlank * tStatesPerLine
 		tStatesTopBorder = pixelTopBorderHeight * tStatesPerLine
 		tStatesBottomBorder = pixelBottomBorderHeight * tStatesPerLine
 		pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth
@@ -178,9 +183,19 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		let FPS = 50.0
 		
-		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1 / FPS * Double(NSEC_PER_SEC)), 0)
+		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1.0 / FPS * Double(NSEC_PER_SEC)), 0)
 		dispatch_source_set_event_handler(emulationTimer) {
 			self.runFrame()
+
+			self.core.requestInterrupt()
+			
+			// A frame has been finished so generate the screen image from the buffer that has been updated and
+			// then use that image to update the emulation view
+			self.generateScreenImage()
+			dispatch_async(dispatch_get_main_queue()) {
+				self.emulationDisplayView.layer?.contents = self.imageRef
+			}
+
 		}
 		
 		core = SwiftZ80Core.init(memoryRead: memoryRead,
@@ -191,8 +206,9 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		buildContentionTable()
 		loadROM()
-		let path = NSBundle.mainBundle().pathForResource("RiverRaidTechDemo", ofType: "sna")
-		loadSnapShot(path!)
+		
+//		let path = NSBundle.mainBundle().pathForResource("manic", ofType: "sna")
+//		loadSnapShot(path!)
 	
 	}
 	
@@ -229,40 +245,22 @@ class ZXSpectrum48: ViewEventProtocol {
 				}
 			}
 		}
-		
-		core.requestInterrupt()
-		
-		// A frame has been finished so generate the screen image from the buffer that has been updated and
-		// then use that image to update the emulation view
-		generateScreenImage()
-		dispatch_async(dispatch_get_main_queue()) {
-			self.emulationDisplayView.layer?.contents = self.imageRef
-		}
-		
 	}
 
     func step(inout mutableDisplayBuffer:UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) -> (Int) {
 		
-        let cpuStates = self.execute()
+        let cpuStates = core.execute()
 		
+		updateScreenFromTstate(core.tStates, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
 		updateAudioWithTStates(cpuStates)
-		updateScreenFromTstate(tStatesInCurrentFrame, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
-		
-        tStatesInCurrentFrame += cpuStates
-        
-        if tStatesInCurrentFrame >= tStatesPerFrame {
-            tStatesInCurrentFrame -= tStatesPerFrame
-            frameCounter += 1
+
+		if core.tStates >= tStatesPerFrame {
+			core.tStates -= tStatesPerFrame
+			frameCounter += 1
         }
 		
         return cpuStates
     }
-
-	func execute() -> (Int) {
-		let currentTStates = core.tStates
-		core.execute()
-		return core.tStates - currentTStates
-	}
 	
     func reset() {
 		keyboardMap = [Int](count: 8, repeatedValue: 0xff)
@@ -273,13 +271,9 @@ class ZXSpectrum48: ViewEventProtocol {
     
     func memoryRead(address: Word) -> Byte {
 		
-		var returnValue: Byte = 0
-		
-		memory.withUnsafeBufferPointer { memoryBuffer -> () in
-			returnValue = memoryBuffer[Int(address)]
+		return memory.withUnsafeBufferPointer { memoryBuffer -> (Byte) in
+			return memoryBuffer[Int(address)]
 		}
-	
-		return returnValue
     }
     
     func memoryWrite(address: Word, value: Byte) {
@@ -316,50 +310,30 @@ class ZXSpectrum48: ViewEventProtocol {
     
     func memoryContention(address: Word, tStates: Int) {
 		
-// 		core.tStates += contentionTable[tStatesInCurrentFrame]
+		if address >= 16384 && address <= 32767 {
+			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+		}
 		
 	}
 	
 	// MARK: Contention table
 	
 	func buildContentionTable() {
-		
-		for i in 0 ..< tStatesPerFrame {
-			contentionTable[i] = contentionDelayForTstate(i)
-		}
-	}
-	
-	func contentionDelayForTstate(tStates: Int) -> (Int) {
-		
+
 		let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
 
-		var line = 0
-		var tStatesThroughLine = 0
-		
-		line = tStates / tStatesPerLine
-		
-		tStatesThroughLine = tStates - 14335 + tStatesLeftBorderWidth
-		
-		tStatesThroughLine %= tStatesPerLine
-		
-		// No contention in upper or lower borders
-		if line < pixelTopBorderHeight || line >= pixelTopBorderHeight + pixelScreenHeight {
-			return 0
+		for i in 0 ..< tStatesPerFrame {
+			
+			let tState = i - ((tStatesTopBorder + tStatesVerticalBlank) - 1)
+			
+			if tState >= 0 && tState < tStatesScreenHeight {
+				let perLine = tState % tStatesPerLine
+				if perLine < tStatesScreenWidth {
+					contentionTable[i] = contentionValue[perLine & 7]
+				}
+			}
 		}
-		
-		// No contention in left border
-		if tStatesThroughLine < tStatesLeftBorderWidth {
-			return 0
-		}
-		
-		// No contention in right border
-		if tStatesThroughLine >= tStatesLeftBorderWidth + tStatesScreenWidth {
-			return 0
-		}
-		
-		return contentionValue[ tStatesThroughLine % 8 ]
 	}
-	
 	
 	// MARK: Audio routines
 	
@@ -369,14 +343,14 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		while audioTStates + numTStates > audioStepTStates {
 			let tStates = audioStepTStates - audioTStates
-			audioValue += beeperOn ? (8192 * tStates) : 0
+			audioValue += beeperOn ? (32767 * tStates) : 0
 			audioCore.updateBeeperWithValue(Float(audioValue) / Float(audioStepTStates))
 			numTStates = (audioTStates + numTStates) - audioStepTStates
 			audioValue = 0
 			audioTStates = 0
 		}
 		
-		audioValue += beeperOn ? (8192 * numTStates) : 0
+		audioValue += beeperOn ? (32767 * numTStates) : 0
 		audioTStates += numTStates
 		
 	}
@@ -389,41 +363,39 @@ class ZXSpectrum48: ViewEventProtocol {
 		let pall : [UInt8] = [
             
             // Normal colours
-            0,   0,   0, 255,   // Blue
-            0,   0, 224, 255,   // Red
-            224,   0,   0, 255, // Magenta
-            224,   0, 224, 255, // Green
-            0, 224,   0, 255,   // Cyan
-            0, 224, 224, 255,   // Yellow
-            224, 224,   0, 255, // White
-            224, 224, 224, 255, // Black
+            0x00, 0x00, 0x00, 0xff, // Black
+            0x00, 0x00, 0xcc, 0xff, // Blue
+			0xcc, 0x00, 0x00, 0xff,	// Red
+            0xcc, 0x00, 0xcc, 0xff, // Magenta
+            0x00, 0xcc, 0x00, 0xff, // Green
+            0x00, 0xcc, 0xcc, 0xff, // Cyan
+			0xcc, 0xcc, 0x00, 0xff, // Yellow
+            0xcc, 0xcc, 0xcc, 0xff, // White
             
             // Bright colours
-            0,   0,   0, 255,
-            0,   0, 255, 255,
-            255,   0,   0, 255,
-            255,   0, 255, 255,
-            0, 255,   0, 255,
-            0, 255, 255, 255,
-            255, 255,   0, 255,
-            255, 255, 255, 255
+			0x00, 0x00, 0x00, 0xff, // Black
+			0x00, 0x00, 0xc0, 0xff, // Blue
+			0xff, 0x00, 0x00, 0xff,	// Red
+			0xff, 0x00, 0xff, 0xff, // Magenta
+			0x00, 0xff, 0x00, 0xff, // Green
+			0x00, 0xff, 0xff, 0xff, // Cyan
+			0xff, 0xff, 0x00, 0xff, // Yellow
+			0xff, 0xff, 0xff, 0xff, // White
         ]
-        
+		
         for _ in 0 ..< (numberOfTstates << 1) {
-            
+			
             let x:Int = pixelBeamXPos
             let y:Int = pixelBeamYPos - pixelLinesVerticalBlank
-            
+			
             let c1 = x < pixelDisplayWidth
-            let c2 = y < (pixelDisplayHeight + pixelBottomBorderHeight)
+            let c2 = y < pixelDisplayHeight + pixelBottomBorderHeight
             let c3 = y >= 0
-            
+			
             if c3 && c2 && c1 {
-                
 
-                
                 if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
-                    
+					
                     // Draw top or bottom border
                     let displayBufferIndex = y * pixelDisplayWidth + x
                     
@@ -459,7 +431,7 @@ class ZXSpectrum48: ViewEventProtocol {
                         var ink:Int = Int(((attributeByte & 0x07) + ((attributeByte & 0x04) >> 3)) * 4)
                         var paper:Int = Int((((attributeByte >> 3) & 0x07) + ((attributeByte & 0x40) >> 3)) * 4)
                         
-                        if (frameCounter & 16) != 0 && (attributeByte & 0x80) != 0 {
+                        if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
                             let t = ink;
                             ink = paper;
                             paper = t;
@@ -468,18 +440,14 @@ class ZXSpectrum48: ViewEventProtocol {
                         let displayBufferIndex = y * pixelDisplayWidth + x
                         
                         if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
-                            
-                            
+							
                             mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
                             mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
                             mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
                             mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
 
-                            
                         } else {
-                            
-                            
-                            
+							
                             mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
                             mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
                             mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
@@ -505,7 +473,7 @@ class ZXSpectrum48: ViewEventProtocol {
             }
             
         }
-            
+		
     }
     
     func generateScreenImage() {
@@ -578,6 +546,7 @@ class ZXSpectrum48: ViewEventProtocol {
 	}
 
 	func keyUp(theEvent: NSEvent) {
+		
 		switch theEvent.keyCode {
 			
 		case 51: // Backspace
@@ -623,8 +592,10 @@ class ZXSpectrum48: ViewEventProtocol {
 	
 	func flagsChanged(theEvent: NSEvent) {
 		
+		print(theEvent.keyCode)
+		
         switch (theEvent.keyCode) {
-            
+			
         case 56: fallthrough// Left Shift
         case 60: // Right Shift
             if theEvent.modifierFlags.contains(.ShiftKeyMask) {
@@ -718,7 +689,7 @@ class ZXSpectrum48: ViewEventProtocol {
 	
 	
 	
-	
+
 	
 	
 	

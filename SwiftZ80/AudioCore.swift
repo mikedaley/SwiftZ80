@@ -21,9 +21,11 @@ class AudioCore {
 	var lastScheduledBuffer = 0
 	var frameCapacity: Double = 0
 	
+	var tweak = 0
+	
 	init(sampleRate: Double, framesPerSecond: Double) {
 	
-		frameCapacity = (sampleRate / framesPerSecond) - 1
+		frameCapacity = 350
 		
 		audioEngine = AVAudioEngine()
 		playerNode = AVAudioPlayerNode()
@@ -31,7 +33,7 @@ class AudioCore {
 		mixerNode.outputVolume = 0.1
 		
 		let audioFormat = AVAudioFormat.init(commonFormat: AVAudioCommonFormat.PCMFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)
-		totalBuffers = 64
+		totalBuffers = 20
 		
 		for _ in 0 ..< totalBuffers {
 			let buffer = AVAudioPCMBuffer.init(PCMFormat: audioFormat, frameCapacity: UInt32(frameCapacity))
@@ -41,11 +43,13 @@ class AudioCore {
 		
 		audioEngine.attachNode(playerNode)
 		audioEngine.connect(playerNode, to: mixerNode, format: audioFormat)
+		
 		do {
 			try audioEngine.start()
 		} catch {
 			print("Failed to start the audio engine")
 		}
+		
 		playerNode.play()
 		
 		currentBuffer = 0
@@ -61,7 +65,10 @@ class AudioCore {
 		currentBufferPosition += 1
 		
 		if currentBufferPosition > Int(frameCapacity) {
-			playerNode.scheduleBuffer(buffer as! AVAudioPCMBuffer, completionHandler: nil)
+			playerNode.scheduleBuffer(buffer as! AVAudioPCMBuffer, completionHandler: {
+
+			})
+			
 			currentBufferPosition = 0
 			currentBuffer = (currentBuffer + 1) % totalBuffers
 		}
