@@ -18,6 +18,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	@IBOutlet weak var graphicalMemoryController: GraphicalMemoryController!
 	@IBOutlet weak var emulationDisplayViewController: EmulatorDisplayViewController!
 	
+	@IBOutlet weak var pcLabel: NSTextField!
+
 	var machine: ZXSpectrum48!
 	
     var runCoreTests = false
@@ -30,7 +32,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
 		
         window.contentView?.wantsLayer = true
-		window.aspectRatio = CGSize(width: 4.0, height: 3.8)
+		
+//		window.aspectRatio = CGSize(width: 19, height: 20)
 		
 		machine = ZXSpectrum48(emulationScreenView: emulationDisplayViewController.view)
 		
@@ -53,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 	
 	func application(sender: NSApplication, openFiles filenames: [String]) {
-		machine.loadSnapShot(filenames[0])
+		machine.loadSnapShotWithPath(filenames[0])
 	}
 	
 
@@ -67,8 +70,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var constraints = [NSLayoutConstraint]()
         let views = ["emulationDisplayView" : emulationDisplayViewController.view]
 		
-		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 1.0, constant: 640.0)
-		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 1.0, constant: 608.0)
+		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 1.0, constant: 320.0 * 3)
+		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 1.0, constant: 304.0 * 3)
 		
 		window.contentView!.addConstraint(windowWidthConstraint)
 		window.contentView!.addConstraint(windowHeightConstraint)

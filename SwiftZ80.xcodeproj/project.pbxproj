@@ -36,6 +36,11 @@
 		ED6B38041D43D81A00D24DA7 /* Z80Registers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B38031D43D81A00D24DA7 /* Z80Registers.swift */; };
 		ED6B38241D4A59BD00D24DA7 /* CPUViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6B38221D4A59BD00D24DA7 /* CPUViewController.swift */; };
 		ED6B38251D4A59BD00D24DA7 /* CPUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */; };
+		ED71C6DE1D70B26000403EB6 /* timing.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED71C6DD1D70B26000403EB6 /* timing.sna */; };
+		ED71C6E01D70B49100403EB6 /* minfo.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED71C6DF1D70B49100403EB6 /* minfo.sna */; };
+		ED71C6E21D70BE8400403EB6 /* border.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED71C6E11D70BE8400403EB6 /* border.sna */; };
+		ED71C6E61D70D98000403EB6 /* timings.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED71C6E51D70D98000403EB6 /* timings.sna */; };
+		ED71C6E81D71C67100403EB6 /* Out48k.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED71C6E71D71C67100403EB6 /* Out48k.sna */; };
 		ED73AF391D64C5C5009DDBA3 /* tests.expected in Resources */ = {isa = PBXBuildFile; fileRef = ED73AF381D64C5C5009DDBA3 /* tests.expected */; };
 		ED73AF3E1D675D59009DDBA3 /* EmulatorDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */; };
 		ED73AF3F1D675D59009DDBA3 /* EmulatorDisplayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */; };
@@ -91,6 +96,11 @@
 		ED6B38031D43D81A00D24DA7 /* Z80Registers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Z80Registers.swift; sourceTree = "<group>"; };
 		ED6B38221D4A59BD00D24DA7 /* CPUViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CPUViewController.swift; sourceTree = "<group>"; };
 		ED6B38231D4A59BD00D24DA7 /* CPUViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CPUViewController.xib; sourceTree = "<group>"; };
+		ED71C6DD1D70B26000403EB6 /* timing.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = timing.sna; sourceTree = "<group>"; };
+		ED71C6DF1D70B49100403EB6 /* minfo.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = minfo.sna; sourceTree = "<group>"; };
+		ED71C6E11D70BE8400403EB6 /* border.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = border.sna; sourceTree = "<group>"; };
+		ED71C6E51D70D98000403EB6 /* timings.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = timings.sna; sourceTree = "<group>"; };
+		ED71C6E71D71C67100403EB6 /* Out48k.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = Out48k.sna; sourceTree = "<group>"; };
 		ED73AF381D64C5C5009DDBA3 /* tests.expected */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tests.expected; sourceTree = "<group>"; };
 		ED73AF3C1D675D59009DDBA3 /* EmulatorDisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmulatorDisplayViewController.swift; sourceTree = "<group>"; };
 		ED73AF3D1D675D59009DDBA3 /* EmulatorDisplayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EmulatorDisplayViewController.xib; sourceTree = "<group>"; };
@@ -141,10 +151,15 @@
 				9904480F1D67B8B3004667A8 /* elite.sna */,
 				990448101D67B8B3004667A8 /* fairlight.sna */,
 				990448111D67B8B3004667A8 /* IR_Contention.sna */,
+				ED71C6E11D70BE8400403EB6 /* border.sna */,
 				990448121D67B8B3004667A8 /* paddle.sna */,
 				990448131D67B8B3004667A8 /* RiverRaidTechDemo.sna */,
+				ED71C6E71D71C67100403EB6 /* Out48k.sna */,
 				990448141D67B8B3004667A8 /* shock.sna */,
+				ED71C6E51D70D98000403EB6 /* timings.sna */,
 				990448151D67B8B3004667A8 /* sound.wav */,
+				ED71C6DD1D70B26000403EB6 /* timing.sna */,
+				ED71C6DF1D70B49100403EB6 /* minfo.sna */,
 				990448161D67B8B3004667A8 /* test1.sna */,
 				990448171D67B8B3004667A8 /* wham.sna */,
 				9904480A1D67B6D1004667A8 /* manic.sna */,
@@ -195,6 +210,23 @@
 			name = Other;
 			sourceTree = "<group>";
 		};
+		ED71C6DB1D70A0F000403EB6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ED73AF691D6B6CB6009DDBA3 /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		ED71C6DC1D70A12000403EB6 /* AppDelegate */ = {
+			isa = PBXGroup;
+			children = (
+				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
+			);
+			name = AppDelegate;
+			sourceTree = "<group>";
+		};
 		ED73AF401D6768F4009DDBA3 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -237,21 +269,19 @@
 			name = OpCodes;
 			sourceTree = "<group>";
 		};
-		EDB32B1F1D70724F0045775E /* NSApplication */ = {
+		EDB32B1F1D70724F0045775E /* SwiftZ80Application */ = {
 			isa = PBXGroup;
 			children = (
 				EDB32B201D70727F0045775E /* SwiftZ80Application.swift */,
 			);
-			name = NSApplication;
+			name = SwiftZ80Application;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		EDC1F0711D412C7A0026C2D2 = {
 			isa = PBXGroup;
 			children = (
-				ED73AF691D6B6CB6009DDBA3 /* AVFoundation.framework */,
 				EDC1F07C1D412C7A0026C2D2 /* SwiftZ80 */,
-				EDB32B1F1D70724F0045775E /* NSApplication */,
-				EDC1F07B1D412C7A0026C2D2 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -261,6 +291,7 @@
 				EDC1F07A1D412C7A0026C2D2 /* SwiftZ80.app */,
 			);
 			name = Products;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		EDC1F07C1D412C7A0026C2D2 /* SwiftZ80 */ = {
@@ -276,7 +307,10 @@
 				9977DBF91D4407AE00EE72C3 /* UI */,
 				ED73AF661D6B6C1E009DDBA3 /* Audio Core */,
 				990448071D6798D5004667A8 /* Machines */,
-				EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */,
+				ED71C6DC1D70A12000403EB6 /* AppDelegate */,
+				EDB32B1F1D70724F0045775E /* SwiftZ80Application */,
+				ED71C6DB1D70A0F000403EB6 /* Frameworks */,
+				EDC1F07B1D412C7A0026C2D2 /* Products */,
 			);
 			path = SwiftZ80;
 			sourceTree = "<group>";
@@ -365,11 +399,14 @@
 				EDFF5C291D6228960001EFDC /* tests.in in Resources */,
 				9904480B1D67B6D1004667A8 /* manic.sna in Resources */,
 				ED73AF391D64C5C5009DDBA3 /* tests.expected in Resources */,
+				ED71C6DE1D70B26000403EB6 /* timing.sna in Resources */,
 				EDC1F0801D412C7A0026C2D2 /* Assets.xcassets in Resources */,
 				ED56C7471D4B59AE00541BDF /* GraphicalMemoryController.xib in Resources */,
 				9904481B1D67B8B3004667A8 /* elite.sna in Resources */,
+				ED71C6E21D70BE8400403EB6 /* border.sna in Resources */,
 				9904481A1D67B8B3004667A8 /* DIZZY.SNA in Resources */,
 				9904481C1D67B8B3004667A8 /* fairlight.sna in Resources */,
+				ED71C6E61D70D98000403EB6 /* timings.sna in Resources */,
 				ED73AF3F1D675D59009DDBA3 /* EmulatorDisplayViewController.xib in Resources */,
 				ED6B38251D4A59BD00D24DA7 /* CPUViewController.xib in Resources */,
 				990448231D67B8B3004667A8 /* wham.sna in Resources */,
@@ -380,9 +417,11 @@
 				990448201D67B8B3004667A8 /* shock.sna in Resources */,
 				9904481F1D67B8B3004667A8 /* RiverRaidTechDemo.sna in Resources */,
 				990448181D67B8B3004667A8 /* agentx.sna in Resources */,
+				ED71C6E81D71C67100403EB6 /* Out48k.sna in Resources */,
 				ED4745CA1D6C5C4700EE9D7B /* zexall.sna in Resources */,
 				990448211D67B8B3004667A8 /* sound.wav in Resources */,
 				990448191D67B8B3004667A8 /* aquaplane.sna in Resources */,
+				ED71C6E01D70B49100403EB6 /* minfo.sna in Resources */,
 				990448091D67B614004667A8 /* test.sna in Resources */,
 				9904481E1D67B8B3004667A8 /* paddle.sna in Resources */,
 				9977DC031D4416B900EE72C3 /* MemoryViewController.xib in Resources */,

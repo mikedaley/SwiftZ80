@@ -139,7 +139,7 @@ extension SwiftZ80Core {
             break
         case 0x5f:		/* LD A,R */
             coreMemoryContention(IR, tStates: 1)
-            A = (R & 0x7f)
+            A = R
             F = (F & FLAG_C) | SZ35Table[A] | (IFF2 != 0x00 ? FLAG_V : 0)
             break
         case 0x60:		/* IN H,(C) */
@@ -425,7 +425,7 @@ extension SwiftZ80Core {
             coreMemoryWrite(HL, value: temp1)
             
             B = B &- 1
-            temp2 = temp1 + C + 1
+            temp2 = temp1 &+ C &+ 1
             F = (temp1 & 0x80 != 0x00 ? FLAG_N : 0) | ((temp2 < temp1) ? FLAG_H | FLAG_C : 0) | (parityTable[ (temp2 & 0x07) ^ B ] != 0x00 ? FLAG_P : 0) | SZ35Table[B]
             
             if B != 0x00 {

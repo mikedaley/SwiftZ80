@@ -438,10 +438,10 @@ class SwiftZ80Core
 			IFF1 = 0
 			IFF2 = 0
 			interruptRequested = false
-			
+
 			// Increment R leaving the MSB alone
 			R = (R & 0x80) | ((R &+ 1) & 0x7f)
-			
+
 			switch IM {
                 
 			case 0: fallthrough
@@ -453,7 +453,7 @@ class SwiftZ80Core
 				
 			case 2:
 				PUSH16(PCl, regH: PCh)
-                let address: Word = Word(I) << 8 | 0
+                let address: Word = Word(I) << 8 | 0xff
 				PCl = coreMemoryRead(address, tStates: 3)
 				PCh = coreMemoryRead(address + 1, tStates: 3)
 				tStates += 7
@@ -480,18 +480,21 @@ class SwiftZ80Core
 	}
 	
 	func reset() {
-        PC = 0x00
-        R = 0x00
-        I = 0x00
+        PC = 0
+        R = 0
+        I = 0
         AF = 0xffff
         AF_ = 0xffff
         SP = 0xffff
+		BC = 0xffff
+		DE = 0xffff
+		HL = 0xffff
         
-        IFF1 = 0x00
-        IFF2 = 0x00
-        IM = 0x00
+        IFF1 = 0
+        IFF2 = 00
+        IM = 0
         halted = false
-        tStates = 0x00
+        tStates = 0
 	}
 
 	// MARK: Internal memory and contention functions

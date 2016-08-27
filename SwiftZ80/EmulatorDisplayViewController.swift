@@ -14,7 +14,7 @@ class EmulatorDisplayViewController: NSViewController {
 	
 	var delegate: ViewEventProtocol?
 	var scene: SKScene!
-
+	
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.

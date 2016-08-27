@@ -14,7 +14,7 @@ class SwiftZ80Application: NSApplication {
 	
 	override func sendEvent(theEvent: NSEvent) {
 		
-		if theEvent.type == NSEventType.KeyUp && theEvent.modifierFlags .contains(.CommandKeyMask) {
+		if theEvent.type == NSEventType.KeyUp && theEvent.modifierFlags.contains(.CommandKeyMask) {
 			keyWindow?.sendEvent(theEvent)
 			
 		} else {
