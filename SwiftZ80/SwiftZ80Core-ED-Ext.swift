@@ -558,6 +558,7 @@ extension SwiftZ80Core {
 //            slt_trap(HL, A)
             break
         default:		/* All other opcodes are NOPD */
+			print("ED \(opcode)")
             break
         }
         

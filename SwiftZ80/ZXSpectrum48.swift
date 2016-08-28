@@ -9,13 +9,14 @@
 import Foundation
 import Cocoa
 
+/**
+* Structs
+*/
 public struct PixelData {
-    
-    var r: UInt8 = 255
+    var r: UInt8
     var g: UInt8
     var b: UInt8
     var a: UInt8
-    
 }
 
 public struct KeyboardEntry {
@@ -24,12 +25,24 @@ public struct KeyboardEntry {
 	var mapBit: Int
 }
 
+/**
+* Enums
+*/
 enum Event {
 	case None
 	case Reset
 	case LoadSnapShot
 }
 
+enum DisplayType: Int {
+	case Border
+	case Display
+	case Retrace
+}
+
+/**
+* Class
+*/
 class ZXSpectrum48: ViewEventProtocol {
     
     // MARK: Emulation properties
@@ -50,7 +63,7 @@ class ZXSpectrum48: ViewEventProtocol {
     
     let pixelLeftBorderWidth = 32
     let pixelScreenWidth = 256
-    let pixelRightBorderWidth = 64
+    let pixelRightBorderWidth = 32
     let pixelTopBorderHeight = 56			//56
     let pixelScreenHeight = 192
     let pixelBottomBorderHeight:Int = 56	//56
@@ -62,7 +75,7 @@ class ZXSpectrum48: ViewEventProtocol {
     
     let tStatesLeftBorderWidth = 16
     let tStatesScreenWidth = 128
-    let tStatesScreenHeight = 192 * 224
+    let tStatesScreenHeight = 43008
     let tStatesRightBorderWidth = 32
     let tStatesHorizontalFlyback = 48
     
@@ -186,8 +199,8 @@ class ZXSpectrum48: ViewEventProtocol {
 		tStatesTopBorder = pixelTopBorderHeight * tStatesPerLine
 		tStatesBottomBorder = pixelBottomBorderHeight * tStatesPerLine
 		
-		pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth + pixelHorizontalFlyback
-		pixelDisplayHeight = pixelTopBorderHeight + pixelScreenHeight + pixelBottomBorderHeight + pixelLinesVerticalBlank
+		pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth
+		pixelDisplayHeight = pixelTopBorderHeight + pixelScreenHeight + pixelBottomBorderHeight
 		
 		pixelDisplayBufferLength = pixelDisplayWidth * pixelDisplayHeight
 		displayBuffer = [PixelData](count: pixelDisplayBufferLength, repeatedValue: PixelData(r: 0xfe, g: 0xfe, b: 0xfe, a: 0xff))
@@ -235,7 +248,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		loadROM()
 		
-		if let path = NSBundle.mainBundle().pathForResource("Overscan", ofType: "sna") {
+		if let path = NSBundle.mainBundle().pathForResource("paddle", ofType: "sna") {
 			loadSnapShot(path)
 		} else {
 			print("Could not find snapshot!!")
@@ -278,12 +291,10 @@ class ZXSpectrum48: ViewEventProtocol {
 		updateAudioWithTStates(cpuStates)
 
 		if core.tStates >= tStatesPerFrame {
-//			print("New Frame")
 			self.core.requestInterrupt()
-			core.tStates = 32
-			displayBufferIndex = 0
+			core.tStates = 0
+			displayBufferIndex = 32
 			pixelBeamXPos = 0
-//			print(core.tStates)
 			frameCounter += 1
         }
 		
@@ -356,163 +367,213 @@ class ZXSpectrum48: ViewEventProtocol {
 			0xff, 0xff, 0xff, 0xff, // White
         ]
 		
+		for i in 0 ..< (numberOfTstates << 1) {
 
-		for i in 0 ..< numberOfTstates {
-			
-			var dispTState = tState + i
-			
-			if dispTState >= 69888 {
-				dispTState = i
-			}
-			
-			let retraceColour = 2 * 4
-			
-			if displayTStateTable[ dispTState ] == DisplayType.Retrace.rawValue {
-//				print("Retrace: \(dispTState)")
-				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
-				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
-				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
-				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
-				incBufferIndex()
+			let x: Int = pixelBeamXPos
+			let y: Int = pixelBeamYPos - pixelLinesVerticalBlank
 
-				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
-				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
-				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
-				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
-				incBufferIndex()
-			}
-			
-			if displayTStateTable[ dispTState ] == DisplayType.Border.rawValue {
-//				print("Border: \(dispTState)")
-				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-				incBufferIndex()
-				
-				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-				incBufferIndex()
+			let displayBufferIndex = (y * pixelDisplayWidth) + x
+
+			let c1 = x < pixelDisplayWidth
+			let c2 = y < pixelDisplayHeight + pixelBottomBorderHeight
+			let c3 = y >= 0
+
+			if c3 && c2 && c1 {
+
+				if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
+	//						print("Top/Bottom Border: \(tState + i)")
+
+					// Draw top or bottom border
+					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+
+				} else {
+
+					if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {
+	//							print("Left/Right Border: \(tState + i)")
+
+						// Draw left and right border
+						mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+						mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+						mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+						mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+
+					} else { // Must be on the screen so draw that
+	//							print("Display: \(tState + i)")
+
+						let px = x - pixelLeftBorderWidth
+						let py = y - pixelTopBorderHeight
+
+						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
+						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
+
+						let pixelByte = memoryBuffer[Int(pixelAddress)]
+						let attributeByte = memoryBuffer[Int(attributeAddress)]
+
+						var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
+						var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
+
+						if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
+							let t = ink;
+							ink = paper;
+							paper = t;
+						}
+
+						if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
+
+							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
+							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
+							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
+							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+
+						} else {
+
+							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
+							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
+							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
+							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
+
+						}
+					}
+
+				}
+
+			} else {
+	//					print("Retrace: \(tState + i)")
 			}
 
-			if displayTStateTable[ dispTState ] == DisplayType.Display.rawValue {
-//				print("Display: \(dispTState)")
-				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28] }
-				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 1] }
-				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 2] }
-				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 3] }
-				incBufferIndex()
-				
-				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28] }
-				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 1] }
-				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 2] }
-				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 3] }
-				incBufferIndex()
+			pixelBeamXPos += 1
+
+			if pixelBeamXPos >= (tStatesPerLine << 1) {
+
+				pixelBeamXPos -= (tStatesPerLine << 1)
+				pixelBeamYPos += 1
+
+				if pixelBeamYPos >= pixelDisplayHeight + pixelLinesVerticalBlank  {
+					pixelBeamYPos -= pixelDisplayHeight + pixelLinesVerticalBlank
+				}
 			}
 
 		}
 		
-		
-		
-//		for i in 0 ..< (numberOfTstates << 1) {
-//				
-//			let x: Int = pixelBeamXPos
-//			let y: Int = pixelBeamYPos - pixelLinesVerticalBlank
+//		for i in 0 ..< numberOfTstates {
 //			
-//			let displayBufferIndex = (y * pixelDisplayWidth) + x
+//			var dispTState = tState + i
 //			
-//			let c1 = x < pixelDisplayWidth
-//			let c2 = y < pixelDisplayHeight + pixelBottomBorderHeight
-//			let c3 = y >= 0
+//			if dispTState >= 69888 {
+//				dispTState = i
+//			}
 //			
-//			if c3 && c2 && c1 {
+//			let retraceColour = 2 * 4
+//			
+//			if displayTStateTable[ dispTState ] == DisplayType.Retrace.rawValue {
+////				print("Retrace: \(dispTState)")
+//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
+//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
+//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
+//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
+//				incBufferIndex()
 //
-//				if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
-////						print("Top/Bottom Border: \(tState + i)")
-//					
-//					// Draw top or bottom border
-//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-//					
+//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
+//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
+//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
+//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
+//				incBufferIndex()
+//			}
+//			
+//			if displayTStateTable[ dispTState ] == DisplayType.Border.rawValue {
+////				print("Border: \(dispTState)")
+//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+//				incBufferIndex()
+//				
+//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+//				incBufferIndex()
+//			}
+//
+//			if displayTStateTable[ dispTState ] == DisplayType.Display.rawValue {
+////				print("Display: \(dispTState)")
+//				
+//				var px = ((dispTState % tStatesPerLine)) * 2
+//				let py = (dispTState / tStatesPerLine) - pixelTopBorderHeight - pixelLinesVerticalBlank
+//				
+//				var pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
+//				var attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
+//
+//				var pixelByte = memoryBuffer[Int(pixelAddress)]
+//				var attributeByte = memoryBuffer[Int(attributeAddress)]
+//
+//				var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
+//				var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
+//
+//				if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
+//					let t = ink;
+//					ink = paper;
+//					paper = t;
+//				}
+//
+//				if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
+//
+//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
+//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
+//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
+//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+//
 //				} else {
 //
-//					if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {
-////							print("Left/Right Border: \(tState + i)")
-//						
-//						// Draw left and right border
-//						mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-//						mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-//						mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-//						mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-//						
-//					} else { // Must be on the screen so draw that
-////							print("Display: \(tState + i)")
-//						
-//						let px = x - pixelLeftBorderWidth
-//						let py = y - pixelTopBorderHeight
-//						
-//						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
-//						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
-//						
-//						let pixelByte = memoryBuffer[Int(pixelAddress)]
-//						let attributeByte = memoryBuffer[Int(attributeAddress)]
-//						
-//						var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
-//						var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
-//						
-//						if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
-//							let t = ink;
-//							ink = paper;
-//							paper = t;
-//						}
-//						
-//						if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
-//							
-//							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
-//							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
-//							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
-//							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
+//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
+//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
+//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
 //
-//						} else {
-//							
-//							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
-//							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
-//							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
-//							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
-//
-//						}
-//					}
+//				}
+//				incBufferIndex()
+//				
+//				px += 1
+//				
+//				pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
+//				attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
+//				
+//				pixelByte = memoryBuffer[Int(pixelAddress)]
+//				attributeByte = memoryBuffer[Int(attributeAddress)]
+//				
+//				paper = ((Int(attributeByte) & 0x78) >> 1)
+//				ink = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
+//				
+//				if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
+//					let t = ink;
+//					ink = paper;
+//					paper = t;
+//				}
+//				
+//				if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
+//					
+//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
+//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
+//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
+//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+//					
+//				} else {
+//					
+//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
+//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
+//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
+//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
 //					
 //				}
-//				
-//			} else {
-////					print("Retrace: \(tState + i)")
+//				incBufferIndex()
 //			}
-//				
-//			pixelBeamXPos += 1
-//			
-//			if pixelBeamXPos >= (tStatesPerLine << 1) {
-//				
-//				pixelBeamXPos -= (tStatesPerLine << 1)
-//				pixelBeamYPos += 1
-//				
-//				if pixelBeamYPos >= pixelDisplayHeight + pixelLinesVerticalBlank  {
-//					pixelBeamYPos -= pixelDisplayHeight + pixelLinesVerticalBlank
-//				}
-//			}
-//			
+//
 //		}
+		
     }
-	
-	enum DisplayType: Int {
-		case Border
-		case Display
-		case Retrace
-	}
 	
 	func buildtStateDisplayTable() {
 		
@@ -828,20 +889,49 @@ class ZXSpectrum48: ViewEventProtocol {
 	func memoryWrite(address: Word, value: Byte) {
 		
 		if address >= 16384 {
-			
 			memory.withUnsafeMutableBufferPointer { mutableMemoryBuffer -> () in
 				mutableMemoryBuffer[Int(address)] = value
 			}
 		}
 	}
 	
+	func portEarly(address: Word) {
+		if address >= 16384 && address <= 32767 {
+			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+		}
+		core.tStates += 1
+	}
+	
+	
+	func portLate(address: Word) {
+		
+		// Port late
+		if portFromULA(address) {
+			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+			core.tStates += 2
+		} else {
+			if address >= 16384 && address <= 32767 {
+				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+				core.tStates += 1
+				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+				core.tStates += 1
+				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+			} else {
+				core.tStates += 2
+			}
+		}
+	}
+	
+	func portFromULA(address: Word) -> (Bool) {
+		return (address & 1 != 0)
+	}
+	
 	/**
 	* Read a byte from the port (address) provided. This deals with contention added when reading IO ports as well
 	*/
 	func ioRead(address: Word) -> Byte {
-		
+
 		if address >= 16384 && address <= 32767 {
-			
 			if address & 1 == 0 {
 				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
 				core.tStates += 1
@@ -858,7 +948,7 @@ class ZXSpectrum48: ViewEventProtocol {
 				core.tStates += 1
 			}
 		} else {
-			
+
 			if address & 1 == 0 {
 				core.tStates += 1
 				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
@@ -885,9 +975,8 @@ class ZXSpectrum48: ViewEventProtocol {
 	* Write the supplied byte to the supplied port (address). This deals with contention when writing to an IO port
 	*/
 	func ioWrite(address: Word, value: Byte) {
-		
+
 		if address >= 16384 && address <= 32767 {
-			
 			if address & 1 == 0 {
 				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
 				core.tStates += 1
@@ -918,6 +1007,7 @@ class ZXSpectrum48: ViewEventProtocol {
 			borderColour = (Int(value) & 0x07) << 2
 			beeperOn = (value & 0x10) != 0 ? true : false
 		}
+
 	}
 	
 	func memoryContention(address: Word, tStates: Int) {
@@ -925,8 +1015,38 @@ class ZXSpectrum48: ViewEventProtocol {
 		if address >= 16384 && address <= 32767 {
 			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
 		}
+
+	}
+
+	func contendDelayCommon(time: Int, offset: Int) -> (Int) {
+		
+		let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
+
+		var line = 0
+		var tStatesThroughLine = 0
+		let DISPLAY_BORDER_WIDTH_COLS = 4
+		let lineTime = 1776
+		line = (time - lineTime) / tStatesPerLine
+		tStatesThroughLine = time - lineTime + (tStatesLeftBorderWidth - DISPLAY_BORDER_WIDTH_COLS * 4)
+		tStatesThroughLine %= tStatesPerLine
+		
+		if line < pixelTopBorderHeight || line >= pixelBottomBorderHeight + pixelScreenHeight {
+			return 0
+		}
+		
+		if tStatesThroughLine < pixelLeftBorderWidth - offset {
+			return 0
+		}
+		
+		if tStatesThroughLine >= pixelLeftBorderWidth + pixelScreenWidth - offset {
+			return 0
+		}
+		let value = tStatesThroughLine % 8
+		return contentionValue[value]
 		
 	}
+	
+	
 	
 	// MARK: Contention table
 	
@@ -957,3 +1077,125 @@ class ZXSpectrum48: ViewEventProtocol {
 	
 	
 }
+
+
+//
+//
+//			if address & 1 == 0 {
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 1
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 3
+//			} else {
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 1
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 1
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 1
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 1
+//			}
+//		} else {
+//
+//			if address & 1 == 0 {
+//				core.tStates += 10
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 3
+//			} else {
+//				core.tStates += 4
+//			}
+//		}
+//
+
+
+//		for i in 0 ..< (numberOfTstates << 1) {
+//
+//			let x: Int = pixelBeamXPos
+//			let y: Int = pixelBeamYPos - pixelLinesVerticalBlank
+//
+//			let displayBufferIndex = (y * pixelDisplayWidth) + x
+//
+//			let c1 = x < pixelDisplayWidth
+//			let c2 = y < pixelDisplayHeight + pixelBottomBorderHeight
+//			let c3 = y >= 0
+//
+//			if c3 && c2 && c1 {
+//
+//				if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
+////						print("Top/Bottom Border: \(tState + i)")
+//
+//					// Draw top or bottom border
+//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+//
+//				} else {
+//
+//					if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {
+////							print("Left/Right Border: \(tState + i)")
+//
+//						// Draw left and right border
+//						mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+//						mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+//						mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+//						mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+//
+//					} else { // Must be on the screen so draw that
+////							print("Display: \(tState + i)")
+//
+//						let px = x - pixelLeftBorderWidth
+//						let py = y - pixelTopBorderHeight
+//
+//						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
+//						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
+//
+//						let pixelByte = memoryBuffer[Int(pixelAddress)]
+//						let attributeByte = memoryBuffer[Int(attributeAddress)]
+//
+//						var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
+//						var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
+//
+//						if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
+//							let t = ink;
+//							ink = paper;
+//							paper = t;
+//						}
+//
+//						if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
+//
+//							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
+//							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
+//							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
+//							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+//
+//						} else {
+//
+//							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
+//							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
+//							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
+//							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
+//
+//						}
+//					}
+//
+//				}
+//
+//			} else {
+////					print("Retrace: \(tState + i)")
+//			}
+//
+//			pixelBeamXPos += 1
+//
+//			if pixelBeamXPos >= (tStatesPerLine << 1) {
+//
+//				pixelBeamXPos -= (tStatesPerLine << 1)
+//				pixelBeamYPos += 1
+//
+//				if pixelBeamYPos >= pixelDisplayHeight + pixelLinesVerticalBlank  {
+//					pixelBeamYPos -= pixelDisplayHeight + pixelLinesVerticalBlank
+//				}
+//			}
+//
+//		}

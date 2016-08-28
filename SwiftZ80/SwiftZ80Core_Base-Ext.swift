@@ -1135,6 +1135,7 @@ extension SwiftZ80Core {
             break
             
         default:
+			print(opcode)
             break
         }
         

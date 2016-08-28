@@ -1136,6 +1136,8 @@ extension SwiftZ80Core {
             break
             
         default:
+			print("FDCB \(opcode)")
+
             break
         }
         

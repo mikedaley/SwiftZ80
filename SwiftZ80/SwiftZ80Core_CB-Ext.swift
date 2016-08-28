@@ -855,6 +855,7 @@ extension SwiftZ80Core {
             break
             
         default:
+			print("CB \(opcode)")
             break
         }
         

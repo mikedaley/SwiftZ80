@@ -600,7 +600,8 @@ extension SwiftZ80Core {
 			//            #else			/* #ifdef HAVE_ENOUGH_MEMORY */
 			//            return 1
 			//            #endif			/* #ifdef HAVE_ENOUGH_MEMORY */
-			print("IY")
+			print("IY \(opcode)")
+
 			break
 		}
 		
