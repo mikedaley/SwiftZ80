@@ -50,11 +50,12 @@ class ZXSpectrum48: ViewEventProtocol {
     
     let pixelLeftBorderWidth = 32
     let pixelScreenWidth = 256
-    let pixelRightBorderWidth = 32
+    let pixelRightBorderWidth = 64
     let pixelTopBorderHeight = 56			//56
     let pixelScreenHeight = 192
     let pixelBottomBorderHeight:Int = 56	//56
     let pixelLinesVerticalBlank = 8
+	let pixelHorizontalFlyback = 96
     
     let tStatesPerFrame = 69888
     let tStatesPerLine = 224
@@ -72,7 +73,7 @@ class ZXSpectrum48: ViewEventProtocol {
     var pixelDisplayWidth: Int
     var pixelDisplayHeight: Int
     
-    var pixelBeamXPos: Int = 0
+    var pixelBeamXPos: Int = 32
     var pixelBeamYPos: Int = 0
 	
 
@@ -94,6 +95,7 @@ class ZXSpectrum48: ViewEventProtocol {
     let bitmapInfo: CGBitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedLast.rawValue)
     var displayBuffer: [PixelData]!
 	var emulationDisplayView: NSView!
+	var displayBufferIndex = 32
 	
 	// MARK: Sound
 	
@@ -166,12 +168,15 @@ class ZXSpectrum48: ViewEventProtocol {
 	var event: Event = Event.None
 	var snapshotPath: String = ""
 	
-	var displayTStateTable = [Int](count:69888 + 32, repeatedValue: 0)
+	var displayTStateTable = [Int](count:69888, repeatedValue: 0)
 	
     // MARK: Init
 
     var appDelegate: AppDelegate
 
+	/**
+	* Initialisation
+	*/
 	init(emulationScreenView: NSView) {
 		
 		emulationDisplayView = emulationScreenView
@@ -180,8 +185,9 @@ class ZXSpectrum48: ViewEventProtocol {
 		tStatesVerticalBlank = pixelLinesVerticalBlank * tStatesPerLine
 		tStatesTopBorder = pixelTopBorderHeight * tStatesPerLine
 		tStatesBottomBorder = pixelBottomBorderHeight * tStatesPerLine
-		pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth
-		pixelDisplayHeight = pixelTopBorderHeight + pixelScreenHeight + pixelBottomBorderHeight
+		
+		pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth + pixelHorizontalFlyback
+		pixelDisplayHeight = pixelTopBorderHeight + pixelScreenHeight + pixelBottomBorderHeight + pixelLinesVerticalBlank
 		
 		pixelDisplayBufferLength = pixelDisplayWidth * pixelDisplayHeight
 		displayBuffer = [PixelData](count: pixelDisplayBufferLength, repeatedValue: PixelData(r: 0xfe, g: 0xfe, b: 0xfe, a: 0xff))
@@ -225,9 +231,11 @@ class ZXSpectrum48: ViewEventProtocol {
 		buildContentionTable()
 		buildtStateDisplayTable()
 		
+		displayBufferIndex = 32
+		
 		loadROM()
 		
-		if let path = NSBundle.mainBundle().pathForResource("paddle", ofType: "sna") {
+		if let path = NSBundle.mainBundle().pathForResource("Overscan", ofType: "sna") {
 			loadSnapShot(path)
 		} else {
 			print("Could not find snapshot!!")
@@ -264,15 +272,18 @@ class ZXSpectrum48: ViewEventProtocol {
     func step(inout mutableDisplayBuffer:UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) -> (Int) {
 		
 		let tStatesBeforeExecute = core.tStates
-		
 		let cpuStates = core.execute()
 		
 		updateScreenFromTstate(tStatesBeforeExecute, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
 		updateAudioWithTStates(cpuStates)
 
 		if core.tStates >= tStatesPerFrame {
+//			print("New Frame")
 			self.core.requestInterrupt()
-			core.tStates -= tStatesPerFrame
+			core.tStates = 32
+			displayBufferIndex = 0
+			pixelBeamXPos = 0
+//			print(core.tStates)
 			frameCounter += 1
         }
 		
@@ -311,7 +322,14 @@ class ZXSpectrum48: ViewEventProtocol {
 	}
 	
     // MARK: Screen routines
-    
+	
+	func incBufferIndex() {
+		displayBufferIndex += 1
+		if displayBufferIndex >= pixelDisplayBufferLength {
+			displayBufferIndex = 0
+		}
+	}
+	
     func updateScreenFromTstate(tState: Int, numberOfTstates: Int, inout mutableDisplayBuffer: UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) {
 		
 		// Having the palette here and using unsafe mutable pointers reduces CPU usage by around 7%!!!
@@ -338,96 +356,156 @@ class ZXSpectrum48: ViewEventProtocol {
 			0xff, 0xff, 0xff, 0xff, // White
         ]
 		
-		for _ in 0 ..< (numberOfTstates << 1) {
-				
-			let x: Int = pixelBeamXPos
-			let y: Int = pixelBeamYPos - pixelLinesVerticalBlank
-			
-			let displayBufferIndex = (y * pixelDisplayWidth) + x
-			
-			let c1 = x < pixelDisplayWidth
-			let c2 = y < pixelDisplayHeight + pixelBottomBorderHeight
-			let c3 = y >= 0
-			
-			if c3 && c2 && c1 {
 
-				if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
-//						print("Top/Bottom Border: \(tState + i)")
-					
-					// Draw top or bottom border
-					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-					
-				} else {
-
-					if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {
-//							print("Left/Right Border: \(tState + i)")
-						
-						// Draw left and right border
-						mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-						mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-						mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-						mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-						
-					} else { // Must be on the screen so draw that
-//							print("Display: \(tState + i)")
-						
-						let px = x - pixelLeftBorderWidth
-						let py = y - pixelTopBorderHeight
-						
-						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
-						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
-						
-						let pixelByte = memoryBuffer[Int(pixelAddress)]
-						let attributeByte = memoryBuffer[Int(attributeAddress)]
-						
-						var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
-						var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
-						
-						if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
-							let t = ink;
-							ink = paper;
-							paper = t;
-						}
-						
-						if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
-							
-							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
-							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
-							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
-							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
-
-						} else {
-							
-							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
-							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
-							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
-							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
-
-						}
-					}
-					
-				}
-				
-			} else {
-//					print("Retrace: \(tState + i)")
-			}
-				
-			pixelBeamXPos += 1
+		for i in 0 ..< numberOfTstates {
 			
-			if pixelBeamXPos >= (tStatesPerLine << 1) {
-				
-				pixelBeamXPos -= (tStatesPerLine << 1)
-				pixelBeamYPos += 1
-				
-				if pixelBeamYPos >= pixelDisplayHeight + pixelLinesVerticalBlank  {
-					pixelBeamYPos -= pixelDisplayHeight + pixelLinesVerticalBlank
-				}
+			var dispTState = tState + i
+			
+			if dispTState >= 69888 {
+				dispTState = i
 			}
 			
+			let retraceColour = 2 * 4
+			
+			if displayTStateTable[ dispTState ] == DisplayType.Retrace.rawValue {
+//				print("Retrace: \(dispTState)")
+				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
+				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
+				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
+				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
+				incBufferIndex()
+
+				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
+				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
+				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
+				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
+				incBufferIndex()
+			}
+			
+			if displayTStateTable[ dispTState ] == DisplayType.Border.rawValue {
+//				print("Border: \(dispTState)")
+				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+				incBufferIndex()
+				
+				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+				incBufferIndex()
+			}
+
+			if displayTStateTable[ dispTState ] == DisplayType.Display.rawValue {
+//				print("Display: \(dispTState)")
+				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28] }
+				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 1] }
+				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 2] }
+				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 3] }
+				incBufferIndex()
+				
+				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28] }
+				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 1] }
+				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 2] }
+				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[28 + 3] }
+				incBufferIndex()
+			}
+
 		}
+		
+		
+		
+//		for i in 0 ..< (numberOfTstates << 1) {
+//				
+//			let x: Int = pixelBeamXPos
+//			let y: Int = pixelBeamYPos - pixelLinesVerticalBlank
+//			
+//			let displayBufferIndex = (y * pixelDisplayWidth) + x
+//			
+//			let c1 = x < pixelDisplayWidth
+//			let c2 = y < pixelDisplayHeight + pixelBottomBorderHeight
+//			let c3 = y >= 0
+//			
+//			if c3 && c2 && c1 {
+//
+//				if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
+////						print("Top/Bottom Border: \(tState + i)")
+//					
+//					// Draw top or bottom border
+//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+//					
+//				} else {
+//
+//					if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {
+////							print("Left/Right Border: \(tState + i)")
+//						
+//						// Draw left and right border
+//						mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
+//						mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
+//						mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
+//						mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+//						
+//					} else { // Must be on the screen so draw that
+////							print("Display: \(tState + i)")
+//						
+//						let px = x - pixelLeftBorderWidth
+//						let py = y - pixelTopBorderHeight
+//						
+//						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
+//						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
+//						
+//						let pixelByte = memoryBuffer[Int(pixelAddress)]
+//						let attributeByte = memoryBuffer[Int(attributeAddress)]
+//						
+//						var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
+//						var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
+//						
+//						if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
+//							let t = ink;
+//							ink = paper;
+//							paper = t;
+//						}
+//						
+//						if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
+//							
+//							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
+//							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
+//							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
+//							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+//
+//						} else {
+//							
+//							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
+//							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
+//							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
+//							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
+//
+//						}
+//					}
+//					
+//				}
+//				
+//			} else {
+////					print("Retrace: \(tState + i)")
+//			}
+//				
+//			pixelBeamXPos += 1
+//			
+//			if pixelBeamXPos >= (tStatesPerLine << 1) {
+//				
+//				pixelBeamXPos -= (tStatesPerLine << 1)
+//				pixelBeamYPos += 1
+//				
+//				if pixelBeamYPos >= pixelDisplayHeight + pixelLinesVerticalBlank  {
+//					pixelBeamYPos -= pixelDisplayHeight + pixelLinesVerticalBlank
+//				}
+//			}
+//			
+//		}
     }
 	
 	enum DisplayType: Int {
@@ -441,7 +519,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		var tState = 0
 
 		for _ in 0 ..< 1 {
-			for _ in 0 ..< tStatesPerLine - tStatesHorizontalFlyback {
+			for _ in 0 ..< tStatesPerLine - tStatesLeftBorderWidth {
 				displayTStateTable[tState] = DisplayType.Retrace.rawValue
 				tState += 1
 			}
@@ -511,8 +589,13 @@ class ZXSpectrum48: ViewEventProtocol {
 			}
 		}
 
+		for _ in 0 ..< tStatesLeftBorderWidth {
+			displayTStateTable[tState] = DisplayType.Retrace.rawValue
+			tState += 1
+		}
+
 	}
-    
+	
     func generateScreenImage() {
         
         let providerData = NSData(bytes: &displayBuffer!, length: displayBuffer!.count * sizeof(PixelData))
