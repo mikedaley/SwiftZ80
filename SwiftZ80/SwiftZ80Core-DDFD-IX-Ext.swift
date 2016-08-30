@@ -601,7 +601,7 @@ extension SwiftZ80Core {
             //            return 1
             //            #endif			/* #ifdef HAVE_ENOUGH_MEMORY */
 //			print("IX")
-			print("ID \(opcode)")
+			print("DDFDIX \(opcode)")
 
             break
         }

@@ -27,6 +27,7 @@
 		9977DC021D4416B900EE72C3 /* MemoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9977DC001D4416B900EE72C3 /* MemoryViewController.swift */; };
 		9977DC031D4416B900EE72C3 /* MemoryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9977DC011D4416B900EE72C3 /* MemoryViewController.xib */; };
 		99FBF3571D7622C1006522E3 /* aticatac.sna in Resources */ = {isa = PBXBuildFile; fileRef = 99FBF3561D7622C1006522E3 /* aticatac.sna */; };
+		99FBF3591D763246006522E3 /* knightlore.sna in Resources */ = {isa = PBXBuildFile; fileRef = 99FBF3581D763246006522E3 /* knightlore.sna */; };
 		ED1904CB1D732348008DB857 /* Overscan.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED1904CA1D732348008DB857 /* Overscan.sna */; };
 		ED37FCE81D75E9E800CD5735 /* cobra.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED37FCE71D75E9E800CD5735 /* cobra.sna */; };
 		ED4BF3931D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */; };
@@ -89,6 +90,7 @@
 		9977DC001D4416B900EE72C3 /* MemoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryViewController.swift; sourceTree = "<group>"; };
 		9977DC011D4416B900EE72C3 /* MemoryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MemoryViewController.xib; sourceTree = "<group>"; };
 		99FBF3561D7622C1006522E3 /* aticatac.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = aticatac.sna; sourceTree = "<group>"; };
+		99FBF3581D763246006522E3 /* knightlore.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = knightlore.sna; sourceTree = "<group>"; };
 		ED1904CA1D732348008DB857 /* Overscan.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = Overscan.sna; sourceTree = "<group>"; };
 		ED37FCE71D75E9E800CD5735 /* cobra.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = cobra.sna; sourceTree = "<group>"; };
 		ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwifZ80Core_Debug-Ext.swift"; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 				ED37FCE71D75E9E800CD5735 /* cobra.sna */,
 				990448171D67B8B3004667A8 /* wham.sna */,
 				9904480A1D67B6D1004667A8 /* manic.sna */,
+				99FBF3581D763246006522E3 /* knightlore.sna */,
 				990448081D67B614004667A8 /* test.sna */,
 				990447FF1D5FDA5E004667A8 /* 48.ROM */,
 			);
@@ -423,6 +426,7 @@
 				ED37FCE81D75E9E800CD5735 /* cobra.sna in Resources */,
 				990448221D67B8B3004667A8 /* test1.sna in Resources */,
 				990448001D5FDA5E004667A8 /* 48.ROM in Resources */,
+				99FBF3591D763246006522E3 /* knightlore.sna in Resources */,
 				990448201D67B8B3004667A8 /* shock.sna in Resources */,
 				9904481F1D67B8B3004667A8 /* RiverRaidTechDemo.sna in Resources */,
 				990448181D67B8B3004667A8 /* agentx.sna in Resources */,
