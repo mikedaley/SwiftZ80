@@ -64,9 +64,9 @@ class ZXSpectrum48: ViewEventProtocol {
     let pixelLeftBorderWidth = 32
     let pixelScreenWidth = 256
     let pixelRightBorderWidth = 32
-    let pixelTopBorderHeight = 56			//56
+    let pixelTopBorderHeight = 32
     let pixelScreenHeight = 192
-    let pixelBottomBorderHeight:Int = 56	//56
+    let pixelBottomBorderHeight = 32
     let pixelLinesVerticalBlank = 8
 	let pixelHorizontalFlyback = 96
     
@@ -80,13 +80,13 @@ class ZXSpectrum48: ViewEventProtocol {
     let tStatesHorizontalFlyback = 48
     
     var tStatesVerticalBlank = 0
-    var tStatesTopBorder: Int
-    var tStatesBottomBorder: Int
+    var tStatesTopBorder = 56 * 224
+    var tStatesBottomBorder = 56 * 224
     
     var pixelDisplayWidth: Int
     var pixelDisplayHeight: Int
     
-    var pixelBeamXPos: Int = 32
+    var pixelBeamXPos: Int = 0
     var pixelBeamYPos: Int = 0
 	
 
@@ -108,7 +108,7 @@ class ZXSpectrum48: ViewEventProtocol {
     let bitmapInfo: CGBitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedLast.rawValue)
     var displayBuffer: [PixelData]!
 	var emulationDisplayView: NSView!
-	var displayBufferIndex = 32
+	var displayBufferIndex = 0
 	
 	// MARK: Sound
 	
@@ -196,13 +196,12 @@ class ZXSpectrum48: ViewEventProtocol {
 		appDelegate = NSApplication.sharedApplication().delegate as! AppDelegate
 		
 		tStatesVerticalBlank = pixelLinesVerticalBlank * tStatesPerLine
-		tStatesTopBorder = pixelTopBorderHeight * tStatesPerLine
-		tStatesBottomBorder = pixelBottomBorderHeight * tStatesPerLine
 		
 		pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth
 		pixelDisplayHeight = pixelTopBorderHeight + pixelScreenHeight + pixelBottomBorderHeight
 		
-		pixelDisplayBufferLength = pixelDisplayWidth * pixelDisplayHeight
+		pixelDisplayBufferLength = (32 + 256 + 32) * (32 + 192 + 32)
+		
 		displayBuffer = [PixelData](count: pixelDisplayBufferLength, repeatedValue: PixelData(r: 0xfe, g: 0xfe, b: 0xfe, a: 0xff))
 		
 		emulationTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, emulationQueue)
@@ -244,11 +243,9 @@ class ZXSpectrum48: ViewEventProtocol {
 		buildContentionTable()
 		buildtStateDisplayTable()
 		
-		displayBufferIndex = 32
-		
 		loadROM()
 		
-		if let path = NSBundle.mainBundle().pathForResource("paddle", ofType: "sna") {
+		if let path = NSBundle.mainBundle().pathForResource("aquaplane", ofType: "sna") {
 			loadSnapShot(path)
 		} else {
 			print("Could not find snapshot!!")
@@ -292,9 +289,7 @@ class ZXSpectrum48: ViewEventProtocol {
 
 		if core.tStates >= tStatesPerFrame {
 			self.core.requestInterrupt()
-			core.tStates = 0
-			displayBufferIndex = 32
-			pixelBeamXPos = 0
+			core.tStates -= tStatesPerFrame
 			frameCounter += 1
         }
 		
@@ -372,15 +367,15 @@ class ZXSpectrum48: ViewEventProtocol {
 			let x: Int = pixelBeamXPos
 			let y: Int = pixelBeamYPos - pixelLinesVerticalBlank
 
-			let displayBufferIndex = (y * pixelDisplayWidth) + x
+			let displayBufferIndex = (y * (32 + 256 + 32)) + x
 
-			let c1 = x < pixelDisplayWidth
-			let c2 = y < pixelDisplayHeight + pixelBottomBorderHeight
+			let c1 = x < (32 + 256 + 32)
+			let c2 = y < (32 + 192 + 32)
 			let c3 = y >= 0
 
 			if c3 && c2 && c1 {
 
-				if y < pixelTopBorderHeight || y >= pixelScreenHeight + pixelTopBorderHeight {
+				if y < 32 || y >= (192 + 32) {
 	//						print("Top/Bottom Border: \(tState + i)")
 
 					// Draw top or bottom border
@@ -391,7 +386,7 @@ class ZXSpectrum48: ViewEventProtocol {
 
 				} else {
 
-					if x < pixelLeftBorderWidth || x >= pixelScreenWidth + pixelLeftBorderWidth {
+					if x < 32 || x >= (256 + 32) {
 	//							print("Left/Right Border: \(tState + i)")
 
 						// Draw left and right border
@@ -403,8 +398,8 @@ class ZXSpectrum48: ViewEventProtocol {
 					} else { // Must be on the screen so draw that
 	//							print("Display: \(tState + i)")
 
-						let px = x - pixelLeftBorderWidth
-						let py = y - pixelTopBorderHeight
+						let px = x - 32
+						let py = y - 32
 
 						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
 						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
@@ -415,7 +410,7 @@ class ZXSpectrum48: ViewEventProtocol {
 						var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
 						var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
 
-						if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
+						if (frameCounter & 16) != 0 && (attributeByte & 0x80) != 0 {
 							let t = ink;
 							ink = paper;
 							paper = t;
@@ -446,132 +441,17 @@ class ZXSpectrum48: ViewEventProtocol {
 
 			pixelBeamXPos += 1
 
-			if pixelBeamXPos >= (tStatesPerLine << 1) {
+			if pixelBeamXPos >= 448 {
 
-				pixelBeamXPos -= (tStatesPerLine << 1)
+				pixelBeamXPos -= 448
 				pixelBeamYPos += 1
 
-				if pixelBeamYPos >= pixelDisplayHeight + pixelLinesVerticalBlank  {
-					pixelBeamYPos -= pixelDisplayHeight + pixelLinesVerticalBlank
+				if pixelBeamYPos >= 312  {
+					pixelBeamYPos -= 312
 				}
 			}
 
 		}
-		
-//		for i in 0 ..< numberOfTstates {
-//			
-//			var dispTState = tState + i
-//			
-//			if dispTState >= 69888 {
-//				dispTState = i
-//			}
-//			
-//			let retraceColour = 2 * 4
-//			
-//			if displayTStateTable[ dispTState ] == DisplayType.Retrace.rawValue {
-////				print("Retrace: \(dispTState)")
-//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
-//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
-//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
-//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
-//				incBufferIndex()
-//
-//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour] }
-//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 1] }
-//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 2] }
-//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[retraceColour + 3] }
-//				incBufferIndex()
-//			}
-//			
-//			if displayTStateTable[ dispTState ] == DisplayType.Border.rawValue {
-////				print("Border: \(dispTState)")
-//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-//				incBufferIndex()
-//				
-//				mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-//				mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-//				mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-//				mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
-//				incBufferIndex()
-//			}
-//
-//			if displayTStateTable[ dispTState ] == DisplayType.Display.rawValue {
-////				print("Display: \(dispTState)")
-//				
-//				var px = ((dispTState % tStatesPerLine)) * 2
-//				let py = (dispTState / tStatesPerLine) - pixelTopBorderHeight - pixelLinesVerticalBlank
-//				
-//				var pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
-//				var attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
-//
-//				var pixelByte = memoryBuffer[Int(pixelAddress)]
-//				var attributeByte = memoryBuffer[Int(attributeAddress)]
-//
-//				var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
-//				var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
-//
-//				if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
-//					let t = ink;
-//					ink = paper;
-//					paper = t;
-//				}
-//
-//				if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
-//
-//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
-//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
-//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
-//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
-//
-//				} else {
-//
-//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
-//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
-//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
-//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
-//
-//				}
-//				incBufferIndex()
-//				
-//				px += 1
-//				
-//				pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
-//				attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
-//				
-//				pixelByte = memoryBuffer[Int(pixelAddress)]
-//				attributeByte = memoryBuffer[Int(attributeAddress)]
-//				
-//				paper = ((Int(attributeByte) & 0x78) >> 1)
-//				ink = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
-//				
-//				if frameCounter & 16 != 0 && attributeByte & 0x80 != 0 {
-//					let t = ink;
-//					ink = paper;
-//					paper = t;
-//				}
-//				
-//				if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
-//					
-//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
-//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
-//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
-//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
-//					
-//				} else {
-//					
-//					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
-//					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
-//					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
-//					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
-//					
-//				}
-//				incBufferIndex()
-//			}
-//
-//		}
 		
     }
 	
@@ -895,37 +775,6 @@ class ZXSpectrum48: ViewEventProtocol {
 		}
 	}
 	
-	func portEarly(address: Word) {
-		if address >= 16384 && address <= 32767 {
-			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
-		}
-		core.tStates += 1
-	}
-	
-	
-	func portLate(address: Word) {
-		
-		// Port late
-		if portFromULA(address) {
-			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
-			core.tStates += 2
-		} else {
-			if address >= 16384 && address <= 32767 {
-				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
-				core.tStates += 1
-				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
-				core.tStates += 1
-				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
-			} else {
-				core.tStates += 2
-			}
-		}
-	}
-	
-	func portFromULA(address: Word) -> (Bool) {
-		return (address & 1 != 0)
-	}
-	
 	/**
 	* Read a byte from the port (address) provided. This deals with contention added when reading IO ports as well
 	*/
@@ -1010,6 +859,9 @@ class ZXSpectrum48: ViewEventProtocol {
 
 	}
 	
+	/**
+	* Apply any machine specific contention to the core
+	*/
 	func memoryContention(address: Word, tStates: Int) {
 		
 		if address >= 16384 && address <= 32767 {
@@ -1018,35 +870,64 @@ class ZXSpectrum48: ViewEventProtocol {
 
 	}
 
-	func contendDelayCommon(time: Int, offset: Int) -> (Int) {
-		
-		let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
-
-		var line = 0
-		var tStatesThroughLine = 0
-		let DISPLAY_BORDER_WIDTH_COLS = 4
-		let lineTime = 1776
-		line = (time - lineTime) / tStatesPerLine
-		tStatesThroughLine = time - lineTime + (tStatesLeftBorderWidth - DISPLAY_BORDER_WIDTH_COLS * 4)
-		tStatesThroughLine %= tStatesPerLine
-		
-		if line < pixelTopBorderHeight || line >= pixelBottomBorderHeight + pixelScreenHeight {
-			return 0
-		}
-		
-		if tStatesThroughLine < pixelLeftBorderWidth - offset {
-			return 0
-		}
-		
-		if tStatesThroughLine >= pixelLeftBorderWidth + pixelScreenWidth - offset {
-			return 0
-		}
-		let value = tStatesThroughLine % 8
-		return contentionValue[value]
-		
-	}
-	
-	
+//	func contendDelayCommon(time: Int, offset: Int) -> (Int) {
+//		
+//		let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
+//
+//		var line = 0
+//		var tStatesThroughLine = 0
+//		let DISPLAY_BORDER_WIDTH_COLS = 4
+//		let lineTime = 1776
+//		line = (time - lineTime) / tStatesPerLine
+//		tStatesThroughLine = time - lineTime + (tStatesLeftBorderWidth - DISPLAY_BORDER_WIDTH_COLS * 4)
+//		tStatesThroughLine %= tStatesPerLine
+//		
+//		if line < pixelTopBorderHeight || line >= pixelBottomBorderHeight + pixelScreenHeight {
+//			return 0
+//		}
+//		
+//		if tStatesThroughLine < pixelLeftBorderWidth - offset {
+//			return 0
+//		}
+//		
+//		if tStatesThroughLine >= pixelLeftBorderWidth + pixelScreenWidth - offset {
+//			return 0
+//		}
+//		let value = tStatesThroughLine % 8
+//		return contentionValue[value]
+//		
+//	}
+//	
+//	func portEarly(address: Word) {
+//		if address >= 16384 && address <= 32767 {
+//			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//		}
+//		core.tStates += 1
+//	}
+//	
+//	
+//	func portLate(address: Word) {
+//		
+//		// Port late
+//		if portFromULA(address) {
+//			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//			core.tStates += 2
+//		} else {
+//			if address >= 16384 && address <= 32767 {
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 1
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//				core.tStates += 1
+//				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
+//			} else {
+//				core.tStates += 2
+//			}
+//		}
+//	}
+//	
+//	func portFromULA(address: Word) -> (Bool) {
+//		return (address & 1 != 0)
+//	}
 	
 	// MARK: Contention table
 	
@@ -1060,21 +941,16 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		for i in 0 ..< tStatesPerFrame {
 			
-			let tState = i - ((tStatesTopBorder + tStatesVerticalBlank) - 1)
+			let tState = i - ((12544 + 1792) - 1)
 			
-			if tState >= 0 && tState < tStatesScreenHeight {
+			if tState >= 0 && tState < 43008 {
 				let perLine = tState % tStatesPerLine
-				if perLine < tStatesScreenWidth {
+				if perLine < 128 {
 					contentionTable[i] = contentionValue[perLine & 7]
 				}
 			}
 		}
 	}
-	
-
-	
-	
-	
 	
 }
 
@@ -1107,7 +983,6 @@ class ZXSpectrum48: ViewEventProtocol {
 //			}
 //		}
 //
-
 
 //		for i in 0 ..< (numberOfTstates << 1) {
 //

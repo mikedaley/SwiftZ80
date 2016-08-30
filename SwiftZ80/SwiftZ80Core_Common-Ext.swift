@@ -236,7 +236,7 @@ extension SwiftZ80Core {
         if value & 0x0f != 0x00 {
             halfcarry = 0x00
         }
-        
+	
         F = (F & FLAG_C) | overflow | halfcarry | SZ35Table[value]
     }
     

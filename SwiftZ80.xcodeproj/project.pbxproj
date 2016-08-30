@@ -27,6 +27,7 @@
 		9977DC021D4416B900EE72C3 /* MemoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9977DC001D4416B900EE72C3 /* MemoryViewController.swift */; };
 		9977DC031D4416B900EE72C3 /* MemoryViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9977DC011D4416B900EE72C3 /* MemoryViewController.xib */; };
 		ED1904CB1D732348008DB857 /* Overscan.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED1904CA1D732348008DB857 /* Overscan.sna */; };
+		ED37FCE81D75E9E800CD5735 /* cobra.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED37FCE71D75E9E800CD5735 /* cobra.sna */; };
 		ED4745CA1D6C5C4700EE9D7B /* zexall.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED4745C91D6C5C4700EE9D7B /* zexall.sna */; };
 		ED4BF3931D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */; };
 		ED4BF3951D524E2D003D1BDE /* String-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4BF3941D524E2D003D1BDE /* String-Extensions.swift */; };
@@ -88,6 +89,7 @@
 		9977DC001D4416B900EE72C3 /* MemoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryViewController.swift; sourceTree = "<group>"; };
 		9977DC011D4416B900EE72C3 /* MemoryViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MemoryViewController.xib; sourceTree = "<group>"; };
 		ED1904CA1D732348008DB857 /* Overscan.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = Overscan.sna; sourceTree = "<group>"; };
+		ED37FCE71D75E9E800CD5735 /* cobra.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = cobra.sna; sourceTree = "<group>"; };
 		ED4745C91D6C5C4700EE9D7B /* zexall.sna */ = {isa = PBXFileReference; lastKnownFileType = file; name = zexall.sna; path = ../../../../Downloads/zexall.sna; sourceTree = "<group>"; };
 		ED4BF3921D524BF1003D1BDE /* SwifZ80Core_Debug-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwifZ80Core_Debug-Ext.swift"; sourceTree = "<group>"; };
 		ED4BF3941D524E2D003D1BDE /* String-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String-Extensions.swift"; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 				ED71C6DD1D70B26000403EB6 /* timing.sna */,
 				ED71C6DF1D70B49100403EB6 /* minfo.sna */,
 				990448161D67B8B3004667A8 /* test1.sna */,
+				ED37FCE71D75E9E800CD5735 /* cobra.sna */,
 				990448171D67B8B3004667A8 /* wham.sna */,
 				9904480A1D67B6D1004667A8 /* manic.sna */,
 				990448081D67B614004667A8 /* test.sna */,
@@ -416,6 +419,7 @@
 				990448231D67B8B3004667A8 /* wham.sna in Resources */,
 				EDC1F0831D412C7A0026C2D2 /* MainMenu.xib in Resources */,
 				9904481D1D67B8B3004667A8 /* IR_Contention.sna in Resources */,
+				ED37FCE81D75E9E800CD5735 /* cobra.sna in Resources */,
 				990448221D67B8B3004667A8 /* test1.sna in Resources */,
 				990448001D5FDA5E004667A8 /* 48.ROM in Resources */,
 				990448201D67B8B3004667A8 /* shock.sna in Resources */,

@@ -33,8 +33,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		
         window.contentView?.wantsLayer = true
 		
-//		window.aspectRatio = CGSize(width: 19, height: 20)
-		
 		machine = ZXSpectrum48(emulationScreenView: emulationDisplayViewController.view)
 		
 		setupView()
@@ -71,7 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let views = ["emulationDisplayView" : emulationDisplayViewController.view]
 		
 		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 3.0, constant: 320.0)
-		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 3.0, constant: 304.0)
+		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 3.0, constant: 256.0)
 		
 		window.contentView!.addConstraint(windowWidthConstraint)
 		window.contentView!.addConstraint(windowHeightConstraint)
@@ -111,7 +109,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			context.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
 			
 			self.windowWidthConstraint.animator().constant = 320 * (CGFloat(sender.tag) / 2.0)
-			self.windowHeightConstraint.animator().constant = 304 * (CGFloat(sender.tag) / 2.0)
+			self.windowHeightConstraint.animator().constant = 256 * (CGFloat(sender.tag) / 2.0)
 			
 			}, completionHandler: nil)
 		
