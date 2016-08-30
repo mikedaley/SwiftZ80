@@ -86,11 +86,11 @@ class ZXSpectrum48: ViewEventProtocol {
     var pixelDisplayWidth: Int
     var pixelDisplayHeight: Int
     
-    var pixelBeamXPos: Int = 0
-    var pixelBeamYPos: Int = 0
+    var pixelBeamXPos = 0
+    var pixelBeamYPos = 0
 	
 
-    var borderColour: Int = (7 & 0x07) << 2
+    var borderColour: Int = (7 & 0x07)
     var imageRef: CGImageRef?
     
     var frameCounter: Int = 0
@@ -241,11 +241,10 @@ class ZXSpectrum48: ViewEventProtocol {
 		                         memoryContention: memoryContention)
 		
 		buildContentionTable()
-		buildtStateDisplayTable()
 		
 		loadROM()
 		
-		if let path = NSBundle.mainBundle().pathForResource("aquaplane", ofType: "sna") {
+		if let path = NSBundle.mainBundle().pathForResource("shock", ofType: "sna") {
 			loadSnapShot(path)
 		} else {
 			print("Could not find snapshot!!")
@@ -281,15 +280,14 @@ class ZXSpectrum48: ViewEventProtocol {
 	*/
     func step(inout mutableDisplayBuffer:UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) -> (Int) {
 		
-		let tStatesBeforeExecute = core.tStates
 		let cpuStates = core.execute()
 		
-		updateScreenFromTstate(tStatesBeforeExecute, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
+		updateScreenFromTstate(core.tStates, numberOfTstates: cpuStates, mutableDisplayBuffer: &mutableDisplayBuffer, memoryBuffer: memoryBuffer)
 		updateAudioWithTStates(cpuStates)
 
 		if core.tStates >= tStatesPerFrame {
-			self.core.requestInterrupt()
 			core.tStates -= tStatesPerFrame
+            self.core.requestInterrupt()
 			frameCounter += 1
         }
 		
@@ -329,74 +327,62 @@ class ZXSpectrum48: ViewEventProtocol {
 	
     // MARK: Screen routines
 	
-	func incBufferIndex() {
-		displayBufferIndex += 1
-		if displayBufferIndex >= pixelDisplayBufferLength {
-			displayBufferIndex = 0
-		}
-	}
-	
     func updateScreenFromTstate(tState: Int, numberOfTstates: Int, inout mutableDisplayBuffer: UnsafeMutableBufferPointer<PixelData>, memoryBuffer:UnsafeBufferPointer<Byte>) {
 		
 		// Having the palette here and using unsafe mutable pointers reduces CPU usage by around 7%!!!
-		let pall : [UInt8] = [
+		let pall : [PixelData] = [
             
-            // Normal colours
-            0x00, 0x00, 0x00, 0xff, // Black
-            0x00, 0x00, 0xc0, 0xff, // Blue
-			0xc0, 0x00, 0x00, 0xff,	// Red
-            0xc0, 0x00, 0xc0, 0xff, // Magenta
-            0x00, 0xc0, 0x00, 0xff, // Green
-            0x00, 0xc0, 0xc0, 0xff, // Cyan
-			0xc0, 0xc0, 0x00, 0xff, // Yellow
-            0xc0, 0xc0, 0xc0, 0xff, // White
-            
-            // Bright colours
-			0x00, 0x00, 0x00, 0xff, // Black
-			0x00, 0x00, 0xff, 0xff, // Blue
-			0xff, 0x00, 0x00, 0xff,	// Red
-			0xff, 0x00, 0xff, 0xff, // Magenta
-			0x00, 0xff, 0x00, 0xff, // Green
-			0x00, 0xff, 0xff, 0xff, // Cyan
-			0xff, 0xff, 0x00, 0xff, // Yellow
-			0xff, 0xff, 0xff, 0xff, // White
+            PixelData(r: 0, g: 0, b: 0, a: 255),
+            PixelData(r: 0, g: 0, b: 204, a: 255),
+            PixelData(r: 204, g: 0, b: 0, a: 255),
+            PixelData(r: 204, g: 0, b: 204, a: 255),
+            PixelData(r: 0, g: 204, b: 0, a: 255),
+            PixelData(r: 0, g: 204, b: 204, a: 255),
+            PixelData(r: 204, g: 204, b: 0, a: 255),
+            PixelData(r: 204, g: 204, b: 204, a: 255),
+
+            PixelData(r: 0, g: 0, b: 0, a: 255),
+            PixelData(r: 0, g: 0, b: 255, a: 255),
+            PixelData(r: 255, g: 0, b: 0, a: 255),
+            PixelData(r: 255, g: 0, b: 255, a: 255),
+            PixelData(r: 0, g: 255, b: 0, a: 255),
+            PixelData(r: 0, g: 255, b: 255, a: 255),
+            PixelData(r: 255, g: 255, b: 0, a: 255),
+            PixelData(r: 255, g: 255, b: 255, a: 255),
         ]
 		
-		for i in 0 ..< (numberOfTstates << 1) {
+		for _ in 0 ..< (numberOfTstates << 1) {
 
-			let x: Int = pixelBeamXPos
-			let y: Int = pixelBeamYPos - pixelLinesVerticalBlank
-
-			let displayBufferIndex = (y * (32 + 256 + 32)) + x
+            let VBeamStart = 8 + (56 - 32)
+            let VBeamStop = 8 + 56 + 192 + 32
+            
+			var x = pixelBeamXPos + 32
+			var y = pixelBeamYPos - VBeamStart
+            
+            if x >= 448 {
+                x -= 448
+                y += 1
+            }
 
 			let c1 = x < (32 + 256 + 32)
-			let c2 = y < (32 + 192 + 32)
+			let c2 = y < (VBeamStop - VBeamStart)
 			let c3 = y >= 0
 
 			if c3 && c2 && c1 {
 
-				if y < 32 || y >= (192 + 32) {
-	//						print("Top/Bottom Border: \(tState + i)")
+				if y < 32 || y >= (192 + 32) { // Draw top or bottom border
 
-					// Draw top or bottom border
-					mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-					mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-					mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-					mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+                    let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[borderColour] }
+                    mutableDisplayBuffer[ y * (32 + 256 + 32) + x ] = colour
 
 				} else {
 
-					if x < 32 || x >= (256 + 32) {
-	//							print("Left/Right Border: \(tState + i)")
-
-						// Draw left and right border
-						mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour] }
-						mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 1] }
-						mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 2] }
-						mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[borderColour + 3] }
+                    if x < 32 || x >= (32 + 256) { // Draw left and right border
+                        
+                        let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[borderColour] }
+                        mutableDisplayBuffer[ y * (32 + 256 + 32) + x ] = colour
 
 					} else { // Must be on the screen so draw that
-	//							print("Display: \(tState + i)")
 
 						let px = x - 32
 						let py = y - 32
@@ -404,39 +390,33 @@ class ZXSpectrum48: ViewEventProtocol {
 						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
 						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
 
-						let pixelByte = memoryBuffer[Int(pixelAddress)]
-						let attributeByte = memoryBuffer[Int(attributeAddress)]
+						let pixelByte = memory[pixelAddress]
+						let attributeByte = memory[attributeAddress]
 
-						var paper: Int = ((Int(attributeByte) & 0x78) >> 1)
-						var ink: Int = ((Int(attributeByte) & 0x07) << 2) | ((Int(attributeByte) & 0x40) >> 1)
+                        var ink = Int((attributeByte & 0x07) + ((attributeByte & 0x40) >> 3))
+                        var paper = Int(((attributeByte >> 3) & 0x07) + ((attributeByte & 0x40) >> 3))
 
 						if (frameCounter & 16) != 0 && (attributeByte & 0x80) != 0 {
-							let t = ink;
-							ink = paper;
-							paper = t;
+							let tempInk = ink;
+							ink = paper
+							paper = tempInk;
 						}
 
 						if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
 
-							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink] }
-							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 1] }
-							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 2] }
-							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[ink + 3] }
+                            let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[ink] }
+                            mutableDisplayBuffer[ y * (32 + 256 + 32) + x ] = colour
 
 						} else {
 
-							mutableDisplayBuffer[ displayBufferIndex ].r = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper] }
-							mutableDisplayBuffer[ displayBufferIndex ].g = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 1] }
-							mutableDisplayBuffer[ displayBufferIndex ].b = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 2] }
-							mutableDisplayBuffer[ displayBufferIndex ].a = pall.withUnsafeBufferPointer { p -> UInt8 in return p[paper + 3] }
+                            let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[paper] }
+                            mutableDisplayBuffer[ y * (32 + 256 + 32) + x ] = colour
 
 						}
 					}
 
 				}
 
-			} else {
-	//					print("Retrace: \(tState + i)")
 			}
 
 			pixelBeamXPos += 1
@@ -454,88 +434,6 @@ class ZXSpectrum48: ViewEventProtocol {
 		}
 		
     }
-	
-	func buildtStateDisplayTable() {
-		
-		var tState = 0
-
-		for _ in 0 ..< 1 {
-			for _ in 0 ..< tStatesPerLine - tStatesLeftBorderWidth {
-				displayTStateTable[tState] = DisplayType.Retrace.rawValue
-				tState += 1
-			}
-		}
-
-		for _ in 0 ..< 7 {
-			for _ in 0 ..< tStatesPerLine {
-				displayTStateTable[tState] = DisplayType.Retrace.rawValue
-				tState += 1
-			}
-		}
-
-		// Top Border
-		for _ in 0 ..< pixelTopBorderHeight {
-			for _ in 0 ..< tStatesPerLine - tStatesHorizontalFlyback {
-				displayTStateTable[tState] = DisplayType.Border.rawValue
-				tState += 1
-			}
-
-			// Flyback
-			for _ in 0 ..< tStatesHorizontalFlyback {
-				displayTStateTable[tState] = DisplayType.Retrace.rawValue
-				tState += 1
-			}
-		}
-		
-		// Left border, pixel display, right border
-		for _ in 0 ..< pixelScreenHeight {
-			
-			// Left Border (2 pixels per tState)
-			for _ in 0 ..< tStatesLeftBorderWidth {
-				displayTStateTable[tState] = DisplayType.Border.rawValue
-				tState += 1
-			}
-
-			// Pixel display
-			for _ in 0 ..< tStatesScreenWidth {
-				displayTStateTable[tState] = DisplayType.Display.rawValue
-				tState += 1
-			}
-
-			// Right Border
-			for _ in 0 ..< tStatesRightBorderWidth {
-				displayTStateTable[tState] = DisplayType.Border.rawValue
-				tState += 1
-			}
-
-			// Flyback
-			for _ in 0 ..< tStatesHorizontalFlyback {
-				displayTStateTable[tState] = DisplayType.Retrace.rawValue
-				tState += 1
-			}
-
-		}
-		
-		// Bottom border
-		for _ in 0 ..< pixelBottomBorderHeight {
-			for _ in 0 ..< tStatesPerLine - tStatesHorizontalFlyback {
-				displayTStateTable[tState] = DisplayType.Border.rawValue
-				tState += 1
-			}
-
-			// Flyback
-			for _ in 0 ..< tStatesHorizontalFlyback {
-				displayTStateTable[tState] = DisplayType.Retrace.rawValue
-				tState += 1
-			}
-		}
-
-		for _ in 0 ..< tStatesLeftBorderWidth {
-			displayTStateTable[tState] = DisplayType.Retrace.rawValue
-			tState += 1
-		}
-
-	}
 	
     func generateScreenImage() {
         
@@ -853,7 +751,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		}
 		
 		if address & 255 == 0xfe {
-			borderColour = (Int(value) & 0x07) << 2
+			borderColour = (Int(value) & 0x07)
 			beeperOn = (value & 0x10) != 0 ? true : false
 		}
 
@@ -870,8 +768,37 @@ class ZXSpectrum48: ViewEventProtocol {
 
 	}
 
+    // MARK: Contention table
+    
+    /**
+     * Build a table of that holds the number of tStates the CPU should be delayed based on specific tState values. This is
+     * used to then add contention to memory and IO access
+     */
+    func buildContentionTable() {
+        
+        let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
+        
+        for i in 0 ..< tStatesPerFrame {
+            
+            let tState = i - ((12544 + 1792) - 1)
+            
+            if tState >= 0 && tState < 43008 {
+                let perLine = tState % tStatesPerLine
+                if perLine < 128 {
+                    contentionTable[i] = contentionValue[perLine & 7]
+                }
+            }
+        }
+    }
+    
+}
+
+
+
+
+
 //	func contendDelayCommon(time: Int, offset: Int) -> (Int) {
-//		
+//
 //		let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
 //
 //		var line = 0
@@ -881,33 +808,33 @@ class ZXSpectrum48: ViewEventProtocol {
 //		line = (time - lineTime) / tStatesPerLine
 //		tStatesThroughLine = time - lineTime + (tStatesLeftBorderWidth - DISPLAY_BORDER_WIDTH_COLS * 4)
 //		tStatesThroughLine %= tStatesPerLine
-//		
+//
 //		if line < pixelTopBorderHeight || line >= pixelBottomBorderHeight + pixelScreenHeight {
 //			return 0
 //		}
-//		
+//
 //		if tStatesThroughLine < pixelLeftBorderWidth - offset {
 //			return 0
 //		}
-//		
+//
 //		if tStatesThroughLine >= pixelLeftBorderWidth + pixelScreenWidth - offset {
 //			return 0
 //		}
 //		let value = tStatesThroughLine % 8
 //		return contentionValue[value]
-//		
+//
 //	}
-//	
+//
 //	func portEarly(address: Word) {
 //		if address >= 16384 && address <= 32767 {
 //			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
 //		}
 //		core.tStates += 1
 //	}
-//	
-//	
+//
+//
 //	func portLate(address: Word) {
-//		
+//
 //		// Port late
 //		if portFromULA(address) {
 //			core.tStates += contentionTable[core.tStates % tStatesPerFrame]
@@ -924,37 +851,10 @@ class ZXSpectrum48: ViewEventProtocol {
 //			}
 //		}
 //	}
-//	
+//
 //	func portFromULA(address: Word) -> (Bool) {
 //		return (address & 1 != 0)
 //	}
-	
-	// MARK: Contention table
-	
-	/**
-	* Build a table of that holds the number of tStates the CPU should be delayed based on specific tState values. This is
-	* used to then add contention to memory and IO access
-	*/
-	func buildContentionTable() {
-		
-		let contentionValue = [6, 5, 4, 3, 2, 1, 0, 0]
-		
-		for i in 0 ..< tStatesPerFrame {
-			
-			let tState = i - ((12544 + 1792) - 1)
-			
-			if tState >= 0 && tState < 43008 {
-				let perLine = tState % tStatesPerLine
-				if perLine < 128 {
-					contentionTable[i] = contentionValue[perLine & 7]
-				}
-			}
-		}
-	}
-	
-}
-
-
 //
 //
 //			if address & 1 == 0 {
