@@ -67,8 +67,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var constraints = [NSLayoutConstraint]()
         let views = ["emulationDisplayView" : emulationDisplayViewController.view]
 		
-		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 1.0, constant: 320.0)
-		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 1.0, constant: 256.0)
+		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 1.0, constant: 352.0)
+		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 1.0, constant: 304.0)
 		
 		window.contentView!.addConstraint(windowWidthConstraint)
 		window.contentView!.addConstraint(windowHeightConstraint)
@@ -107,8 +107,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			context.duration = 0.2
 			context.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
 			
-			self.windowWidthConstraint.animator().constant = 320 * (CGFloat(sender.tag) / 2.0)
-			self.windowHeightConstraint.animator().constant = 256 * (CGFloat(sender.tag) / 2.0)
+			self.windowWidthConstraint.animator().constant = 352 * (CGFloat(sender.tag) / 2.0)
+			self.windowHeightConstraint.animator().constant = 304 * (CGFloat(sender.tag) / 2.0)
 			
 			}, completionHandler: nil)
 		

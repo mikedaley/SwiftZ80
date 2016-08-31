@@ -218,10 +218,10 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		tStatesVerticalBlank = pixelLinesVerticalBlank * tStatesPerLine
 		
-		pixelDisplayWidth = pixelLeftBorderWidth + pixelScreenWidth + pixelRightBorderWidth
-		pixelDisplayHeight = pixelTopBorderHeight + pixelScreenHeight + pixelBottomBorderHeight
+		pixelDisplayWidth = 32 + 256 + 64
+		pixelDisplayHeight = 56 + 192 + 56
 		
-		pixelDisplayBufferLength = (32 + 256 + 32) * (32 + 192 + 32)
+		pixelDisplayBufferLength = (32 + 256 + 64) * (56 + 192 + 56)
 		
 		displayBuffer = [PixelData](count: pixelDisplayBufferLength, repeatedValue: PixelData(r: 0xfe, g: 0xfe, b: 0xfe, a: 0xff))
 		
@@ -303,7 +303,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		updateAudioWithTStates(cpuStates)
 
 		if core.tStates >= tStatesPerFrame {
-			core.tStates -= tStatesPerFrame
+			core.tStates = 0
 			pixelBeamXPos = 32
             self.core.requestInterrupt()
 			frameCounter += 1
@@ -354,22 +354,19 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		for _ in 0 ..< (numberOfTstates << 1) {
 
-            let VBeamStart = 8 + (56 - 32)
-            let VBeamStop = 8 + 56 + 192 + 32
-            
 			var x = pixelBeamXPos + 32
-			var y = pixelBeamYPos - VBeamStart
+			var y = pixelBeamYPos - 8
             
             if x >= 448 {
                 x -= 448
                 y += 1
             }
 
-			let displayBufferIndex = y * (32 + 256 + 32) + x
+			let displayBufferIndex = y * (32 + 256 + 64) + x
 			
-			if y >= 0 && y < (VBeamStop - VBeamStart) && x < (32 + 256 + 32) {
+			if y >= 0 && y < 304 && x < (32 + 256 + 64) {
 
-				if y < 32 || y >= (192 + 32) { // Draw top or bottom border
+				if y < 56 || y >= (192 + 56) { // Draw top or bottom border
 
                     let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[borderColour] }
                     displayBuffer[ displayBufferIndex ] = colour
@@ -384,7 +381,7 @@ class ZXSpectrum48: ViewEventProtocol {
 					} else { // Must be on the bitmap display so draw that
 
 						let px = x - 32
-						let py = y - 32
+						let py = y - 56
 
 						let pixelAddress = 16384 + (px >> 3) + ((py & 0x07) << 8) + ((py & 0x38) << 2) + ((py & 0xc0) << 5)
 						let attributeAddress = 16384 + (32 * 192) + (px >> 3) + ((py >> 3) << 5)
@@ -809,7 +806,7 @@ class ZXSpectrum48: ViewEventProtocol {
             
             if tState >= 0 && tState < 43008 {
                 let perLine = tState % tStatesPerLine
-                if perLine <= 128 {
+                if perLine < 128 {
                     contentionTable[i] = contentionValue[perLine & 7]
                 }
             }

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SwiftZ80/ZXSpectrum48.swift"
-            timestampString = "494351510.564104"
+            timestampString = "494359287.239678"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "787"
-            endingLineNumber = "787"
+            startingLineNumber = "814"
+            endingLineNumber = "814"
             landmarkName = "buildContentionTable()"
             landmarkType = "5">
          </BreakpointContent>
