@@ -94,9 +94,30 @@ class ZXSpectrum48: ViewEventProtocol {
     var imageRef: CGImageRef?
     
     var frameCounter: Int = 0
-    
+	
+	let pall : [PixelData] = [
+		
+		PixelData(r: 0, g: 0, b: 0, a: 255),
+		PixelData(r: 0, g: 0, b: 204, a: 255),
+		PixelData(r: 204, g: 0, b: 0, a: 255),
+		PixelData(r: 204, g: 0, b: 204, a: 255),
+		PixelData(r: 0, g: 204, b: 0, a: 255),
+		PixelData(r: 0, g: 204, b: 204, a: 255),
+		PixelData(r: 204, g: 204, b: 0, a: 255),
+		PixelData(r: 204, g: 204, b: 204, a: 255),
+		
+		PixelData(r: 0, g: 0, b: 0, a: 255),
+		PixelData(r: 0, g: 0, b: 255, a: 255),
+		PixelData(r: 255, g: 0, b: 0, a: 255),
+		PixelData(r: 255, g: 0, b: 255, a: 255),
+		PixelData(r: 0, g: 255, b: 0, a: 255),
+		PixelData(r: 0, g: 255, b: 255, a: 255),
+		PixelData(r: 255, g: 255, b: 0, a: 255),
+		PixelData(r: 255, g: 255, b: 255, a: 255),
+		]
+	
     // MARK: Screen image details
-    
+	
     let bitsPerPixel = 32       // RGBA - bites
     let bytesPerPixel = 4       // RGBA - bytes
     let bitsPerComponent = 8	// 32bit
@@ -106,7 +127,7 @@ class ZXSpectrum48: ViewEventProtocol {
     
     let colourSpace = CGColorSpaceCreateDeviceRGB()!
     let bitmapInfo: CGBitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedLast.rawValue)
-    var displayBuffer: [PixelData]!
+    var displayBuffer: [PixelData]
 	var emulationDisplayView: NSView!
 	var displayBufferIndex = 0
 	
@@ -244,7 +265,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		loadROM()
 		
-		if let path = NSBundle.mainBundle().pathForResource("knightlore", ofType: "sna") {
+		if let path = NSBundle.mainBundle().pathForResource("shock", ofType: "sna") {
 			loadSnapShot(path)
 		} else {
 			print("Could not find snapshot!!")
@@ -261,7 +282,7 @@ class ZXSpectrum48: ViewEventProtocol {
     }
 
 	/**
-	* Run an entire frame of tStates
+	* Run an entire frame which consists of 69888 tStates
 	*/
 	func runFrame() {
 		
@@ -278,11 +299,12 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		let cpuStates = core.execute()
 		
-		updateScreenFromTstate(core.tStates, numberOfTstates: cpuStates)
+		updateScreenWithTStates(cpuStates)
 		updateAudioWithTStates(cpuStates)
 
 		if core.tStates >= tStatesPerFrame {
 			core.tStates -= tStatesPerFrame
+			pixelBeamXPos = 32
             self.core.requestInterrupt()
 			frameCounter += 1
         }
@@ -322,30 +344,13 @@ class ZXSpectrum48: ViewEventProtocol {
 	}
 	
     // MARK: Screen routines
-	
-    func updateScreenFromTstate(tState: Int, numberOfTstates: Int) {
-		
-		// Having the palette here and using unsafe mutable pointers reduces CPU usage by around 7%!!!
-		let pall : [PixelData] = [
-            
-            PixelData(r: 0, g: 0, b: 0, a: 255),
-            PixelData(r: 0, g: 0, b: 204, a: 255),
-            PixelData(r: 204, g: 0, b: 0, a: 255),
-            PixelData(r: 204, g: 0, b: 204, a: 255),
-            PixelData(r: 0, g: 204, b: 0, a: 255),
-            PixelData(r: 0, g: 204, b: 204, a: 255),
-            PixelData(r: 204, g: 204, b: 0, a: 255),
-            PixelData(r: 204, g: 204, b: 204, a: 255),
 
-            PixelData(r: 0, g: 0, b: 0, a: 255),
-            PixelData(r: 0, g: 0, b: 255, a: 255),
-            PixelData(r: 255, g: 0, b: 0, a: 255),
-            PixelData(r: 255, g: 0, b: 255, a: 255),
-            PixelData(r: 0, g: 255, b: 0, a: 255),
-            PixelData(r: 0, g: 255, b: 255, a: 255),
-            PixelData(r: 255, g: 255, b: 0, a: 255),
-            PixelData(r: 255, g: 255, b: 255, a: 255),
-        ]
+	/**
+	* Updat the screens image buffer based on the number of tStates passed in. pixelBeamXPos and pixelBeamYPos are used to 
+	* track the physical location of the beam on the display so that we know where in the image we need to draw pixels
+	* based on the tStates that have passed in the current frame. Two pixels are drawn for each tState.
+	*/
+    func updateScreenWithTStates(numberOfTstates: Int) {
 		
 		for _ in 0 ..< (numberOfTstates << 1) {
 
@@ -360,25 +365,23 @@ class ZXSpectrum48: ViewEventProtocol {
                 y += 1
             }
 
-			let c1 = x < (32 + 256 + 32)
-			let c2 = y < (VBeamStop - VBeamStart)
-			let c3 = y >= 0
-
-			if c3 && c2 && c1 {
+			let displayBufferIndex = y * (32 + 256 + 32) + x
+			
+			if y >= 0 && y < (VBeamStop - VBeamStart) && x < (32 + 256 + 32) {
 
 				if y < 32 || y >= (192 + 32) { // Draw top or bottom border
 
                     let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[borderColour] }
-                    displayBuffer[ y * (32 + 256 + 32) + x ] = colour
+                    displayBuffer[ displayBufferIndex ] = colour
 
 				} else {
 
                     if x < 32 || x >= (32 + 256) { // Draw left and right border
                         
                         let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[borderColour] }
-                        displayBuffer[ y * (32 + 256 + 32) + x ] = colour
+                        displayBuffer[ displayBufferIndex ] = colour
 
-					} else { // Must be on the screen so draw that
+					} else { // Must be on the bitmap display so draw that
 
 						let px = x - 32
 						let py = y - 32
@@ -401,18 +404,16 @@ class ZXSpectrum48: ViewEventProtocol {
 						if Int(pixelByte) & (0x80 >> (px & 7)) != 0 {
 
                             let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[ink] }
-                            displayBuffer[ y * (32 + 256 + 32) + x ] = colour
+                            displayBuffer[ displayBufferIndex ] = colour
 
 						} else {
 
                             let colour = pall.withUnsafeBufferPointer { p -> PixelData in return p[paper] }
-                            displayBuffer[ y * (32 + 256 + 32) + x ] = colour
+                            displayBuffer[ displayBufferIndex ] = colour
 
 						}
 					}
-
 				}
-
 			}
 
 			pixelBeamXPos += 1
@@ -431,9 +432,13 @@ class ZXSpectrum48: ViewEventProtocol {
 		
     }
 	
+	/**
+	* Using the display buffer data, create a CGImageRef that will then be used as the content image for the emulations
+	* screen view. This is called after each frame has finished which is 50 times per second.
+	*/
     func generateScreenImage() {
         
-        let providerData = NSData(bytes: &displayBuffer!, length: displayBuffer!.count * sizeof(PixelData))
+        let providerData = NSData(bytes: &displayBuffer, length: displayBuffer.count * sizeof(PixelData))
         let dataProviderRef = CGDataProviderCreateWithCFData(providerData)
 
         imageRef = CGImageCreate(
@@ -636,7 +641,7 @@ class ZXSpectrum48: ViewEventProtocol {
 			core.SPl = fileBytes[23]
 			core.SPh = fileBytes[24]
 			core.IM = fileBytes[25]
-			borderColour = Int(((fileBytes[26]) & 0x07) << 2)
+			borderColour = Int(((fileBytes[26]) & 0x07))
 			
 			core.PCl = memory[Int(core.SP)]
 			core.PCh = memory[Int(core.SP + 1)]
@@ -645,7 +650,7 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 	}
 	
-	// MARK: Memory IO routines
+	// MARK: Memory & IO routines
 	
 	/**
 	* Read a byte from the address provided in main memory
@@ -674,6 +679,18 @@ class ZXSpectrum48: ViewEventProtocol {
 	*/
 	func ioRead(address: Word) -> Byte {
 
+		// Calculate the necessary contention based on the Port number being accessed and if the port belongs to the ULA.
+		// All non-even port numbers below to the ULA. N:x means no contention to be added and just advance the tStates.
+		// C:x means that contention should be calculated based on the current tState value and then x tStates are to be
+		// added to the current tState count
+		//
+		// in 40 - 7F?| Low bit | Contention pattern
+		//------------+---------+-------------------
+		//		No    |  Reset  | N:1, C:3
+		//		No    |   Set   | N:4
+		//		Yes   |  Reset  | C:1, C:3
+		//		Yes   |   Set   | C:1, C:1, C:1, C:1
+		
 		if address >= 16384 && address <= 32767 {
 			if address & 1 == 0 {
 				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
@@ -719,6 +736,18 @@ class ZXSpectrum48: ViewEventProtocol {
 	*/
 	func ioWrite(address: Word, value: Byte) {
 
+		// Calculate the necessary contention based on the Port number being accessed and if the port belongs to the ULA.
+		// All non-even port numbers below to the ULA. N:x means no contention to be added and just advance the tStates.
+		// C:x means that contention should be calculated based on the current tState value and then x tStates are to be
+		// added to the current tState count
+		//
+		// in 40 - 7F?| Low bit | Contention pattern
+		//------------+---------+-------------------
+		//		No    |  Reset  | N:1, C:3
+		//		No    |   Set   | N:4
+		//		Yes   |  Reset  | C:1, C:3
+		//		Yes   |   Set   | C:1, C:1, C:1, C:1
+		
 		if address >= 16384 && address <= 32767 {
 			if address & 1 == 0 {
 				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
@@ -735,7 +764,7 @@ class ZXSpectrum48: ViewEventProtocol {
 				core.tStates += contentionTable[core.tStates % tStatesPerFrame]
 				core.tStates += 1
 			}
-		} else {
+		} else { // Port not between 0x4000 and 0x7fff
 			
 			if address & 1 == 0 {
 				core.tStates += 1
@@ -780,7 +809,7 @@ class ZXSpectrum48: ViewEventProtocol {
             
             if tState >= 0 && tState < 43008 {
                 let perLine = tState % tStatesPerLine
-                if perLine < 128 {
+                if perLine <= 128 {
                     contentionTable[i] = contentionValue[perLine & 7]
                 }
             }

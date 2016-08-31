@@ -56,7 +56,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	func application(sender: NSApplication, openFiles filenames: [String]) {
 		machine.loadSnapShotWithPath(filenames[0])
 	}
-	
 
 	// MARK: User interface
 	
@@ -68,8 +67,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var constraints = [NSLayoutConstraint]()
         let views = ["emulationDisplayView" : emulationDisplayViewController.view]
 		
-		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 3.0, constant: 320.0)
-		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 3.0, constant: 256.0)
+		windowWidthConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .Width, multiplier: 1.0, constant: 320.0)
+		windowHeightConstraint = NSLayoutConstraint(item: emulationDisplayViewController.view, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .Height, multiplier: 1.0, constant: 256.0)
 		
 		window.contentView!.addConstraint(windowWidthConstraint)
 		window.contentView!.addConstraint(windowHeightConstraint)
@@ -114,7 +113,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			}, completionHandler: nil)
 		
 	}
-	
+
+	@IBAction func openDocument(sender: AnyObject) {
+		let openPanel = NSOpenPanel.init()
+		openPanel.canChooseDirectories = false
+		openPanel.allowsMultipleSelection = false
+		openPanel.allowedFileTypes = ["sna"]
+		if openPanel.runModal() == NSModalResponseOK {
+			machine.loadSnapShotWithPath(openPanel.URLs[0].path!)
+		}
+	}
 
 }
 

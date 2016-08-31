@@ -58,6 +58,8 @@
 		ED778B721D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift */; };
 		ED778B741D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B731D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift */; };
 		ED778B771D50F9F500727B31 /* Array-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED778B761D50F9F500727B31 /* Array-Extensions.swift */; };
+		ED9753EF1D76FF650055557E /* boz1.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED9753EE1D76FF650055557E /* boz1.sna */; };
+		ED9753F11D77426E0055557E /* borderTrix.sna in Resources */ = {isa = PBXBuildFile; fileRef = ED9753F01D77426E0055557E /* borderTrix.sna */; };
 		EDAD5B991D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAD5B981D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift */; };
 		EDB32B211D70727F0045775E /* SwiftZ80Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB32B201D70727F0045775E /* SwiftZ80Application.swift */; };
 		EDC1F07E1D412C7A0026C2D2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1F07D1D412C7A0026C2D2 /* AppDelegate.swift */; };
@@ -121,6 +123,8 @@
 		ED778B711D50B9BF00727B31 /* SwiftZ80Core-DDFD-IX-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core-DDFD-IX-Ext.swift"; sourceTree = "<group>"; };
 		ED778B731D50B9CE00727B31 /* SwiftZ80Core-DDFDCB-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core-DDFDCB-Ext.swift"; sourceTree = "<group>"; };
 		ED778B761D50F9F500727B31 /* Array-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array-Extensions.swift"; sourceTree = "<group>"; };
+		ED9753EE1D76FF650055557E /* boz1.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = boz1.sna; sourceTree = "<group>"; };
+		ED9753F01D77426E0055557E /* borderTrix.sna */ = {isa = PBXFileReference; lastKnownFileType = file; path = borderTrix.sna; sourceTree = "<group>"; };
 		EDAD5B971D534BFD00B83148 /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
 		EDAD5B981D5385D200B83148 /* SwiftZ80Core_Common-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftZ80Core_Common-Ext.swift"; sourceTree = "<group>"; };
 		EDB32B201D70727F0045775E /* SwiftZ80Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftZ80Application.swift; sourceTree = "<group>"; };
@@ -160,6 +164,8 @@
 				990448121D67B8B3004667A8 /* paddle.sna */,
 				990448131D67B8B3004667A8 /* RiverRaidTechDemo.sna */,
 				ED71C6E71D71C67100403EB6 /* Out48k.sna */,
+				ED9753EE1D76FF650055557E /* boz1.sna */,
+				ED9753F01D77426E0055557E /* borderTrix.sna */,
 				ED1904CA1D732348008DB857 /* Overscan.sna */,
 				990448141D67B8B3004667A8 /* shock.sna */,
 				ED71C6E51D70D98000403EB6 /* timings.sna */,
@@ -414,6 +420,7 @@
 				9904481B1D67B8B3004667A8 /* elite.sna in Resources */,
 				ED1904CB1D732348008DB857 /* Overscan.sna in Resources */,
 				ED71C6E21D70BE8400403EB6 /* border.sna in Resources */,
+				ED9753F11D77426E0055557E /* borderTrix.sna in Resources */,
 				9904481A1D67B8B3004667A8 /* DIZZY.SNA in Resources */,
 				9904481C1D67B8B3004667A8 /* fairlight.sna in Resources */,
 				ED71C6E61D70D98000403EB6 /* timings.sna in Resources */,
@@ -428,6 +435,7 @@
 				990448001D5FDA5E004667A8 /* 48.ROM in Resources */,
 				99FBF3591D763246006522E3 /* knightlore.sna in Resources */,
 				990448201D67B8B3004667A8 /* shock.sna in Resources */,
+				ED9753EF1D76FF650055557E /* boz1.sna in Resources */,
 				9904481F1D67B8B3004667A8 /* RiverRaidTechDemo.sna in Resources */,
 				990448181D67B8B3004667A8 /* agentx.sna in Resources */,
 				ED71C6E81D71C67100403EB6 /* Out48k.sna in Resources */,

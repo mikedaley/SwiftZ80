@@ -263,11 +263,18 @@ extension SwiftZ80Core {
             coreMemoryContention(HL, tStates: 1)
             HL = HL &+ 1
             BC = BC &- 1
-            F = (F & FLAG_C) | (BC != 0x00 ? (FLAG_V | FLAG_N) : FLAG_N) | halfcarrySubTable[lookup] | (temp != 0x00 ? 0 : FLAG_Z) | (temp & FLAG_S)
-            if F & FLAG_H == FLAG_H {
+            F |= (F & FLAG_C)
+			F |= (BC != 0x00 ? (FLAG_V | FLAG_N) : FLAG_N)
+			F |= halfcarrySubTable[lookup]
+			F |= (temp != 0x00 ? 0 : FLAG_Z)
+			F |= (temp & FLAG_S)
+			
+			if F & FLAG_H == FLAG_H {
                 temp = temp &- 1
             }
-            F |= (temp & FLAG_3) | ((temp & 0x02) != 0x00 ? FLAG_5 : 0)
+			
+            F |= (temp & FLAG_3)
+			F |= ((temp & 0x02) != 0x00 ? FLAG_5 : 0)
             break
         case 0xa2:		/* INI */
             var temp1: Byte
