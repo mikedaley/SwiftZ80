@@ -428,40 +428,45 @@ class SwiftZ80Core
 		
 		let tStatesBefore = tStates
 		
-		if interruptRequested && eiHandled == false && IFF1 != 0 {
-		
-			if halted == true {
-				halted = false
-				PC = PC &+ 1
-			}
+		if interruptRequested {
 			
-			IFF1 = 0
-			IFF2 = 0
-			interruptRequested = false
-
-			// Increment R leaving the MSB alone
-			R = (R & 0x80) | ((R &+ 1) & 0x7f)
-
-			switch IM {
-                
-			case 0: fallthrough
-			case 1:
-				PUSH16(PCl, regH: PCh)
-				PC = 0x0038
-				tStates += 7
-				break
+			if eiHandled == false && IFF1 != 0 {
+		
+				if halted == true {
+					halted = false
+					PC = PC &+ 1
+				}
 				
-			case 2:
-				PUSH16(PCl, regH: PCh)
-                let address: Word = Word(I) << 8 | 0xff
-				PCl = coreMemoryRead(address, tStates: 3)
-				PCh = coreMemoryRead(address + 1, tStates: 3)
-				tStates += 7
-				
-			default:
-                print("Unknown interrupt type")
-				break
+				IFF1 = 0
+				IFF2 = 0
+				interruptRequested = false
+
+				// Increment R leaving the MSB alone
+				R = (R & 0x80) | ((R &+ 1) & 0x7f)
+
+				switch IM {
+					
+				case 0: fallthrough
+				case 1:
+					PUSH16(PCl, regH: PCh)
+					PC = 0x0038
+					tStates += 7
+					break
+					
+				case 2:
+					PUSH16(PCl, regH: PCh)
+					let address: Word = Word(I) << 8 | 0xff
+					PCl = coreMemoryRead(address, tStates: 3)
+					PCh = coreMemoryRead(address + 1, tStates: 3)
+					tStates += 7
+					
+				default:
+					print("Unknown interrupt type")
+					break
+				}
 			}
+		} else if tStates > 32 {
+			interruptRequested = false
 		}
 
         eiHandled = false
@@ -498,11 +503,12 @@ class SwiftZ80Core
 	}
 
 	// MARK: Internal memory and contention functions
-	// These are called by the core so that the internal tstate count can be adjusted based on memory reads, writes and contention.
+	// These are called by the core so that the internal tState count can be adjusted based on memory reads, writes and contention.
 	
 	/**
 	* Update the cores tState count based on the tStates passed in. The tState value will be 4 for an opcode read and 3
-	* for a data read. Once 
+	* for a data read. First action is to call out to the external contention routine so that machine specific contention
+	* can be applied to the core
 	*/
 	func coreMemoryRead(address: Word, tStates: Int) -> (Byte) {
 		
@@ -532,14 +538,14 @@ class SwiftZ80Core
 	}
 
 	/**
-	* Core IO Read
+	* Core IO Read. All contention is handled by the external routine as this is machine implementation specific
 	*/
 	func coreIORead(address: Word) -> (Byte) {
 		return externalIORead(address)
 	}
 
 	/**
-	* Core IO Read
+	* Core IO Write. All contention is handled by the external routine as this is machine implementation specific
 	*/
 	func coreIOWrite(address: Word, value: Byte) {
 		externalIOWrite(address, value: value)

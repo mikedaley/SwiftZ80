@@ -589,20 +589,8 @@ extension SwiftZ80Core {
             coreMemoryContention(IR, tStates: 1)
             SP = IX
             break
-        default:		/* Instruction did not involve H or L, so backtrack
-             one instruction and parse again */
-//                        PC = PC &- 1
-//                        R -= 1
-//                        let opcode2: Byte = opcode
-//                        lookupBaseOpcode(opcode2)
-            //            #ifdef HAVE_ENOUGH_MEMORY
-            //            goto end_opcode
-            //            #else			/* #ifdef HAVE_ENOUGH_MEMORY */
-            //            return 1
-            //            #endif			/* #ifdef HAVE_ENOUGH_MEMORY */
-//			print("IX")
-			print("DDFDIX \(opcode)")
-
+        default:
+			print("DDFDIX: \(opcode) missing opcode")
             break
         }
         

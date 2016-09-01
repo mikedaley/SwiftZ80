@@ -12,7 +12,7 @@
 * to access both the high and low byte of the word. It also includes the SP register as a word as its not possible to
 * access the high or low byte of that register individually
 */
-struct Z80Registers {
+class Z80Registers {
 	
 	// AF
 	var AF: Word = 0x00

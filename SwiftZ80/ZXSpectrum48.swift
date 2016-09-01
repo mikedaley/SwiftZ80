@@ -63,10 +63,10 @@ class ZXSpectrum48: ViewEventProtocol {
     
     let pixelLeftBorderWidth = 32
     let pixelScreenWidth = 256
-    let pixelRightBorderWidth = 32
-    let pixelTopBorderHeight = 32
+    let pixelRightBorderWidth = 64
+    let pixelTopBorderHeight = 56
     let pixelScreenHeight = 192
-    let pixelBottomBorderHeight = 32
+    let pixelBottomBorderHeight = 56
     let pixelLinesVerticalBlank = 8
 	let pixelHorizontalFlyback = 96
     
@@ -227,6 +227,12 @@ class ZXSpectrum48: ViewEventProtocol {
 		
 		emulationTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, emulationQueue)
 		
+		core = SwiftZ80Core.init(memoryRead: memoryRead,
+		                         memoryWrite: memoryWrite,
+		                         ioRead: ioRead,
+		                         ioWrite: ioWrite,
+		                         memoryContention: memoryContention)
+		
 		let FPS = 50.0
 		
 		dispatch_source_set_timer(emulationTimer, DISPATCH_TIME_NOW, UInt64(1.0 / FPS * Double(NSEC_PER_SEC)), 0)
@@ -254,13 +260,7 @@ class ZXSpectrum48: ViewEventProtocol {
 				self.emulationDisplayView.layer?.contents = self.imageRef
 			}
 		}
-		
-		core = SwiftZ80Core.init(memoryRead: memoryRead,
-		                         memoryWrite: memoryWrite,
-		                         ioRead: ioRead,
-		                         ioWrite: ioWrite,
-		                         memoryContention: memoryContention)
-		
+	
 		buildContentionTable()
 		
 		loadROM()
